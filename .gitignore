@@ -1,0 +1,9 @@
+# Zdjęcia uploadowane przez użytkowników
+assets/uploads/
+
+# Logi błędów
+*.log
+
+# System pliki
+.DS_Store
+Thumbs.db
