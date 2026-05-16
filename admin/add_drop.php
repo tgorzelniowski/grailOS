@@ -10,7 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $name      = trim($_POST['name'] ?? '');
     $brand     = trim($_POST['brand'] ?? '');
-    $drop_date = trim($_POST['drop_date'] ?? '');
+    $drop_date = str_replace('T', ' ', trim($_POST['drop_date'] ?? ''));
     $link      = trim($_POST['link'] ?? '');
     $image_url = null;
 
