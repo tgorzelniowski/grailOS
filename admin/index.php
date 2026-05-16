@@ -44,6 +44,11 @@ $totalUsers    = $pdo->query("SELECT COUNT(*) FROM users")->fetchColumn();
     <div class="admin-card-title">Katalog</div>
     <div class="admin-card-sub">Edytuj i usuwaj produkty</div>
   </a>
+  <a href="/grailos/admin/manage_drops.php" class="admin-card">
+    <div class="admin-card-icon">≡</div>
+    <div class="admin-card-title">Dropy</div>
+    <div class="admin-card-sub">Edytuj i usuwaj dropy</div>
+  </a>
   <a href="/grailos/admin/manage_fits.php" class="admin-card">
     <div class="admin-card-icon">✕</div>
     <div class="admin-card-title">Fity</div>
