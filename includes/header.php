@@ -23,12 +23,22 @@
     <a href="/grailos/rankings.php">Rankings</a>
   </div>
 
+  <div class="nav-center">
+    <form method="GET" action="/grailos/search.php" class="nav-search">
+      <input type="text" name="q" placeholder="Szukaj..."
+             class="nav-search-input"
+             value="<?= htmlspecialchars($_GET['q'] ?? '') ?>">
+      <button type="submit" class="nav-search-btn">⌕</button>
+    </form>
+  </div>
+
   <div class="nav-right">
     <?php if (isset($_SESSION['user_id'])): ?>
       <?php if ($_SESSION['is_admin']): ?>
         <a href="/grailos/admin/" class="nav-login">Admin</a>
       <?php endif; ?>
-      <span class="nav-username"><?= htmlspecialchars($_SESSION['username']) ?></span>
+      <a href="/grailos/profile.php?username=<?= urlencode($_SESSION['username']) ?>"
+         class="nav-username">@<?= htmlspecialchars($_SESSION['username']) ?></a>
       <a href="/grailos/logout.php" class="nav-login">Logout</a>
     <?php else: ?>
       <a href="/grailos/register.php" class="nav-login">Register</a>
