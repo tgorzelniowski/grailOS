@@ -22,12 +22,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if ($user && password_verify($password, $user['password'])) {
                 session_regenerate_id(true); // Ochrona przed session fixation
-                $_SESSION['user_id']  = $user['id'];
-                $_SESSION['username'] = $user['username'];
-                $_SESSION['is_admin'] = (bool) $user['is_admin'];
-                unset($_SESSION['rate']);
-                header('Location: /grailos/');
-                exit;
+                if ($user && password_verify($password, $user['password'])) {
+    // Sprawdź ban
+                if ($user['is_banned']) {
+                    $error = 'Twoje konto zostało zbanowane.';
+                } else {
+                    session_regenerate_id(true);
+                    $_SESSION['user_id']  = $user['id'];
+                    $_SESSION['username'] = $user['username'];
+                    $_SESSION['is_admin'] = (bool) $user['is_admin'];
+                    unset($_SESSION['rate']);
+                    header('Location: /grailos/');
+                    exit;
+                }
+                }
             } else {
                 $error = 'Nieprawidłowy email lub hasło.';
             }

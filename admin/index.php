@@ -37,17 +37,27 @@ $totalUsers    = $pdo->query("SELECT COUNT(*) FROM users")->fetchColumn();
   <a href="/grailos/admin/add_drop.php" class="admin-card">
     <div class="admin-card-icon">+</div>
     <div class="admin-card-title">Dodaj drop</div>
-    <div class="admin-card-sub">Dodaj nadchodzący drop do trackera</div>
+    <div class="admin-card-sub">Dodaj nadchodzący drop</div>
   </a>
   <a href="/grailos/admin/manage_clothing.php" class="admin-card">
     <div class="admin-card-icon">≡</div>
-    <div class="admin-card-title">Zarządzaj katalogiem</div>
+    <div class="admin-card-title">Katalog</div>
     <div class="admin-card-sub">Edytuj i usuwaj produkty</div>
   </a>
   <a href="/grailos/admin/manage_fits.php" class="admin-card">
     <div class="admin-card-icon">✕</div>
-    <div class="admin-card-title">Zarządzaj fitami</div>
-    <div class="admin-card-sub">Moderuj i usuwaj posty fitów</div>
+    <div class="admin-card-title">Fity</div>
+    <div class="admin-card-sub">Moderuj posty fitów</div>
+  </a>
+  <a href="/grailos/admin/manage_posts.php" class="admin-card">
+    <div class="admin-card-icon">✕</div>
+    <div class="admin-card-title">Forum</div>
+    <div class="admin-card-sub">Moderuj posty forum</div>
+  </a>
+  <a href="/grailos/admin/manage_users.php" class="admin-card">
+    <div class="admin-card-icon">⊘</div>
+    <div class="admin-card-title">Użytkownicy</div>
+    <div class="admin-card-sub">Banuj i zarządzaj userami</div>
   </a>
 </div>
 

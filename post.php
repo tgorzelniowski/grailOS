@@ -63,12 +63,22 @@ if (isset($_SESSION['user_id'])) {
   <!-- ORYGINALNY POST -->
   <div class="forum-post post-single">
     <div class="forum-post-header">
-      <span class="post-user">@<?= htmlspecialchars($post['username']) ?></span>
-      <span class="post-date"><?= date('d M Y, H:i', strtotime($post['created_at'])) ?></span>
+  <div class="post-card-meta">
+    <span class="post-avatar">@<?= strtoupper(htmlspecialchars($post['username'][0])) ?></span>
+    <div>
+      <div class="post-user">@<?= htmlspecialchars($post['username']) ?></div>
+      <div class="post-date"><?= date('d M Y, H:i', strtotime($post['created_at'])) ?></div>
     </div>
-    <div class="forum-post-content post-content-large">
-      <?= nl2br(htmlspecialchars($post['content'])) ?>
-    </div>
+  </div>
+  <?php if (isset($_SESSION['user_id']) && ($post['user_id'] == $_SESSION['user_id'] || $_SESSION['is_admin'])): ?>
+    <form method="POST" action="/grailos/delete_post.php"
+          onsubmit="return confirm('Usunac ten post?')">
+      <?= csrf_field() ?>
+      <input type="hidden" name="post_id" value="<?= $post['id'] ?>">
+      <button type="submit" class="btn-delete">Usuń post</button>
+    </form>
+  <?php endif; ?>
+  </div>
     <div class="forum-post-footer">
       <span class="post-action">💬 <?= count($replies) ?> odpowiedzi</span>
       <?php if (isset($_SESSION['user_id'])): ?>

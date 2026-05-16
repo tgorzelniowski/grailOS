@@ -33,23 +33,37 @@ $fits = $pdo->query("
 
 <div class="fits-grid">
   <?php if ($fits): ?>
-    <?php foreach ($fits as $fit): ?>
-      <a href="/grailos/fit.php?id=<?= $fit['id'] ?>" class="fit-card">
-        <div class="fit-img-wrap">
-          <img src="<?= htmlspecialchars($fit['image_url']) ?>"
-               alt="Fit by @<?= htmlspecialchars($fit['username']) ?>">
-        </div>
-        <div class="fit-info">
-          <div class="fit-user">@<?= htmlspecialchars($fit['username']) ?></div>
-          <?php if ($fit['description']): ?>
-            <div class="fit-desc"><?= htmlspecialchars(mb_substr($fit['description'], 0, 80)) ?>...</div>
-          <?php endif; ?>
-          <div class="fit-footer">
-            <span class="fit-date"><?= date('d M Y', strtotime($fit['created_at'])) ?></span>
-            <span class="vote-count-static">♥ <?= $fit['votes'] ?> &nbsp; 💬 <?= $fit['comments'] ?></span>
+    <?php foreach ($fits as $fit):
+      $can_delete = isset($_SESSION['user_id']) &&
+                    ($fit['user_id'] == $_SESSION['user_id'] || $_SESSION['is_admin']);
+    ?>
+      <div class="fit-card-wrap">
+        <a href="/grailos/fit.php?id=<?= $fit['id'] ?>" class="fit-card">
+          <div class="fit-img-wrap">
+            <img src="<?= htmlspecialchars($fit['image_url']) ?>"
+                 alt="Fit by @<?= htmlspecialchars($fit['username']) ?>">
           </div>
-        </div>
-      </a>
+          <div class="fit-info">
+            <div class="fit-user">@<?= htmlspecialchars($fit['username']) ?></div>
+            <?php if ($fit['description']): ?>
+              <div class="fit-desc"><?= htmlspecialchars(mb_substr($fit['description'], 0, 80)) ?>...</div>
+            <?php endif; ?>
+            <div class="fit-footer">
+              <span class="fit-date"><?= date('d M Y', strtotime($fit['created_at'])) ?></span>
+              <span class="vote-count-static">♥ <?= $fit['votes'] ?> &nbsp;💬 <?= $fit['comments'] ?></span>
+            </div>
+          </div>
+        </a>
+        <?php if ($can_delete): ?>
+          <form method="POST" action="/grailos/delete_fit.php"
+                class="inline-delete-form"
+                onsubmit="return confirm('Usunac ten fit?')">
+            <?= csrf_field() ?>
+            <input type="hidden" name="fit_id" value="<?= $fit['id'] ?>">
+            <button type="submit" class="inline-delete-btn" title="Usuń fit">✕</button>
+          </form>
+        <?php endif; ?>
+      </div>
     <?php endforeach; ?>
   <?php else: ?>
     <div style="grid-column:span 3; padding:80px; text-align:center; color:#444; letter-spacing:3px; text-transform:uppercase; font-size:13px;">

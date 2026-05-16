@@ -70,20 +70,30 @@ if (isset($_SESSION['user_id'])) {
   <div class="fit-single-content">
 
     <div class="fit-single-header">
-      <div>
-        <div class="fit-user" style="font-size:16px;">@<?= htmlspecialchars($fit['username']) ?></div>
-        <div class="fit-date"><?= date('d M Y, H:i', strtotime($fit['created_at'])) ?></div>
-      </div>
-      <?php if (isset($_SESSION['user_id'])): ?>
-        <button class="vote-btn <?= $user_voted ? 'voted' : '' ?>"
-                style="font-size:16px; padding:10px 24px;"
-                onclick="handleVote(<?= $fit['id'] ?>, this)">
-          ♥ <span class="vote-count"><?= $fit['votes'] ?></span>
-        </button>
-      <?php else: ?>
-        <span class="vote-count-static" style="font-size:16px;">♥ <?= $fit['votes'] ?></span>
-      <?php endif; ?>
-    </div>
+  <div>
+    <div class="fit-user" style="font-size:16px;">@<?= htmlspecialchars($fit['username']) ?></div>
+    <div class="fit-date"><?= date('d M Y, H:i', strtotime($fit['created_at'])) ?></div>
+  </div>
+  <div style="display:flex; gap:12px; align-items:center;">
+    <?php if (isset($_SESSION['user_id'])): ?>
+      <button class="vote-btn <?= $user_voted ? 'voted' : '' ?>"
+              style="font-size:16px; padding:10px 24px;"
+              onclick="handleVote(<?= $fit['id'] ?>, this)">
+        ♥ <span class="vote-count"><?= $fit['votes'] ?></span>
+      </button>
+    <?php else: ?>
+      <span class="vote-count-static" style="font-size:16px;">♥ <?= $fit['votes'] ?></span>
+    <?php endif; ?>
+    <?php if (isset($_SESSION['user_id']) && ($fit['user_id'] == $_SESSION['user_id'] || $_SESSION['is_admin'])): ?>
+      <form method="POST" action="/grailos/delete_fit.php"
+            onsubmit="return confirm('Usunac ten fit?')">
+        <?= csrf_field() ?>
+        <input type="hidden" name="fit_id" value="<?= $fit['id'] ?>">
+        <button type="submit" class="btn-delete">Usuń fit</button>
+      </form>
+    <?php endif; ?>
+  </div>
+</div>
 
     <?php if ($fit['description']): ?>
       <p class="fit-single-desc"><?= htmlspecialchars($fit['description']) ?></p>

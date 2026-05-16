@@ -1397,3 +1397,231 @@ img {
 
   .about-stats { grid-template-columns: 1fr 1fr; }
 }
+
+/* ===========================
+   COMPOSE BOX (FORUM)
+=========================== */
+.compose-wrap {
+  padding: 32px 40px;
+  border-bottom: 1px solid var(--border);
+}
+
+.compose-card {
+  border: 1px solid var(--border);
+  padding: 24px;
+  transition: border-color 0.2s;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.compose-card:focus-within { border-color: var(--red); }
+
+.compose-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.compose-avatar {
+  width: 40px;
+  height: 40px;
+  background: var(--red);
+  color: var(--white);
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.compose-name {
+  font-size: 12px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--red);
+}
+
+.compose-textarea {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: var(--white);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 16px;
+  letter-spacing: 0.5px;
+  line-height: 1.6;
+  outline: none;
+  resize: none;
+}
+
+.compose-textarea::placeholder { color: #444; }
+
+.compose-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.compose-hint {
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #444;
+}
+
+.compose-locked {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid var(--border);
+  padding: 24px;
+}
+
+/* ===========================
+   POST CARDS (FORUM)
+=========================== */
+.post-card {
+  padding: 28px 40px;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.2s;
+}
+
+.post-card:hover { background: var(--card); }
+
+.post-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.post-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.post-avatar {
+  width: 40px;
+  height: 40px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--red);
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.post-card-content {
+  font-size: 16px;
+  color: var(--white);
+  line-height: 1.65;
+  letter-spacing: 0.3px;
+  margin-bottom: 20px;
+  padding-left: 52px;
+}
+
+.post-card-footer {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  padding-left: 52px;
+}
+
+.post-stat {
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--gray);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: 'Barlow Condensed', sans-serif;
+  text-decoration: none;
+  transition: color 0.2s;
+  padding: 0;
+}
+
+.post-stat:hover { color: var(--white); }
+
+.post-like-btn.liked { color: var(--red); }
+.post-like-btn:hover { color: var(--red); }
+
+.post-reply-link { margin-left: auto; }
+
+.post-delete-btn {
+  background: transparent;
+  border: none;
+  color: #444;
+  font-size: 14px;
+  cursor: pointer;
+  transition: color 0.2s;
+  padding: 4px 8px;
+  font-family: 'Barlow Condensed', sans-serif;
+  letter-spacing: 1px;
+}
+
+.post-delete-btn:hover { color: var(--red); }
+
+/* ===========================
+   INLINE DELETE (FITS GRID)
+=========================== */
+.fit-card-wrap {
+  position: relative;
+}
+
+.fit-card-wrap .fit-card {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
+.inline-delete-form {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 10;
+}
+
+.inline-delete-btn {
+  width: 32px;
+  height: 32px;
+  background: rgba(10,10,10,0.85);
+  border: 1px solid var(--border);
+  color: var(--gray);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.fit-card-wrap:hover .inline-delete-btn {
+  opacity: 1;
+}
+
+.inline-delete-btn:hover {
+  border-color: var(--red);
+  color: var(--red);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .compose-wrap { padding: 20px; }
+  .post-card { padding: 20px; }
+  .post-card-content { padding-left: 0; }
+  .post-card-footer { padding-left: 0; flex-wrap: wrap; gap: 12px; }
+  .post-reply-link { margin-left: 0; }
+  .compose-locked { flex-direction: column; gap: 16px; }
+  .inline-delete-btn { opacity: 1; }
+}

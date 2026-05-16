@@ -7,7 +7,6 @@
 </section>
 
 <?php
-// Dodaj post
 $post_error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['new_post'])) {
     if (!isset($_SESSION['user_id'])) {
@@ -22,12 +21,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['new_post'])) {
     } else {
         $pdo->prepare("INSERT INTO posts (user_id, content) VALUES (?, ?)")
             ->execute([$_SESSION['user_id'], $content]);
-        header('Location: /grailos/forum.php');
-        exit;
+        header('Location: /grailos/forum.php'); exit;
     }
 }
 
-// Pobierz posty
 $posts = $pdo->query("
     SELECT posts.*, users.username,
            COUNT(DISTINCT post_likes.id)   AS likes,
@@ -41,35 +38,42 @@ $posts = $pdo->query("
 ")->fetchAll();
 ?>
 
-<!-- FORMULARZ NOWEGO POSTA -->
-<?php if (isset($_SESSION['user_id'])): ?>
-<div class="forum-compose">
-  <?php if ($post_error): ?>
-    <div class="form-error" style="margin-bottom:16px;"><?= htmlspecialchars($post_error) ?></div>
+<!-- COMPOSE BOX -->
+<div class="compose-wrap">
+  <?php if (isset($_SESSION['user_id'])): ?>
+    <?php if ($post_error): ?>
+      <div class="form-error" style="margin-bottom:16px;"><?= htmlspecialchars($post_error) ?></div>
+    <?php endif; ?>
+    <form method="POST" class="compose-card">
+      <?= csrf_field() ?>
+      <div class="compose-header">
+        <span class="compose-avatar">@<?= htmlspecialchars(strtoupper($_SESSION['username'][0])) ?></span>
+        <span class="compose-name">@<?= htmlspecialchars($_SESSION['username']) ?></span>
+      </div>
+      <textarea name="content" class="compose-textarea"
+                placeholder="Co słychać? Zapytaj, podziel się, pokaż grail..."
+                maxlength="1000" rows="3"></textarea>
+      <div class="compose-actions">
+        <span class="compose-hint">max 1000 znaków</span>
+        <button type="submit" name="new_post" class="btn">Opublikuj →</button>
+      </div>
+    </form>
+  <?php else: ?>
+    <div class="compose-locked">
+      <span style="color:var(--gray); letter-spacing:2px; text-transform:uppercase; font-size:13px;">
+        Dołącz do rozmowy
+      </span>
+      <div style="display:flex; gap:12px;">
+        <a href="/grailos/login.php" class="btn">Login</a>
+        <a href="/grailos/register.php" class="btn btn-outline">Register</a>
+      </div>
+    </div>
   <?php endif; ?>
-  <form method="POST" class="compose-form">
-    <?= csrf_field() ?>
-    <div class="compose-top">
-      <span class="compose-user">@<?= htmlspecialchars($_SESSION['username']) ?></span>
-    </div>
-    <textarea name="content" class="compose-input"
-              placeholder="Co słychać? Zapytaj, podziel się..."
-              maxlength="1000" rows="3"></textarea>
-    <div class="compose-footer">
-      <span class="compose-hint">max 1000 znaków</span>
-      <button type="submit" name="new_post" class="btn">Opublikuj →</button>
-    </div>
-  </form>
 </div>
-<?php else: ?>
-<div class="forum-login-prompt">
-  <a href="/grailos/login.php" class="btn">Zaloguj się by pisać</a>
-</div>
-<?php endif; ?>
 
 <div class="section-label">/// <?= count($posts) ?> postów</div>
 
-<!-- FEED POSTÓW -->
+<!-- FEED -->
 <div class="forum-feed">
   <?php if ($posts): ?>
     <?php foreach ($posts as $post):
@@ -79,26 +83,43 @@ $posts = $pdo->query("
         $lcheck->execute([$post['id'], $_SESSION['user_id']]);
         $liked = (bool) $lcheck->fetch();
       }
+      $can_delete = isset($_SESSION['user_id']) &&
+                    ($post['user_id'] == $_SESSION['user_id'] || $_SESSION['is_admin']);
     ?>
-      <div class="forum-post">
-        <div class="forum-post-header">
-          <span class="post-user">@<?= htmlspecialchars($post['username']) ?></span>
-          <span class="post-date"><?= date('d M Y, H:i', strtotime($post['created_at'])) ?></span>
+      <div class="post-card">
+        <div class="post-card-header">
+          <div class="post-card-meta">
+            <span class="post-avatar">@<?= strtoupper(htmlspecialchars($post['username'][0])) ?></span>
+            <div>
+              <div class="post-user">@<?= htmlspecialchars($post['username']) ?></div>
+              <div class="post-date"><?= date('d M Y, H:i', strtotime($post['created_at'])) ?></div>
+            </div>
+          </div>
+          <?php if ($can_delete): ?>
+            <form method="POST" action="/grailos/delete_post.php"
+                  onsubmit="return confirm('Usunac ten post?')">
+              <?= csrf_field() ?>
+              <input type="hidden" name="post_id" value="<?= $post['id'] ?>">
+              <button type="submit" class="post-delete-btn" title="Usuń post">✕</button>
+            </form>
+          <?php endif; ?>
         </div>
-        <div class="forum-post-content"><?= nl2br(htmlspecialchars($post['content'])) ?></div>
-        <div class="forum-post-footer">
-          <a href="/grailos/post.php?id=<?= $post['id'] ?>" class="post-action">
-            💬 <?= $post['replies'] ?> odpowiedzi
+
+        <div class="post-card-content"><?= nl2br(htmlspecialchars($post['content'])) ?></div>
+
+        <div class="post-card-footer">
+          <a href="/grailos/post.php?id=<?= $post['id'] ?>" class="post-stat">
+            💬 <?= $post['replies'] ?> <?= $post['replies'] == 1 ? 'odpowiedź' : 'odpowiedzi' ?>
           </a>
           <?php if (isset($_SESSION['user_id'])): ?>
-            <button class="post-action post-like <?= $liked ? 'liked' : '' ?>"
+            <button class="post-stat post-like-btn <?= $liked ? 'liked' : '' ?>"
                     onclick="likePost(<?= $post['id'] ?>, this)">
               ♥ <span class="like-count"><?= $post['likes'] ?></span>
             </button>
           <?php else: ?>
-            <span class="post-action">♥ <?= $post['likes'] ?></span>
+            <span class="post-stat">♥ <?= $post['likes'] ?></span>
           <?php endif; ?>
-          <a href="/grailos/post.php?id=<?= $post['id'] ?>" class="post-action post-open">
+          <a href="/grailos/post.php?id=<?= $post['id'] ?>" class="post-stat post-reply-link">
             Odpowiedz →
           </a>
         </div>
