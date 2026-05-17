@@ -234,19 +234,27 @@ $outfits = $outfits->fetchAll();
 <div class="clothing-grid">
   <?php if ($wardrobe): ?>
     <?php foreach ($wardrobe as $item): ?>
-      <div class="clothing-card">
-        <div class="clothing-card-img">
-          <?php if ($item['image_url']): ?>
-            <img src="<?= htmlspecialchars($item['image_url']) ?>" alt="">
-          <?php else: ?>
-            NO IMG
-          <?php endif; ?>
-        </div>
-        <div class="clothing-card-brand"><?= htmlspecialchars($item['brand'] ?? '—') ?></div>
-        <div class="clothing-card-name"><?= htmlspecialchars($item['name'] ?? '—') ?></div>
-        <div class="clothing-card-price"><?= $item['price'] ? number_format($item['price'],2).' zł' : '—' ?></div>
-      </div>
-    <?php endforeach; ?>
+  <div class="clothing-card" style="position:relative;">
+    <div class="clothing-card-img">
+      <?php if ($item['image_url']): ?>
+        <img src="<?= htmlspecialchars($item['image_url']) ?>" alt="">
+      <?php else: ?>NO IMG<?php endif; ?>
+    </div>
+    <div class="clothing-card-brand"><?= htmlspecialchars($item['brand'] ?? '—') ?></div>
+    <div class="clothing-card-name"><?= htmlspecialchars($item['name'] ?? '—') ?></div>
+    <div class="clothing-card-price"><?= $item['price'] ? number_format($item['price'],2).' zł' : '—' ?></div>
+    <?php if ($is_own): ?>
+      <form method="POST" action="/grailos/wardrobe_remove.php"
+            style="position:absolute; top:8px; right:8px;">
+        <?= csrf_field() ?>
+        <input type="hidden" name="wardrobe_item_id" value="<?= $item['id'] ?>">
+        <button type="submit" class="inline-delete-btn"
+                onclick="return confirm('Usunąć z szafy?')"
+                style="opacity:1;">✕</button>
+      </form>
+    <?php endif; ?>
+  </div>
+<?php endforeach; ?>
   <?php else: ?>
     <div style="grid-column:span 3; padding:40px; text-align:center; color:#444; letter-spacing:3px; text-transform:uppercase; font-size:12px;">Szafa pusta</div>
   <?php endif; ?>
