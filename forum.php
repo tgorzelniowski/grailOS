@@ -13,20 +13,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['new_post'])) {
         header('Location: /grailos/login.php'); exit;
     }
     csrf_verify();
-    $content = trim($_POST['content'] ?? '');
-    if (!$content) {
+    $content   = trim($_POST['content'] ?? '');
+    $image_url = null;
+
+    if (!$content && empty($_FILES['image']['name'])) {
         $post_error = 'Post nie może być pusty.';
     } elseif (strlen($content) > 1000) {
         $post_error = 'Post zbyt długi (max 1000 znaków).';
     } else {
-        $pdo->prepare("INSERT INTO posts (user_id, content) VALUES (?, ?)")
-            ->execute([$_SESSION['user_id'], $content]);
-        header('Location: /grailos/forum.php'); exit;
+        if (!empty($_FILES['image']['name'])) {
+            $result = upload_image($_FILES['image'], 'posts');
+            if (isset($result['error'])) {
+                $post_error = $result['error'];
+            } else {
+                $image_url = $result['path'];
+            }
+        }
+        if (!$post_error) {
+            $pdo->prepare("INSERT INTO posts (user_id, content, image_url) VALUES (?, ?, ?)")
+                ->execute([$_SESSION['user_id'], $content, $image_url]);
+            header('Location: /grailos/forum.php'); exit;
+        }
     }
 }
 
 $posts = $pdo->query("
-    SELECT posts.*, users.username,
+    SELECT posts.*, users.username, users.avatar_url,
            COUNT(DISTINCT post_likes.id)   AS likes,
            COUNT(DISTINCT post_replies.id) AS replies
     FROM posts
@@ -38,22 +50,51 @@ $posts = $pdo->query("
 ")->fetchAll();
 ?>
 
-<!-- COMPOSE BOX -->
+<!-- COMPOSE -->
 <div class="compose-wrap">
   <?php if (isset($_SESSION['user_id'])): ?>
     <?php if ($post_error): ?>
       <div class="form-error" style="margin-bottom:16px;"><?= htmlspecialchars($post_error) ?></div>
     <?php endif; ?>
-    <form method="POST" class="compose-card">
+    <form method="POST" enctype="multipart/form-data" class="compose-card">
       <?= csrf_field() ?>
       <div class="compose-header">
-        <span class="compose-avatar">@<?= htmlspecialchars(strtoupper($_SESSION['username'][0])) ?></span>
+        <a href="/grailos/profile.php?username=<?= urlencode($_SESSION['username']) ?>"
+           class="compose-av-link">
+          <?php if (!empty($_SESSION['avatar_url'])): ?>
+            <img src="<?= htmlspecialchars($_SESSION['avatar_url']) ?>"
+                 class="compose-av-img" alt="">
+          <?php else: ?>
+            <span class="compose-avatar">
+              <?= strtoupper(htmlspecialchars($_SESSION['username'][0])) ?>
+            </span>
+          <?php endif; ?>
+        </a>
         <span class="compose-name">@<?= htmlspecialchars($_SESSION['username']) ?></span>
       </div>
       <textarea name="content" class="compose-textarea"
-                placeholder="Co słychać? Zapytaj, podziel się, pokaż grail..."
+                placeholder="Co słychać? Zapytaj, podziel się..."
                 maxlength="1000" rows="3"></textarea>
+
+      <!-- Image preview -->
+      <div class="compose-img-preview" id="composePreview" style="display:none;">
+        <img id="previewImg" src="" alt="">
+        <button type="button" class="compose-img-remove"
+                onclick="removePreview()">✕</button>
+      </div>
+
       <div class="compose-actions">
+        <label class="compose-img-btn" title="Dodaj zdjęcie">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="18" height="18" rx="2"/>
+            <circle cx="8.5" cy="8.5" r="1.5"/>
+            <polyline points="21 15 16 10 5 21"/>
+          </svg>
+          <input type="file" name="image" id="postImage"
+                 accept="image/jpeg,image/png,image/webp"
+                 onchange="previewImage(this)" style="display:none">
+        </label>
         <span class="compose-hint">max 1000 znaków</span>
         <button type="submit" name="new_post" class="btn">Opublikuj →</button>
       </div>
@@ -73,7 +114,6 @@ $posts = $pdo->query("
 
 <div class="section-label">/// <?= count($posts) ?> postów</div>
 
-<!-- FEED -->
 <div class="forum-feed">
   <?php if ($posts): ?>
     <?php foreach ($posts as $post):
@@ -89,23 +129,42 @@ $posts = $pdo->query("
       <div class="post-card">
         <div class="post-card-header">
           <div class="post-card-meta">
-            <span class="post-avatar">@<?= strtoupper(htmlspecialchars($post['username'][0])) ?></span>
+            <a href="/grailos/profile.php?username=<?= urlencode($post['username']) ?>"
+               class="post-av-link">
+              <?php if ($post['avatar_url']): ?>
+                <img src="<?= htmlspecialchars($post['avatar_url']) ?>"
+                     class="post-av-img" alt="">
+              <?php else: ?>
+                <span class="post-avatar">
+                  <?= strtoupper(htmlspecialchars($post['username'][0])) ?>
+                </span>
+              <?php endif; ?>
+            </a>
             <div>
-              <div class="post-user">@<?= htmlspecialchars($post['username']) ?></div>
+              <a href="/grailos/profile.php?username=<?= urlencode($post['username']) ?>"
+                 class="post-user-link">@<?= htmlspecialchars($post['username']) ?></a>
               <div class="post-date"><?= date('d M Y, H:i', strtotime($post['created_at'])) ?></div>
             </div>
           </div>
           <?php if ($can_delete): ?>
             <form method="POST" action="/grailos/delete_post.php"
-                  onsubmit="return confirm('Usunac ten post?')">
+                  onsubmit="return confirm('Usunąć ten post?')">
               <?= csrf_field() ?>
               <input type="hidden" name="post_id" value="<?= $post['id'] ?>">
-              <button type="submit" class="post-delete-btn" title="Usuń post">✕</button>
+              <button type="submit" class="post-delete-btn">✕</button>
             </form>
           <?php endif; ?>
         </div>
 
-        <div class="post-card-content"><?= nl2br(htmlspecialchars($post['content'])) ?></div>
+        <?php if ($post['content']): ?>
+          <div class="post-card-content"><?= nl2br(htmlspecialchars($post['content'])) ?></div>
+        <?php endif; ?>
+
+        <?php if ($post['image_url']): ?>
+          <div class="post-img-wrap">
+            <img src="<?= htmlspecialchars($post['image_url']) ?>" alt="Post image">
+          </div>
+        <?php endif; ?>
 
         <div class="post-card-footer">
           <a href="/grailos/post.php?id=<?= $post['id'] ?>" class="post-stat">
@@ -136,7 +195,7 @@ $posts = $pdo->query("
 async function likePost(postId, btn) {
   const res  = await fetch('/grailos/post_like.php', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    headers: {'Content-Type':'application/x-www-form-urlencoded'},
     body: `post_id=${postId}`
   });
   const data = await res.json();
@@ -144,6 +203,23 @@ async function likePost(postId, btn) {
     btn.classList.toggle('liked', data.liked);
     btn.querySelector('.like-count').textContent = data.likes;
   }
+}
+
+function previewImage(input) {
+  if (input.files && input.files[0]) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      document.getElementById('previewImg').src = e.target.result;
+      document.getElementById('composePreview').style.display = 'block';
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+
+function removePreview() {
+  document.getElementById('postImage').value = '';
+  document.getElementById('previewImg').src = '';
+  document.getElementById('composePreview').style.display = 'none';
 }
 </script>
 
