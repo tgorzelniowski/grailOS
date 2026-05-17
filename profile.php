@@ -4,33 +4,47 @@ require_once 'includes/header.php';
 $username = trim($_GET['username'] ?? '');
 if (!$username) { header('Location: /grailos/'); exit; }
 
-$stmt = $pdo->prepare("SELECT id, username, created_at, is_admin FROM users WHERE username = ? AND is_banned = 0");
+$stmt = $pdo->prepare("SELECT * FROM users WHERE username = ? AND is_banned = 0");
 $stmt->execute([$username]);
 $user = $stmt->fetch();
-
 if (!$user) { header('Location: /grailos/'); exit; }
 
-// Statystyki
-$fit_count  = $pdo->prepare("SELECT COUNT(*) FROM fits WHERE user_id = ?");
-$fit_count->execute([$user['id']]);
-$fit_count = (int) $fit_count->fetchColumn();
+$is_own    = isset($_SESSION['user_id']) && $_SESSION['user_id'] == $user['id'];
 
-$post_count = $pdo->prepare("SELECT COUNT(*) FROM posts WHERE user_id = ?");
+// Counts
+$fit_count      = $pdo->prepare("SELECT COUNT(*) FROM fits WHERE user_id = ?");
+$fit_count->execute([$user['id']]);
+$fit_count = (int)$fit_count->fetchColumn();
+
+$post_count     = $pdo->prepare("SELECT COUNT(*) FROM posts WHERE user_id = ?");
 $post_count->execute([$user['id']]);
-$post_count = (int) $post_count->fetchColumn();
+$post_count = (int)$post_count->fetchColumn();
 
 $wardrobe_count = $pdo->prepare("SELECT COUNT(*) FROM wardrobe_items WHERE user_id = ?");
 $wardrobe_count->execute([$user['id']]);
-$wardrobe_count = (int) $wardrobe_count->fetchColumn();
+$wardrobe_count = (int)$wardrobe_count->fetchColumn();
+
+$followers_count = $pdo->prepare("SELECT COUNT(*) FROM follows WHERE following_id = ?");
+$followers_count->execute([$user['id']]);
+$followers_count = (int)$followers_count->fetchColumn();
+
+$following_count = $pdo->prepare("SELECT COUNT(*) FROM follows WHERE follower_id = ?");
+$following_count->execute([$user['id']]);
+$following_count = (int)$following_count->fetchColumn();
+
+$is_following = false;
+if (isset($_SESSION['user_id']) && !$is_own) {
+    $fcheck = $pdo->prepare("SELECT id FROM follows WHERE follower_id = ? AND following_id = ?");
+    $fcheck->execute([$_SESSION['user_id'], $user['id']]);
+    $is_following = (bool)$fcheck->fetch();
+}
 
 // Fity
 $fits = $pdo->prepare("
     SELECT fits.*, COUNT(fit_votes.id) AS votes
-    FROM fits
-    LEFT JOIN fit_votes ON fits.id = fit_votes.fit_id
+    FROM fits LEFT JOIN fit_votes ON fits.id = fit_votes.fit_id
     WHERE fits.user_id = ?
-    GROUP BY fits.id
-    ORDER BY fits.created_at DESC
+    GROUP BY fits.id ORDER BY fits.created_at DESC
 ");
 $fits->execute([$user['id']]);
 $fits = $fits->fetchAll();
@@ -38,12 +52,9 @@ $fits = $fits->fetchAll();
 // Posty
 $posts = $pdo->prepare("
     SELECT posts.*, COUNT(post_replies.id) AS replies
-    FROM posts
-    LEFT JOIN post_replies ON posts.id = post_replies.post_id
+    FROM posts LEFT JOIN post_replies ON posts.id = post_replies.post_id
     WHERE posts.user_id = ?
-    GROUP BY posts.id
-    ORDER BY posts.created_at DESC
-    LIMIT 5
+    GROUP BY posts.id ORDER BY posts.created_at DESC LIMIT 5
 ");
 $posts->execute([$user['id']]);
 $posts = $posts->fetchAll();
@@ -51,7 +62,7 @@ $posts = $posts->fetchAll();
 // Szafa
 $wardrobe = $pdo->prepare("
     SELECT wardrobe_items.*, clothing.name, clothing.brand,
-           clothing.image_url, clothing.price, clothing.category
+           clothing.image_url, clothing.price
     FROM wardrobe_items
     LEFT JOIN clothing ON wardrobe_items.clothing_id = clothing.id
     WHERE wardrobe_items.user_id = ?
@@ -59,13 +70,45 @@ $wardrobe = $pdo->prepare("
 ");
 $wardrobe->execute([$user['id']]);
 $wardrobe = $wardrobe->fetchAll();
+
+// Outfity
+$outfits = $pdo->prepare("
+    SELECT outfits.*,
+           COUNT(outfit_items.id) AS item_count
+    FROM outfits
+    LEFT JOIN outfit_items ON outfits.id = outfit_items.outfit_id
+    WHERE outfits.user_id = ?
+    GROUP BY outfits.id
+    ORDER BY outfits.created_at DESC
+");
+$outfits->execute([$user['id']]);
+$outfits = $outfits->fetchAll();
 ?>
 
 <!-- PROFILE HEADER -->
 <section class="profile-header">
-  <div class="profile-avatar">
-    <?= strtoupper(htmlspecialchars($user['username'][0])) ?>
+  <div class="profile-avatar-wrap">
+    <?php if ($user['avatar_url']): ?>
+      <img src="<?= htmlspecialchars($user['avatar_url']) ?>"
+           class="profile-avatar-img" alt="">
+    <?php else: ?>
+      <div class="profile-avatar">
+        <?= strtoupper(htmlspecialchars($user['username'][0])) ?>
+      </div>
+    <?php endif; ?>
+    <?php if ($is_own): ?>
+      <form method="POST" action="/grailos/upload_avatar.php"
+            enctype="multipart/form-data" class="avatar-upload-form">
+        <?= csrf_field() ?>
+        <label class="avatar-upload-btn" title="Zmień zdjęcie">
+          ✎
+          <input type="file" name="avatar" accept="image/jpeg,image/png,image/webp"
+                 onchange="this.form.submit()" style="display:none;">
+        </label>
+      </form>
+    <?php endif; ?>
   </div>
+
   <div class="profile-info">
     <div class="profile-username">
       @<?= htmlspecialchars($user['username']) ?>
@@ -74,6 +117,14 @@ $wardrobe = $wardrobe->fetchAll();
       <?php endif; ?>
     </div>
     <div class="profile-joined">Dołączył <?= date('F Y', strtotime($user['created_at'])) ?></div>
+
+    <?php if (!$is_own && isset($_SESSION['user_id'])): ?>
+      <button class="follow-btn <?= $is_following ? 'following' : '' ?>"
+              id="followBtn"
+              onclick="toggleFollow(<?= $user['id'] ?>)">
+        <?= $is_following ? 'Obserwujesz' : '+ Obserwuj' ?>
+      </button>
+    <?php endif; ?>
   </div>
 </section>
 
@@ -84,8 +135,12 @@ $wardrobe = $wardrobe->fetchAll();
     <div class="profile-stat-label">Fity</div>
   </div>
   <div class="profile-stat">
-    <div class="profile-stat-num"><?= $post_count ?></div>
-    <div class="profile-stat-label">Posty</div>
+    <div class="profile-stat-num"><?= $followers_count ?></div>
+    <div class="profile-stat-label">Obserwujących</div>
+  </div>
+  <div class="profile-stat">
+    <div class="profile-stat-num"><?= $following_count ?></div>
+    <div class="profile-stat-label">Obserwuje</div>
   </div>
   <div class="profile-stat">
     <div class="profile-stat-num"><?= $wardrobe_count ?></div>
@@ -111,8 +166,48 @@ $wardrobe = $wardrobe->fetchAll();
       </a>
     <?php endforeach; ?>
   <?php else: ?>
+    <div style="grid-column:span 3; padding:40px; text-align:center; color:#444; letter-spacing:3px; text-transform:uppercase; font-size:12px;">Brak fitów</div>
+  <?php endif; ?>
+</div>
+
+<!-- OUTFITY -->
+<div class="section-label" style="display:flex; justify-content:space-between; align-items:center;">
+  <span>/// Outfity (<?= count($outfits) ?>)</span>
+  <?php if ($is_own): ?>
+    <a href="/grailos/create_outfit.php" class="btn" style="margin-right:40px; font-size:11px; padding:6px 16px;">+ Nowy outfit</a>
+  <?php endif; ?>
+</div>
+<div class="outfits-grid">
+  <?php if ($outfits): ?>
+    <?php foreach ($outfits as $outfit):
+      $outfit_imgs = $pdo->prepare("
+          SELECT clothing.image_url FROM outfit_items
+          LEFT JOIN wardrobe_items ON outfit_items.wardrobe_item_id = wardrobe_items.id
+          LEFT JOIN clothing ON wardrobe_items.clothing_id = clothing.id
+          WHERE outfit_items.outfit_id = ? LIMIT 4
+      ");
+      $outfit_imgs->execute([$outfit['id']]);
+      $imgs = $outfit_imgs->fetchAll(PDO::FETCH_COLUMN);
+    ?>
+      <div class="outfit-card">
+        <div class="outfit-card-imgs">
+          <?php foreach (array_pad($imgs, 4, null) as $img): ?>
+            <div class="outfit-card-img">
+              <?php if ($img): ?>
+                <img src="<?= htmlspecialchars($img) ?>" alt="">
+              <?php endif; ?>
+            </div>
+          <?php endforeach; ?>
+        </div>
+        <div class="outfit-card-info">
+          <div class="outfit-card-name"><?= htmlspecialchars($outfit['name']) ?></div>
+          <div class="outfit-card-count"><?= $outfit['item_count'] ?> items</div>
+        </div>
+      </div>
+    <?php endforeach; ?>
+  <?php else: ?>
     <div style="grid-column:span 3; padding:40px; text-align:center; color:#444; letter-spacing:3px; text-transform:uppercase; font-size:12px;">
-      Brak fitów
+      <?= $is_own ? 'Brak outfitów. <a href="/grailos/create_outfit.php" style="color:var(--red)">Stwórz pierwszy →</a>' : 'Brak outfitów' ?>
     </div>
   <?php endif; ?>
 </div>
@@ -125,28 +220,24 @@ $wardrobe = $wardrobe->fetchAll();
       <div class="clothing-card">
         <div class="clothing-card-img">
           <?php if ($item['image_url']): ?>
-            <img src="<?= htmlspecialchars($item['image_url']) ?>" alt="<?= htmlspecialchars($item['name']) ?>">
+            <img src="<?= htmlspecialchars($item['image_url']) ?>" alt="">
           <?php else: ?>
             NO IMG
           <?php endif; ?>
         </div>
         <div class="clothing-card-brand"><?= htmlspecialchars($item['brand'] ?? '—') ?></div>
         <div class="clothing-card-name"><?= htmlspecialchars($item['name'] ?? '—') ?></div>
-        <div class="clothing-card-price">
-          <?= $item['price'] ? number_format($item['price'], 2) . ' zł' : '—' ?>
-        </div>
+        <div class="clothing-card-price"><?= $item['price'] ? number_format($item['price'],2).' zł' : '—' ?></div>
       </div>
     <?php endforeach; ?>
   <?php else: ?>
-    <div style="grid-column:span 3; padding:40px; text-align:center; color:#444; letter-spacing:3px; text-transform:uppercase; font-size:12px;">
-      Szafa pusta
-    </div>
+    <div style="grid-column:span 3; padding:40px; text-align:center; color:#444; letter-spacing:3px; text-transform:uppercase; font-size:12px;">Szafa pusta</div>
   <?php endif; ?>
 </div>
 
 <!-- POSTY -->
 <div class="section-label">/// Ostatnie posty</div>
-<div class="forum-feed">
+<div class="forum-feed" style="margin-bottom:80px;">
   <?php if ($posts): ?>
     <?php foreach ($posts as $post): ?>
       <a href="/grailos/post.php?id=<?= $post['id'] ?>" class="post-card post-card-link">
@@ -160,10 +251,25 @@ $wardrobe = $wardrobe->fetchAll();
       </a>
     <?php endforeach; ?>
   <?php else: ?>
-    <div style="padding:40px; text-align:center; color:#444; letter-spacing:3px; text-transform:uppercase; font-size:12px;">
-      Brak postów
-    </div>
+    <div style="padding:40px; text-align:center; color:#444; letter-spacing:3px; text-transform:uppercase; font-size:12px;">Brak postów</div>
   <?php endif; ?>
 </div>
+
+<script>
+async function toggleFollow(userId) {
+  const btn = document.getElementById('followBtn');
+  const res  = await fetch('/grailos/follow.php', {
+    method: 'POST',
+    headers: {'Content-Type':'application/x-www-form-urlencoded'},
+    body: `target_id=${userId}&csrf_token=<?= csrf_token() ?>`
+  });
+  const data = await res.json();
+  if (data.success) {
+    btn.textContent  = data.following ? 'Obserwujesz' : '+ Obserwuj';
+    btn.className    = 'follow-btn' + (data.following ? ' following' : '');
+    document.querySelector('.profile-stat-num').textContent = data.followers;
+  }
+}
+</script>
 
 <?php require_once 'includes/footer.php'; ?>
