@@ -6,6 +6,25 @@
   <p class="page-sub">Znajdź swój grail. Przeglądaj, filtruj, inspiruj się.</p>
 </section>
 
+<div class="filter-toggle-wrap">
+  <button class="filter-toggle-btn" onclick="toggleFilters()">
+    Filtry <span id="filterArrow">▼</span>
+  </button>
+</div>
+
+<div class="catalog-filters" id="catalogFilters">
+  <!-- reszta filtrów bez zmian -->
+</div>
+
+<script>
+function toggleFilters() {
+  const f = document.getElementById('catalogFilters');
+  const a = document.getElementById('filterArrow');
+  f.classList.toggle('filters-open');
+  a.textContent = f.classList.contains('filters-open') ? '▲' : '▼';
+}
+</script>
+
 <?php
 $brands = $pdo->query("SELECT DISTINCT brand FROM clothing ORDER BY brand ASC")->fetchAll(PDO::FETCH_COLUMN);
 ?>
