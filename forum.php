@@ -1,13 +1,9 @@
-<?php require_once 'includes/header.php'; ?>
-
-<section class="page-header">
-  <div class="page-header-tag">/// Community</div>
-  <h1 class="page-title">FORUM</h1>
-  <p class="page-sub">Pytaj, odpowiadaj, dziel się.</p>
-</section>
-
 <?php
+require_once 'config/db.php';
+
 $post_error = '';
+
+// Cały POST processing PRZED require header
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['new_post'])) {
     if (!isset($_SESSION['user_id'])) {
         header('Location: /grailos/login.php'); exit;
@@ -32,7 +28,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['new_post'])) {
         if (!$post_error) {
             $pdo->prepare("INSERT INTO posts (user_id, content, image_url) VALUES (?, ?, ?)")
                 ->execute([$_SESSION['user_id'], $content, $image_url]);
-            header('Location: /grailos/forum.php'); exit;
+            header('Location: /grailos/forum.php');
+            exit;
         }
     }
 }
@@ -48,6 +45,20 @@ $posts = $pdo->query("
     GROUP BY posts.id
     ORDER BY posts.created_at DESC
 ")->fetchAll();
+
+require_once 'includes/header.php';
+?>
+<!-- reszta HTML forum.php bez zmian od poprzedniej wersji -->
+
+<?php require_once 'includes/header.php'; ?>
+
+<section class="page-header">
+  <div class="page-header-tag">/// Community</div>
+  <h1 class="page-title">FORUM</h1>
+  <p class="page-sub">Pytaj, odpowiadaj, dziel się.</p>
+</section>
+
+
 ?>
 
 <!-- COMPOSE -->
