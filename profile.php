@@ -88,43 +88,60 @@ $outfits = $outfits->fetchAll();
 <!-- PROFILE HEADER -->
 <section class="profile-header">
   <div class="profile-avatar-wrap">
-    <?php if ($user['avatar_url']): ?>
-      <img src="<?= htmlspecialchars($user['avatar_url']) ?>"
-           class="profile-avatar-img" alt="">
-    <?php else: ?>
-      <div class="profile-avatar">
-        <?= strtoupper(htmlspecialchars($user['username'][0])) ?>
-      </div>
-    <?php endif; ?>
-    <?php if ($is_own): ?>
+  <?php if ($user['avatar_url']): ?>
+    <img src="<?= htmlspecialchars($user['avatar_url']) ?>"
+         class="profile-avatar-img" alt="">
+  <?php else: ?>
+    <div class="profile-avatar">
+      <?= strtoupper(htmlspecialchars($user['username'][0])) ?>
+    </div>
+  <?php endif; ?>
+
+  <?php if ($is_own): ?>
+    <div class="avatar-actions">
       <form method="POST" action="/grailos/upload_avatar.php"
-            enctype="multipart/form-data" class="avatar-upload-form">
+            enctype="multipart/form-data">
         <?= csrf_field() ?>
-        <label class="avatar-upload-btn" title="Zmień zdjęcie">
+        <label class="avatar-action-btn" title="Zmień zdjęcie">
           ✎
-          <input type="file" name="avatar" accept="image/jpeg,image/png,image/webp"
-                 onchange="this.form.submit()" style="display:none;">
+          <input type="file" name="avatar"
+                 accept="image/jpeg,image/png,image/webp"
+                 onchange="this.form.submit()" style="display:none">
         </label>
       </form>
-    <?php endif; ?>
-  </div>
-
-  <div class="profile-info">
-    <div class="profile-username">
-      @<?= htmlspecialchars($user['username']) ?>
-      <?php if ($user['is_admin']): ?>
-        <span class="profile-badge">ADMIN</span>
+      <?php if ($user['avatar_url']): ?>
+        <form method="POST" action="/grailos/delete_avatar.php"
+              onsubmit="return confirm('Usunąć zdjęcie profilowe?')">
+          <?= csrf_field() ?>
+          <button type="submit" class="avatar-action-btn avatar-delete-btn" title="Usuń zdjęcie">✕</button>
+        </form>
       <?php endif; ?>
     </div>
-    <div class="profile-joined">Dołączył <?= date('F Y', strtotime($user['created_at'])) ?></div>
+  <?php endif; ?>
+</div>
 
-    <?php if (!$is_own && isset($_SESSION['user_id'])): ?>
-      <button class="follow-btn <?= $is_following ? 'following' : '' ?>"
-              id="followBtn"
-              onclick="toggleFollow(<?= $user['id'] ?>)">
-        <?= $is_following ? 'Obserwujesz' : '+ Obserwuj' ?>
-      </button>
+  <div class="profile-info">
+  <div class="profile-username">
+    @<?= htmlspecialchars($user['username']) ?>
+    <?php if ($user['is_admin']): ?>
+      <span class="profile-badge">ADMIN</span>
     <?php endif; ?>
+  </div>
+  <div class="profile-joined">Dołączył <?= date('F Y', strtotime($user['created_at'])) ?></div>
+
+  <?php if ($is_own): ?>
+    <a href="/grailos/settings.php" class="btn btn-outline"
+       style="margin-top:16px; font-size:11px; padding:6px 16px;">⚙ Ustawienia konta</a>
+  <?php endif; ?>
+
+  <?php if (!$is_own && isset($_SESSION['user_id'])): ?>
+    <button class="follow-btn <?= $is_following ? 'following' : '' ?>"
+            id="followBtn"
+            onclick="toggleFollow(<?= $user['id'] ?>)">
+      <span class="follow-label"><?= $is_following ? 'Obserwujesz' : '+ Obserwuj' ?></span>
+      <span class="unfollow-label">Unfollow</span>
+    </button>
+  <?php endif; ?>
   </div>
 </section>
 
