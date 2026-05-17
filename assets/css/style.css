@@ -2544,3 +2544,18 @@ img {
   .catalog-filters.filters-open { display: block; }
   .filter-toggle-wrap { display: block; }
 }
+
+.logo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 28px;
+  letter-spacing: 2px;
+  color: var(--white);
+  text-decoration: none;
+  flex-shrink: 0;
+  white-space: nowrap;
+  line-height: 1;
+}
+
+.logo span {
+  color: var(--red);
+}
