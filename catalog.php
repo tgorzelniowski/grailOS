@@ -121,27 +121,56 @@ $items = $stmt->fetchAll();
 
 <div class="section-label">/// <?= count($items) ?> produktów</div>
 
+<?php
+// Pobierz hover images dla wszystkich wyświetlanych itemów
+$item_ids  = array_column($items, 'id');
+$hover_map = [];
+if ($item_ids) {
+    $ph    = implode(',', array_fill(0, count($item_ids), '?'));
+    $hstmt = $pdo->prepare("
+        SELECT clothing_id, image_url
+        FROM clothing_images
+        WHERE clothing_id IN ($ph)
+        GROUP BY clothing_id
+        ORDER BY sort_order ASC
+    ");
+    $hstmt->execute($item_ids);
+    foreach ($hstmt->fetchAll() as $row) {
+        if (!isset($hover_map[$row['clothing_id']])) {
+            $hover_map[$row['clothing_id']] = $row['image_url'];
+        }
+    }
+}
+?>
+
 <div class="clothing-grid">
   <?php if ($items): ?>
     <?php foreach ($items as $item):
+      $hover_img   = $hover_map[$item['id']] ?? null;
       $in_wardrobe = false;
       if (isset($_SESSION['user_id'])) {
         $wcheck = $pdo->prepare("SELECT id FROM wardrobe_items WHERE user_id = ? AND clothing_id = ?");
         $wcheck->execute([$_SESSION['user_id'], $item['id']]);
-        $in_wardrobe = (bool) $wcheck->fetch();
+        $in_wardrobe = (bool)$wcheck->fetch();
       }
     ?>
       <div class="clothing-card">
-        <div class="clothing-card-img">
-          <?php if ($item['image_url']): ?>
-            <img src="<?= htmlspecialchars($item['image_url']) ?>"
-                 alt="<?= htmlspecialchars($item['name']) ?>">
-          <?php else: ?>
-            NO IMG
-          <?php endif; ?>
-        </div>
-        <div class="clothing-card-brand"><?= htmlspecialchars($item['brand']) ?></div>
-        <div class="clothing-card-name"><?= htmlspecialchars($item['name']) ?></div>
+        <a href="/grailos/item.php?id=<?= $item['id'] ?>" class="clothing-card-link">
+          <div class="clothing-card-img">
+            <?php if ($item['image_url']): ?>
+              <img src="<?= htmlspecialchars($item['image_url']) ?>"
+                   class="img-main" alt="<?= htmlspecialchars($item['name']) ?>">
+              <?php if ($hover_img): ?>
+                <img src="<?= htmlspecialchars($hover_img) ?>"
+                     class="img-hover" alt="">
+              <?php endif; ?>
+            <?php else: ?>
+              <span class="no-img-text">NO IMG</span>
+            <?php endif; ?>
+          </div>
+          <div class="clothing-card-brand"><?= htmlspecialchars($item['brand']) ?></div>
+          <div class="clothing-card-name"><?= htmlspecialchars($item['name']) ?></div>
+        </a>
         <div class="clothing-card-footer">
           <div class="clothing-card-price">
             <?= $item['price'] ? number_format($item['price'], 2) . ' zł' : '—' ?>
@@ -150,7 +179,8 @@ $items = $stmt->fetchAll();
             <form method="POST" action="/grailos/wardrobe_toggle.php">
               <?= csrf_field() ?>
               <input type="hidden" name="clothing_id" value="<?= $item['id'] ?>">
-              <button type="submit" class="wardrobe-btn <?= $in_wardrobe ? 'in-wardrobe' : '' ?>"
+              <button type="submit"
+                      class="wardrobe-btn <?= $in_wardrobe ? 'in-wardrobe' : '' ?>"
                       title="<?= $in_wardrobe ? 'Usuń z szafy' : 'Dodaj do szafy' ?>">
                 <?= $in_wardrobe ? '✓' : '+' ?>
               </button>

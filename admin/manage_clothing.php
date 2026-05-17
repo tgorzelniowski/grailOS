@@ -47,9 +47,12 @@ $items = $pdo->query("SELECT * FROM clothing ORDER BY created_at DESC")->fetchAl
             <td><?= htmlspecialchars($item['brand']) ?></td>
             <td><?= htmlspecialchars($item['category']) ?></td>
             <td><?= $item['price'] ? number_format($item['price'], 2) . ' zł' : '—' ?></td>
-            <td>
-              <form method="POST"
-                    onsubmit="return confirm('Na pewno usunąć <?= htmlspecialchars(addslashes($item['name'])) ?>?')">
+            <td style="display:flex; gap:8px; flex-wrap:wrap;">
+              <a href="/grailos/admin/item_images.php?id=<?= $item['id'] ?>"
+                class="btn btn-outline" style="font-size:10px; padding:4px 10px;">Zdjęcia</a>
+              <a href="/grailos/admin/item_links.php?id=<?= $item['id'] ?>"
+                class="btn btn-outline" style="font-size:10px; padding:4px 10px;">Linki</a>
+              <form method="POST" onsubmit="return confirm('Na pewno usunąć?')">
                 <?= csrf_field() ?>
                 <input type="hidden" name="delete_id" value="<?= $item['id'] ?>">
                 <button type="submit" class="btn-delete">Usuń</button>
