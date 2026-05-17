@@ -1,12 +1,13 @@
-<?php require_once 'includes/header.php'; ?>
 <?php
+require_once 'config/db.php';
+
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_verify();
 
     if (!check_rate_limit('login', 5, 900)) {
-        $error = 'Za dużo prób logowania. Poczekaj 15 minut.';
+        $error = 'Za dużo prób. Poczekaj 15 minut.';
     } else {
         $email    = trim($_POST['email'] ?? '');
         $password = $_POST['password'] ?? '';
@@ -21,9 +22,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $user = $stmt->fetch();
 
             if ($user && password_verify($password, $user['password'])) {
-                session_regenerate_id(true); // Ochrona przed session fixation
-                if ($user && password_verify($password, $user['password'])) {
-    // Sprawdź ban
                 if ($user['is_banned']) {
                     $error = 'Twoje konto zostało zbanowane.';
                 } else {
@@ -36,13 +34,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     header('Location: /grailos/');
                     exit;
                 }
-                }
             } else {
                 $error = 'Nieprawidłowy email lub hasło.';
             }
         }
     }
 }
+
+require_once 'includes/header.php';
 ?>
 
 <section class="auth-page">
@@ -50,7 +49,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="auth-tag">/// Welcome back</div>
     <h1 class="auth-title">LOGIN</h1>
 
-    <?php if ($error): ?><div class="form-error"><?= htmlspecialchars($error) ?></div><?php endif; ?>
+    <?php if ($error): ?>
+      <div class="form-error"><?= htmlspecialchars($error) ?></div>
+    <?php endif; ?>
 
     <form method="POST" class="auth-form">
       <?= csrf_field() ?>

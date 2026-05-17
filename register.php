@@ -1,5 +1,6 @@
-<?php require_once 'includes/header.php'; ?>
+
 <?php
+require_once 'config/db.php';
 $error   = '';
 $success = '';
 
@@ -34,6 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
+require_once 'includes/header.php';
 ?>
 
 <section class="auth-page">
