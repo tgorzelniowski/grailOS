@@ -35,6 +35,7 @@
         <a href="/grailos/profile.php?username=<?= urlencode($_SESSION['username']) ?>">
           @<?= htmlspecialchars($_SESSION['username']) ?>
         </a>
+        <a href="/grailos/settings.php">Ustawienia</a>
         <?php if ($_SESSION['is_admin']): ?>
           <a href="/grailos/admin/">Panel admina</a>
         <?php endif; ?>
