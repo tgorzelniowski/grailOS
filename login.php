@@ -28,9 +28,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $error = 'Twoje konto zostało zbanowane.';
                 } else {
                     session_regenerate_id(true);
-                    $_SESSION['user_id']  = $user['id'];
-                    $_SESSION['username'] = $user['username'];
-                    $_SESSION['is_admin'] = (bool) $user['is_admin'];
+                    $_SESSION['user_id']    = $user['id'];
+                    $_SESSION['username']   = $user['username'];
+                    $_SESSION['is_admin']   = (bool) $user['is_admin'];
+                    $_SESSION['avatar_url'] = $user['avatar_url'] ?? '';
                     unset($_SESSION['rate']);
                     header('Location: /grailos/');
                     exit;
