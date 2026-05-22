@@ -3107,3 +3107,13 @@ img {
   .price-btn { grid-column: span 2; }
   .img-manage-grid { grid-template-columns: repeat(3, 1fr); }
 }
+
+/* FILTRY — fix */
+.filter-toggle-wrap { display: none; }
+.catalog-filters    { display: block; }
+
+@media (max-width: 768px) {
+  .filter-toggle-wrap { display: block; }
+  .catalog-filters { display: none; }
+  .catalog-filters.filters-open { display: block; }
+}
