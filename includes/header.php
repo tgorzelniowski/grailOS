@@ -127,12 +127,16 @@ document.getElementById('navQ').addEventListener('input', function() {
     const res  = await fetch('/grailos/search_suggest.php?q=' + encodeURIComponent(q));
     const data = await res.json();
     if (!data.length) { sugg.classList.remove('open'); return; }
-    sugg.innerHTML = data.map(s =>
-      `<a href="${s.url}" class="sugg-item">
+    sugg.innerHTML = data.map(s => {
+      const thumb = s.thumb
+        ? `<img src="${s.thumb}" class="sugg-thumb-img" alt="">`
+        : `<span class="sugg-thumb-init">${s.init || '?'}</span>`;
+      return `<a href="${s.url}" class="sugg-item">
+        <span class="sugg-thumb">${thumb}</span>
         <span class="sugg-badge sugg-${s.type}">${s.type}</span>
-        <span>${s.text}</span>
-      </a>`
-    ).join('');
+        <span class="sugg-text">${s.text}</span>
+      </a>`;
+    }).join('');
     sugg.classList.add('open');
   }, 250);
 });
