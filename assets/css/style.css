@@ -3117,3 +3117,111 @@ img {
   .catalog-filters { display: none; }
   .catalog-filters.filters-open { display: block; }
 }
+
+/* ===========================
+   HYPE BUTTON
+=========================== */
+.drop-hype-wrap { margin-top: 10px; }
+
+.hype-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--gray);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 6px 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.hype-btn:hover  { border-color: var(--red); color: var(--red); }
+.hype-btn.hyped  { background: var(--red); border-color: var(--red); color: var(--white); }
+
+.hype-static {
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--gray);
+}
+
+/* ===========================
+   EDIT SECTIONS
+=========================== */
+.edit-section {
+  padding: 32px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.edit-section:last-of-type { border-bottom: none; }
+
+.form-section-title {
+  font-size: 11px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--red);
+  margin-bottom: 20px;
+}
+
+.edit-main-img {
+  width: 160px;
+  height: 200px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.edit-main-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ===========================
+   LINK ROW (add clothing)
+=========================== */
+.link-row {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr auto;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+/* ===========================
+   IMG PREVIEW (add clothing)
+=========================== */
+.img-preview-wrap {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+.img-preview-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.img-preview-item img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border: 1px solid var(--border);
+}
+
+.img-preview-item span {
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--gray);
+}
+
+@media (max-width: 768px) {
+  .link-row { grid-template-columns: 1fr 1fr; }
+}
