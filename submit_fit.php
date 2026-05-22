@@ -1,18 +1,15 @@
 <?php
-require_once 'includes/header.php';
+require_once 'config/db.php';
 
 if (!isset($_SESSION['user_id'])) {
-    header('Location: /grailos/login.php');
-    exit;
+    header('Location: /grailos/login.php'); exit;
 }
 
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_verify();
-
     $description = trim($_POST['description'] ?? '');
-
     if (empty($_FILES['image']['name'])) {
         $error = 'Zdjęcie jest wymagane.';
     } else {
@@ -20,13 +17,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (isset($result['error'])) {
             $error = $result['error'];
         } else {
-            $stmt = $pdo->prepare("INSERT INTO fits (user_id, image_url, description) VALUES (?, ?, ?)");
-            $stmt->execute([$_SESSION['user_id'], $result['path'], $description ?: null]);
+            $pdo->prepare("INSERT INTO fits (user_id, image_url, description) VALUES (?, ?, ?)")
+                ->execute([$_SESSION['user_id'], $result['path'], $description ?: null]);
             header('Location: /grailos/fits.php');
             exit;
         }
     }
 }
+
+require_once 'includes/header.php';
 ?>
 
 <section class="page-header">
@@ -36,7 +35,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <div class="admin-form-wrap">
   <?php if ($error): ?><div class="form-error"><?= htmlspecialchars($error) ?></div><?php endif; ?>
-
   <form method="POST" enctype="multipart/form-data" class="admin-form">
     <?= csrf_field() ?>
     <div class="form-group">
@@ -48,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <label class="form-label">Opis (opcjonalnie)</label>
       <textarea name="description" class="form-input form-textarea"
                 rows="3" maxlength="500"
-                placeholder="Opisz swój fit, wymień marki..."><?= htmlspecialchars($_POST['description'] ?? '') ?></textarea>
+                placeholder="Opisz swój fit..."><?= htmlspecialchars($_POST['description'] ?? '') ?></textarea>
     </div>
     <div style="display:flex; gap:12px;">
       <button type="submit" class="btn">Opublikuj fit →</button>
