@@ -53,9 +53,14 @@
     $stmt = $pdo->query("SELECT * FROM drops WHERE drop_date >= NOW() ORDER BY drop_date ASC LIMIT 3");
     $drops = $stmt->fetchAll();
 
-    if ($drops):
-      foreach ($drops as $drop): ?>
+    if ($drops):?>
+      <?php foreach ($drops as $drop): ?>
         <div class="drop-row">
+          <div class="drop-row-thumb">
+            <?php if ($drop['image_url']): ?>
+              <img src="<?= htmlspecialchars($drop['image_url']) ?>" alt="">
+            <?php endif; ?>
+          </div>
           <div>
             <div class="drop-name"><?= htmlspecialchars($drop['name']) ?></div>
             <div class="drop-brand"><?= htmlspecialchars($drop['brand']) ?></div>
@@ -65,8 +70,8 @@
             <?= date('H:i', strtotime($drop['drop_date'])) ?>
           </div>
         </div>
-    <?php endforeach;
-    else: ?>
+      <?php endforeach; ?>
+    <?php>else: ?>
       <div class="drop-row" style="color: #444; letter-spacing: 3px; text-transform: uppercase; font-size: 13px;">
         Brak nadchodzących dropów
       </div>
