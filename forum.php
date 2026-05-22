@@ -57,10 +57,6 @@ require_once 'includes/header.php';
   <h1 class="page-title">FORUM</h1>
   <p class="page-sub">Pytaj, odpowiadaj, dziel się.</p>
 </section>
-
-
-?>
-
 <!-- COMPOSE -->
 <div class="compose-wrap">
   <?php if (isset($_SESSION['user_id'])): ?>
