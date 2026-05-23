@@ -3512,3 +3512,35 @@ img {
   object-position: center !important;
   display: block !important;
 }
+
+/* ===========================
+   PASSWORD STRENGTH
+=========================== */
+.password-strength {
+  height: 3px;
+  background: var(--border);
+  margin-top: 8px;
+  overflow: hidden;
+}
+
+.pw-bar {
+  height: 100%;
+  width: 0;
+  transition: width 0.3s, background 0.3s;
+}
+
+.pw-rules {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  margin-top: 8px;
+}
+
+.pw-rule {
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: var(--gray);
+  transition: color 0.2s;
+}
+
+.pw-rule.pw-ok { color: #2ecc71; }
