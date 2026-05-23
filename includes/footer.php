@@ -6,8 +6,8 @@
   <div class="footer-links">
     <a href="/grailos/about.php">About</a>
     <a href="/grailos/contact.php">Contact</a>
-    <a href="/grailos/catalog.php">Catalog</a>
-    <a href="/grailos/drops.php">Drops</a>
+    <a href="/grailos/privacy.php">Polityka prywatności</a>
+    <a href="/grailos/terms.php">Regulamin</a>
   </div>
   <p class="footer-copy">© 2025 GrailOS. All rights reserved.</p>
 </footer>
