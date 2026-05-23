@@ -55,7 +55,7 @@ require_once 'includes/header.php';
         <?php if ($uid): ?>
           <button class="hype-btn <?= $drop['user_hyped'] ? 'hyped' : '' ?>"
                   onclick="hypeToggle(<?= $drop['id'] ?>, this)">
-            🔥 <span class="hype-count"><?= $drop['hype_count'] ?></span>
+            <span class="hype-count"><?= $drop['hype_count'] ?></span>
             <span class="hype-label"><?= $drop['user_hyped'] ? 'Hype!' : 'Hype' ?></span>
           </button>
         <?php else: ?>
