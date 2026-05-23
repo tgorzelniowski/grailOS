@@ -21,26 +21,31 @@
 <div class="section-label">/// New in catalog</div>
 <div class="clothing-grid">
   <?php
-    $stmt = $pdo->query("SELECT * FROM clothing ORDER BY created_at DESC LIMIT 3");
+    $stmt = $pdo->query("SELECT * FROM clothing ORDER BY created_at DESC LIMIT 4");
     $items = $stmt->fetchAll();
 
     if ($items):
       foreach ($items as $item): ?>
-        <div class="clothing-card">
+        <a href="/grailos/item.php?id=<?= $item['id'] ?>"
+           class="clothing-card" style="text-decoration:none; color:inherit; display:block;">
           <div class="clothing-card-img">
             <?php if ($item['image_url']): ?>
-              <img src="<?= htmlspecialchars($item['image_url']) ?>" alt="<?= htmlspecialchars($item['name']) ?>">
+              <img src="<?= htmlspecialchars($item['image_url']) ?>"
+                   alt="<?= htmlspecialchars($item['name']) ?>">
             <?php else: ?>
               NO IMG
             <?php endif; ?>
           </div>
           <div class="clothing-card-brand"><?= htmlspecialchars($item['brand']) ?></div>
           <div class="clothing-card-name"><?= htmlspecialchars($item['name']) ?></div>
-          <div class="clothing-card-price"><?= $item['price'] ? number_format($item['price'], 2) . ' zł' : '—' ?></div>
-        </div>
-    <?php endforeach;
+          <div class="clothing-card-price">
+            <?= $item['price'] ? number_format($item['price'], 2) . ' zł' : '—' ?>
+          </div>
+        </a>
+      <?php endforeach;
     else: ?>
-      <div class="clothing-card" style="grid-column: span 3; text-align:center; padding: 60px; color: #444; letter-spacing: 3px; text-transform: uppercase; font-size: 13px;">
+      <div style="grid-column:span 4; padding:60px; text-align:center; color:#444;
+                  letter-spacing:3px; text-transform:uppercase; font-size:13px;">
         Brak produktów w katalogu
       </div>
     <?php endif; ?>
