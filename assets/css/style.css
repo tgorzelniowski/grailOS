@@ -3544,3 +3544,57 @@ img {
 }
 
 .pw-rule.pw-ok { color: #2ecc71; }
+
+/* ===========================
+   CLOTHING GRID — 4 KOLUMNY
+=========================== */
+.clothing-grid {
+  grid-template-columns: repeat(4, 1fr) !important;
+}
+
+@media (max-width: 900px) {
+  .clothing-grid { grid-template-columns: repeat(3, 1fr) !important; }
+}
+
+@media (max-width: 580px) {
+  .clothing-grid { grid-template-columns: repeat(2, 1fr) !important; }
+}
+
+/* ===========================
+   COMMENT REPLIES
+=========================== */
+.reply-toggle-btn {
+  background: transparent;
+  border: none;
+  color: var(--gray);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  cursor: pointer;
+  padding: 4px 0;
+  margin-top: 6px;
+  transition: color 0.2s;
+}
+
+.reply-toggle-btn:hover { color: var(--red); }
+
+.comment-replies {
+  margin-top: 12px;
+  padding-left: 16px;
+  border-left: 2px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.comment-reply {
+  padding: 10px 12px;
+  background: rgba(255,255,255,0.02);
+}
+
+.reply-form {
+  margin-top: 10px;
+  padding-left: 16px;
+  border-left: 2px solid var(--red);
+}
