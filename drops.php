@@ -59,7 +59,7 @@ require_once 'includes/header.php';
             <span class="hype-label"><?= $drop['user_hyped'] ? 'Hype!' : 'Hype' ?></span>
           </button>
         <?php else: ?>
-          <span class="hype-static">🔥 <?= $drop['hype_count'] ?> osób chce ten drop</span>
+          <span class="hype-static"><?= $drop['hype_count'] ?> osób chce ten drop</span>
         <?php endif; ?>
       </div>
     </div>
