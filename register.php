@@ -1,8 +1,16 @@
-
 <?php
 require_once 'config/db.php';
+
 $error   = '';
 $success = '';
+
+function validatePassword(string $p): ?string {
+    if (strlen($p) < 8)                          return 'Minimum 8 znaków.';
+    if (!preg_match('/[A-Z]/', $p))              return 'Wymagana co najmniej jedna wielka litera.';
+    if (!preg_match('/[a-z]/', $p))              return 'Wymagana co najmniej jedna mała litera.';
+    if (!preg_match('/[^A-Za-z0-9]/', $p))      return 'Wymagany co najmniej jeden znak specjalny (!@#$%...).';
+    return null;
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_verify();
@@ -18,8 +26,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'Username: 3-20 znaków, tylko litery, cyfry i _.';
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $error = 'Nieprawidłowy adres email.';
-    } elseif (strlen($password) < 8) {
-        $error = 'Hasło musi mieć minimum 8 znaków.';
+    } elseif ($err = validatePassword($password)) {
+        $error = $err;
     } elseif ($password !== $confirm) {
         $error = 'Hasła nie są identyczne.';
     } else {
@@ -29,12 +37,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error = 'Ten email lub username jest już zajęty.';
         } else {
             $hash = password_hash($password, PASSWORD_BCRYPT, ['cost' => 12]);
-            $stmt = $pdo->prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
-            $stmt->execute([$username, $email, $hash]);
+            $pdo->prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)")
+                ->execute([$username, $email, $hash]);
             $success = 'Konto utworzone! Możesz się teraz zalogować.';
         }
     }
 }
+
 require_once 'includes/header.php';
 ?>
 
@@ -43,10 +52,14 @@ require_once 'includes/header.php';
     <div class="auth-tag">/// Join</div>
     <h1 class="auth-title">REGISTER</h1>
 
-    <?php if ($error): ?><div class="form-error"><?= htmlspecialchars($error) ?></div><?php endif; ?>
-    <?php if ($success): ?><div class="form-success"><?= htmlspecialchars($success) ?></div><?php endif; ?>
+    <?php if ($error): ?>
+      <div class="form-error"><?= htmlspecialchars($error) ?></div>
+    <?php endif; ?>
+    <?php if ($success): ?>
+      <div class="form-success"><?= htmlspecialchars($success) ?></div>
+    <?php endif; ?>
 
-    <form method="POST" class="auth-form">
+    <form method="POST" class="auth-form" id="regForm">
       <?= csrf_field() ?>
       <div class="form-group">
         <label class="form-label">Username (3-20 znaków)</label>
@@ -59,8 +72,19 @@ require_once 'includes/header.php';
                value="<?= htmlspecialchars($_POST['email'] ?? '') ?>">
       </div>
       <div class="form-group">
-        <label class="form-label">Hasło (min. 8 znaków)</label>
-        <input type="password" name="password" class="form-input" minlength="8">
+        <label class="form-label">Hasło</label>
+        <input type="password" name="password" id="regPassword" class="form-input"
+               oninput="checkPassword(this.value)">
+        <!-- WSKAŹNIK SIŁY HASŁA -->
+        <div class="password-strength" id="pwStrength">
+          <div class="pw-bar" id="pwBar"></div>
+        </div>
+        <div class="pw-rules" id="pwRules">
+          <span class="pw-rule" id="rule-len">✗ Min. 8 znaków</span>
+          <span class="pw-rule" id="rule-upper">✗ Wielka litera</span>
+          <span class="pw-rule" id="rule-lower">✗ Mała litera</span>
+          <span class="pw-rule" id="rule-special">✗ Znak specjalny</span>
+        </div>
       </div>
       <div class="form-group">
         <label class="form-label">Potwierdź hasło</label>
@@ -71,5 +95,30 @@ require_once 'includes/header.php';
     </form>
   </div>
 </section>
+
+<script>
+function checkPassword(val) {
+  const rules = {
+    'rule-len':     val.length >= 8,
+    'rule-upper':   /[A-Z]/.test(val),
+    'rule-lower':   /[a-z]/.test(val),
+    'rule-special': /[^A-Za-z0-9]/.test(val),
+  };
+  let passed = 0;
+  for (const [id, ok] of Object.entries(rules)) {
+    const el = document.getElementById(id);
+    el.textContent = (ok ? '✓ ' : '✗ ') + el.textContent.slice(2);
+    el.className   = 'pw-rule' + (ok ? ' pw-ok' : '');
+    if (ok) passed++;
+  }
+  const bar = document.getElementById('pwBar');
+  const pct = (passed / 4) * 100;
+  bar.style.width = pct + '%';
+  bar.style.background = pct <= 25 ? '#e74c3c'
+                       : pct <= 50 ? '#e67e22'
+                       : pct <= 75 ? '#f1c40f'
+                       : '#2ecc71';
+}
+</script>
 
 <?php require_once 'includes/footer.php'; ?>
