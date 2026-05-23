@@ -4,7 +4,6 @@ require_once 'config/db.php';
 $id = (int)($_GET['id'] ?? 0);
 if (!$id) { header('Location: /grailos/fits.php'); exit; }
 
-// Pobierz fit
 $stmt = $pdo->prepare("
     SELECT fits.*, users.username, users.avatar_url,
            COUNT(DISTINCT fit_votes.id) AS votes
@@ -18,12 +17,11 @@ $stmt->execute([$id]);
 $fit = $stmt->fetch();
 if (!$fit) { header('Location: /grailos/fits.php'); exit; }
 
-// Komentarz — PRZED headerem
 $comment_error = '';
+
+// Nowy komentarz
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['comment'])) {
-    if (!isset($_SESSION['user_id'])) {
-        header('Location: /grailos/login.php'); exit;
-    }
+    if (!isset($_SESSION['user_id'])) { header('Location: /grailos/login.php'); exit; }
     csrf_verify();
     $content = trim($_POST['comment'] ?? '');
     if (!$content) {
@@ -33,9 +31,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['comment'])) {
     } else {
         $pdo->prepare("INSERT INTO fit_comments (fit_id, user_id, content) VALUES (?, ?, ?)")
             ->execute([$id, $_SESSION['user_id'], $content]);
-        header("Location: /grailos/fit.php?id=$id");
+        header("Location: /grailos/fit.php?id=$id#comments");
         exit;
     }
+}
+
+// Odpowiedź na komentarz
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reply_comment_id'])) {
+    if (!isset($_SESSION['user_id'])) { header('Location: /grailos/login.php'); exit; }
+    csrf_verify();
+    $comment_id = (int)($_POST['reply_comment_id'] ?? 0);
+    $content    = trim($_POST['reply_content'] ?? '');
+    if ($content && $comment_id) {
+        $pdo->prepare("INSERT INTO fit_comment_replies (comment_id, user_id, content) VALUES (?, ?, ?)")
+            ->execute([$comment_id, $_SESSION['user_id'], $content]);
+    }
+    header("Location: /grailos/fit.php?id=$id#comment-$comment_id");
+    exit;
 }
 
 // Pobierz komentarze
@@ -48,6 +60,24 @@ $stmt2 = $pdo->prepare("
 ");
 $stmt2->execute([$id]);
 $comments = $stmt2->fetchAll();
+
+// Pobierz odpowiedzi do każdego komentarza
+$replies_map = [];
+if ($comments) {
+    $comment_ids  = array_column($comments, 'id');
+    $placeholders = implode(',', array_fill(0, count($comment_ids), '?'));
+    $rstmt = $pdo->prepare("
+        SELECT fit_comment_replies.*, users.username, users.avatar_url
+        FROM fit_comment_replies
+        LEFT JOIN users ON fit_comment_replies.user_id = users.id
+        WHERE fit_comment_replies.comment_id IN ($placeholders)
+        ORDER BY fit_comment_replies.created_at ASC
+    ");
+    $rstmt->execute($comment_ids);
+    foreach ($rstmt->fetchAll() as $reply) {
+        $replies_map[$reply['comment_id']][] = $reply;
+    }
+}
 
 // Czy głosował
 $user_voted = false;
@@ -71,9 +101,12 @@ require_once 'includes/header.php';
         <a href="/grailos/profile.php?username=<?= urlencode($fit['username']) ?>"
            class="post-av-link">
           <?php if ($fit['avatar_url']): ?>
-            <img src="<?= htmlspecialchars($fit['avatar_url']) ?>" class="post-av-img post-av-lg" alt="">
+            <img src="<?= htmlspecialchars($fit['avatar_url']) ?>"
+                 class="post-av-img post-av-lg" alt="">
           <?php else: ?>
-            <span class="post-avatar post-avatar-lg"><?= strtoupper($fit['username'][0]) ?></span>
+            <span class="post-avatar post-avatar-lg">
+              <?= strtoupper($fit['username'][0]) ?>
+            </span>
           <?php endif; ?>
         </a>
         <div>
@@ -107,11 +140,16 @@ require_once 'includes/header.php';
       <p class="fit-single-desc"><?= htmlspecialchars($fit['description']) ?></p>
     <?php endif; ?>
 
-    <div class="comments-section">
-      <div class="comments-title">/// <?= count($comments) ?> komentarzy</div>
+    <!-- KOMENTARZE -->
+    <div class="comments-section" id="comments">
+      <div class="comments-title">
+        /// <?= count($comments) ?> komentarzy
+      </div>
 
-      <?php foreach ($comments as $c): ?>
-        <div class="comment">
+      <?php foreach ($comments as $c):
+        $c_replies = $replies_map[$c['id']] ?? [];
+      ?>
+        <div class="comment" id="comment-<?= $c['id'] ?>">
           <div class="comment-header">
             <div style="display:flex; align-items:center; gap:8px;">
               <a href="/grailos/profile.php?username=<?= urlencode($c['username']) ?>"
@@ -120,7 +158,9 @@ require_once 'includes/header.php';
                   <img src="<?= htmlspecialchars($c['avatar_url']) ?>"
                        style="width:28px;height:28px;border-radius:50%;object-fit:cover;" alt="">
                 <?php else: ?>
-                  <span style="width:28px;height:28px;background:var(--card);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:14px;color:var(--red);">
+                  <span style="width:28px;height:28px;background:var(--card);border-radius:50%;
+                               display:flex;align-items:center;justify-content:center;
+                               font-family:'Bebas Neue',sans-serif;font-size:14px;color:var(--red);">
                     <?= strtoupper($c['username'][0]) ?>
                   </span>
                 <?php endif; ?>
@@ -130,10 +170,80 @@ require_once 'includes/header.php';
             </div>
             <span class="comment-date"><?= date('d M, H:i', strtotime($c['created_at'])) ?></span>
           </div>
+
           <div class="comment-content"><?= htmlspecialchars($c['content']) ?></div>
+
+          <?php if (isset($_SESSION['user_id'])): ?>
+            <button class="reply-toggle-btn"
+                    onclick="toggleReply('reply-form-<?= $c['id'] ?>')">
+              Odpowiedz
+            </button>
+          <?php endif; ?>
+
+          <!-- ODPOWIEDZI NA KOMENTARZ -->
+          <?php if ($c_replies): ?>
+            <div class="comment-replies">
+              <?php foreach ($c_replies as $r): ?>
+                <div class="comment-reply">
+                  <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+                    <a href="/grailos/profile.php?username=<?= urlencode($r['username']) ?>"
+                       class="post-av-link">
+                      <?php if ($r['avatar_url']): ?>
+                        <img src="<?= htmlspecialchars($r['avatar_url']) ?>"
+                             style="width:22px;height:22px;border-radius:50%;object-fit:cover;" alt="">
+                      <?php else: ?>
+                        <span style="width:22px;height:22px;background:var(--card);border-radius:50%;
+                                     display:flex;align-items:center;justify-content:center;
+                                     font-family:'Bebas Neue',sans-serif;font-size:12px;color:var(--red);">
+                          <?= strtoupper($r['username'][0]) ?>
+                        </span>
+                      <?php endif; ?>
+                    </a>
+                    <a href="/grailos/profile.php?username=<?= urlencode($r['username']) ?>"
+                       style="font-size:11px;letter-spacing:2px;text-transform:uppercase;
+                              color:var(--red);text-decoration:none;">
+                      @<?= htmlspecialchars($r['username']) ?>
+                    </a>
+                    <span style="font-size:11px;color:#444;letter-spacing:1px;">
+                      <?= date('d M, H:i', strtotime($r['created_at'])) ?>
+                    </span>
+                  </div>
+                  <div style="font-size:13px;color:var(--gray);line-height:1.5;letter-spacing:0.3px;">
+                    <?= htmlspecialchars($r['content']) ?>
+                  </div>
+                </div>
+              <?php endforeach; ?>
+            </div>
+          <?php endif; ?>
+
+          <!-- FORMULARZ ODPOWIEDZI -->
+          <?php if (isset($_SESSION['user_id'])): ?>
+            <form method="POST"
+                  class="reply-form"
+                  id="reply-form-<?= $c['id'] ?>"
+                  style="display:none;">
+              <?= csrf_field() ?>
+              <input type="hidden" name="reply_comment_id" value="<?= $c['id'] ?>">
+              <div class="form-group" style="margin-top:8px;">
+                <textarea name="reply_content" class="form-input form-textarea"
+                          placeholder="Odpowiedz na komentarz..."
+                          rows="2" maxlength="500"></textarea>
+              </div>
+              <div style="display:flex; gap:8px;">
+                <button type="submit" class="btn"
+                        style="font-size:11px; padding:6px 14px;">Wyślij →</button>
+                <button type="button" class="btn btn-outline"
+                        style="font-size:11px; padding:6px 14px;"
+                        onclick="toggleReply('reply-form-<?= $c['id'] ?>')">
+                  Anuluj
+                </button>
+              </div>
+            </form>
+          <?php endif; ?>
         </div>
       <?php endforeach; ?>
 
+      <!-- NOWY KOMENTARZ -->
       <?php if (isset($_SESSION['user_id'])): ?>
         <?php if ($comment_error): ?>
           <div class="form-error" style="margin:16px 0;"><?= htmlspecialchars($comment_error) ?></div>
@@ -157,6 +267,12 @@ require_once 'includes/header.php';
 </div>
 
 <script>
+function toggleReply(id) {
+  const form = document.getElementById(id);
+  form.style.display = form.style.display === 'none' ? 'block' : 'none';
+  if (form.style.display === 'block') form.querySelector('textarea').focus();
+}
+
 async function handleVote(fitId, btn) {
   const res  = await fetch('/grailos/vote.php', {
     method: 'POST',
