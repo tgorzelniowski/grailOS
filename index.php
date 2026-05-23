@@ -48,34 +48,34 @@
 
 <!-- SEKCJA DROPÓW -->
 <div class="section-label">/// Upcoming drops</div>
-<div class="drops-list">
-  <?php
-    $stmt = $pdo->query("SELECT * FROM drops WHERE drop_date >= NOW() ORDER BY drop_date ASC LIMIT 3");
-    $drops = $stmt->fetchAll();
+<div class="drops-list" style="padding:0 40px;">
+<?php
+  $stmt = $pdo->query("SELECT * FROM drops ORDER BY drop_date ASC LIMIT 3");
+  $drops = $stmt->fetchAll();
 
-    if ($drops):?>
-      <?php foreach ($drops as $drop): ?>
-        <div class="drop-row">
-          <div class="drop-row-thumb">
-            <?php if ($drop['image_url']): ?>
-              <img src="<?= htmlspecialchars($drop['image_url']) ?>" alt="">
-            <?php endif; ?>
-          </div>
-          <div>
-            <div class="drop-name"><?= htmlspecialchars($drop['name']) ?></div>
-            <div class="drop-brand"><?= htmlspecialchars($drop['brand']) ?></div>
-          </div>
-          <div class="drop-date">
-            <?= date('d M', strtotime($drop['drop_date'])) ?><br>
-            <?= date('H:i', strtotime($drop['drop_date'])) ?>
-          </div>
+  if ($drops):
+    foreach ($drops as $drop): ?>
+      <div class="drop-row">
+        <div class="drop-row-thumb">
+          <?php if ($drop['image_url']): ?>
+            <img src="<?= htmlspecialchars($drop['image_url']) ?>" alt="">
+          <?php endif; ?>
         </div>
-      <?php endforeach; ?>
-    <?php>else: ?>
-      <div class="drop-row" style="color: #444; letter-spacing: 3px; text-transform: uppercase; font-size: 13px;">
-        Brak nadchodzących dropów
+        <div>
+          <div class="drop-name"><?= htmlspecialchars($drop['name']) ?></div>
+          <div class="drop-brand"><?= htmlspecialchars($drop['brand']) ?></div>
+        </div>
+        <div class="drop-date">
+          <?= date('d M', strtotime($drop['drop_date'])) ?><br>
+          <?= date('H:i', strtotime($drop['drop_date'])) ?>
+        </div>
       </div>
-    <?php endif; ?>
+  <?php endforeach;
+  else: ?>
+    <div style="padding:32px 0; color:#444; letter-spacing:3px; text-transform:uppercase; font-size:12px;">
+      Brak dropów.
+    </div>
+  <?php endif; ?>
 </div>
 
 <?php require_once 'includes/footer.php'; ?>

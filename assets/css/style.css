@@ -3491,3 +3491,24 @@ img {
 @media (max-width: 768px) {
   .legal-wrap { padding: 0 20px 60px; }
 }
+
+/* ===========================
+   FORUM POST IMAGES — FIXED SIZE
+=========================== */
+.post-img-wrap {
+  margin: 12px 0 16px !important;
+  border: 1px solid var(--border) !important;
+  width: 100% !important;
+  max-width: 560px !important;
+  aspect-ratio: 16/9 !important;
+  overflow: hidden !important;
+  background: #111 !important;
+}
+
+.post-img-wrap img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center !important;
+  display: block !important;
+}
