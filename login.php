@@ -9,16 +9,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!check_rate_limit('login', 5, 900)) {
         $error = 'Za dużo prób. Poczekaj 15 minut.';
     } else {
-        $email    = trim($_POST['email'] ?? '');
+        $login    = trim($_POST['login'] ?? '');
         $password = $_POST['password'] ?? '';
 
-        if (!$email || !$password) {
+        if (!$login || !$password) {
             $error = 'Wypełnij wszystkie pola.';
-        } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $error = 'Nieprawidłowy email.';
         } else {
-            $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ?");
-            $stmt->execute([$email]);
+            // Email lub username
+            if (strpos($login, '@') !== false) {
+                $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ?");
+            } else {
+                $stmt = $pdo->prepare("SELECT * FROM users WHERE username = ?");
+            }
+            $stmt->execute([$login]);
             $user = $stmt->fetch();
 
             if ($user && password_verify($password, $user['password'])) {
@@ -35,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     exit;
                 }
             } else {
-                $error = 'Nieprawidłowy email lub hasło.';
+                $error = 'Nieprawidłowy login lub hasło.';
             }
         }
     }
@@ -56,9 +59,10 @@ require_once 'includes/header.php';
     <form method="POST" class="auth-form">
       <?= csrf_field() ?>
       <div class="form-group">
-        <label class="form-label">Email</label>
-        <input type="email" name="email" class="form-input"
-               value="<?= htmlspecialchars($_POST['email'] ?? '') ?>">
+        <label class="form-label">Email lub username</label>
+        <input type="text" name="login" class="form-input"
+               value="<?= htmlspecialchars($_POST['login'] ?? '') ?>"
+               placeholder="np. grailuser lub grail@email.com">
       </div>
       <div class="form-group">
         <label class="form-label">Hasło</label>
