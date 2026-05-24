@@ -184,7 +184,7 @@ require_once 'includes/header.php';
           <?php if ($c_replies): ?>
             <div class="comment-replies">
               <?php foreach ($c_replies as $r): ?>
-                <div class="comment-reply">
+                <div class="comment-reply" id="creply-<?= $r['id'] ?>">
                   <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
                     <a href="/grailos/profile.php?username=<?= urlencode($r['username']) ?>"
                        class="post-av-link">
@@ -211,6 +211,29 @@ require_once 'includes/header.php';
                   <div style="font-size:13px;color:var(--gray);line-height:1.5;letter-spacing:0.3px;">
                     <?= htmlspecialchars($r['content']) ?>
                   </div>
+                  <?php if (isset($_SESSION['user_id'])): ?>
+                    <button class="reply-toggle-btn"
+                            onclick="toggleReply('rrf-<?= $r['id'] ?>')">
+                      Odpowiedz
+                    </button>
+                    <form method="POST" class="reply-form"
+                          id="rrf-<?= $r['id'] ?>" style="display:none;">
+                      <?= csrf_field() ?>
+                      <input type="hidden" name="reply_comment_id" value="<?= $c['id'] ?>">
+                      <div class="form-group" style="margin-top:8px;">
+                        <textarea name="reply_content" class="form-input form-textarea"
+                                  placeholder="Odpowiadasz @<?= htmlspecialchars($r['username']) ?>..."
+                                  rows="2" maxlength="500"></textarea>
+                      </div>
+                      <div style="display:flex; gap:8px;">
+                        <button type="submit" class="btn"
+                                style="font-size:11px; padding:6px 14px;">Wyślij →</button>
+                        <button type="button" class="btn btn-outline"
+                                style="font-size:11px; padding:6px 14px;"
+                                onclick="toggleReply('rrf-<?= $r['id'] ?>')">Anuluj</button>
+                      </div>
+                    </form>
+                  <?php endif; ?>
                 </div>
               <?php endforeach; ?>
             </div>

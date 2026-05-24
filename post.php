@@ -166,7 +166,7 @@ function renderAvatar($user, $size = 40) {
       <?php if (!empty($nested[$r['id']])): ?>
         <div class="nested-replies">
           <?php foreach ($nested[$r['id']] as $nr): ?>
-            <div class="post-card reply-card nested-reply">
+            <div class="post-card reply-card nested-reply" id="reply-<?= $nr['id'] ?>">
               <div class="post-card-header">
                 <div class="post-card-meta">
                   <a href="/grailos/profile.php?username=<?= urlencode($nr['username']) ?>"
@@ -181,6 +181,30 @@ function renderAvatar($user, $size = 40) {
                 </div>
               </div>
               <div class="post-card-content"><?= nl2br(htmlspecialchars($nr['content'])) ?></div>
+              <?php if (isset($_SESSION['user_id'])): ?>
+                <button class="reply-toggle-btn"
+                        onclick="toggleReplyForm('rf-nr-<?= $nr['id'] ?>')">
+                  ↩ Odpowiedz
+                </button>
+                <form method="POST" class="nested-reply-form"
+                      id="rf-nr-<?= $nr['id'] ?>" style="display:none;">
+                  <?= csrf_field() ?>
+                  <input type="hidden" name="reply" value="1">
+                  <input type="hidden" name="parent_id" value="<?= $r['id'] ?>">
+                  <div class="nested-reply-input">
+                    <textarea name="content" class="compose-textarea"
+                              placeholder="Odpowiadasz @<?= htmlspecialchars($nr['username']) ?>..."
+                              rows="2" maxlength="500"></textarea>
+                    <div style="display:flex; gap:8px; margin-top:8px;">
+                      <button type="submit" class="btn"
+                              style="font-size:11px; padding:6px 14px;">Wyślij →</button>
+                      <button type="button" class="btn btn-outline"
+                              style="font-size:11px; padding:6px 14px;"
+                              onclick="toggleReplyForm('rf-nr-<?= $nr['id'] ?>')">Anuluj</button>
+                    </div>
+                  </div>
+                </form>
+              <?php endif; ?>
             </div>
           <?php endforeach; ?>
         </div>
