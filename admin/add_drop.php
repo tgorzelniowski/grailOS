@@ -13,6 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $drop_date = str_replace('T', ' ', trim($_POST['drop_date'] ?? ''));
     $link      = trim($_POST['link'] ?? '');
     $image_url = null;
+    $description = trim($_POST['description'] ?? '');
 
     if (!$name || !$brand || !$drop_date) {
         $error = 'Nazwa, marka i data są wymagane.';
@@ -27,10 +28,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         if (!$error) {
-            $pdo->prepare("
-                INSERT INTO drops (name, brand, drop_date, image_url, link)
-                VALUES (?, ?, ?, ?, ?)
-            ")->execute([$name, $brand, $drop_date, $image_url, $link ?: null]);
+            $pdo->prepare("INSERT INTO drops (name, brand, drop_date, image_url, link, description) VALUES (?, ?, ?, ?, ?, ?)")
+                ->execute([$name, $brand, $drop_date, $image_url, $link ?: null, $description ?: null]);
             $success = 'Drop "' . $name . '" dodany!';
         }
     }
@@ -76,6 +75,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <label class="form-label">Zdjęcie (JPG, PNG, WebP — max 5MB)</label>
       <input type="file" name="image" class="form-input form-file"
              accept="image/jpeg,image/png,image/webp">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Opis dropu</label>
+      <textarea name="description" class="form-input form-textarea"
+                rows="4"
+                placeholder="Opisz drop, kolekcję, szczegóły..."><?= htmlspecialchars($_POST['description'] ?? '') ?></textarea>
     </div>
     <div style="display:flex; gap:12px;">
       <button type="submit" class="btn">Dodaj drop →</button>
