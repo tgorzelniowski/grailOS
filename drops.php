@@ -1,8 +1,7 @@
 <?php
 require_once 'config/db.php';
 
-$uid = (int)($_SESSION['user_id'] ?? 0);
-
+$uid   = (int)($_SESSION['user_id'] ?? 0);
 $drops = $pdo->prepare("
     SELECT drops.*,
            COUNT(DISTINCT dh.id) AS hype_count,
@@ -26,16 +25,57 @@ require_once 'includes/header.php';
 
 <div class="section-label">/// Nadchodzące dropy</div>
 <div class="drops-list">
+
 <?php if ($drops): foreach ($drops as $drop):
   $days = (int)ceil((strtotime($drop['drop_date']) - time()) / 86400);
 ?>
-  <a href="/grailos/drop.php?id=<?= $drop['id'] ?>" class="drop-row-full drop-row-link"></a>
+
+  <a href="/grailos/drop.php?id=<?= $drop['id'] ?>" class="drop-row-full-link">
+
+    <div class="drop-img-wrap">
+      <?php if ($drop['image_url']): ?>
+        <img src="<?= htmlspecialchars($drop['image_url']) ?>" alt="">
+      <?php else: ?>
+        <div class="drop-no-img">NO IMG</div>
+      <?php endif; ?>
+    </div>
+
+    <div class="drop-info">
+      <div class="drop-brand"><?= htmlspecialchars($drop['brand']) ?></div>
+      <div class="drop-name"><?= htmlspecialchars($drop['name']) ?></div>
+      <div class="drop-countdown">
+        <?php if ($days <= 0): ?>
+          <span style="color:var(--red)">DZIŚ</span>
+        <?php elseif ($days === 1): ?>
+          <span style="color:var(--red)">JUTRO</span>
+        <?php else: ?>
+          Za <?= $days ?> dni
+        <?php endif; ?>
+      </div>
+      <div class="drop-hype-wrap">
+        🔥 <span><?= $drop['hype_count'] ?> osób chce ten drop</span>
+      </div>
+    </div>
+
+    <div class="drop-meta">
+      <div class="drop-date">
+        <?= date('d M Y', strtotime($drop['drop_date'])) ?><br>
+        <?= date('H:i', strtotime($drop['drop_date'])) ?>
+      </div>
+      <?php if ($drop['link']): ?>
+        <span class="btn" style="margin-top:12px; display:inline-block;">Kup →</span>
+      <?php endif; ?>
+    </div>
+
+  </a>
+
 <?php endforeach;
 else: ?>
   <div style="padding:80px 40px; color:#444; letter-spacing:3px; text-transform:uppercase; font-size:13px;">
     Brak nadchodzących dropów.
   </div>
 <?php endif; ?>
+
 </div>
 
 <script>
