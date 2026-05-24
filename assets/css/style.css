@@ -3820,3 +3820,83 @@ img {
 
   .drop-row-full-link .drop-meta { display: none; }
 }
+
+/* ===========================
+   DROPS — ULEPSZONY STYL
+=========================== */
+.drop-row-full-link {
+  grid-template-columns: 160px 1fr auto !important;
+  gap: 28px !important;
+  padding: 20px 40px !important;
+}
+
+.drop-img-wrap {
+  width: 160px !important;
+  height: 160px !important;
+}
+
+.drop-brand {
+  color: var(--red) !important;
+  font-size: 10px !important;
+  letter-spacing: 4px !important;
+  text-transform: uppercase !important;
+  margin-bottom: 6px !important;
+  margin-top: 0 !important;
+}
+
+.drop-name {
+  font-family: 'Bebas Neue', sans-serif !important;
+  font-size: 28px !important;
+  font-weight: 400 !important;
+  letter-spacing: 1px !important;
+  text-transform: uppercase !important;
+  line-height: 1.05 !important;
+  color: var(--white) !important;
+}
+
+.drop-countdown {
+  font-size: 11px !important;
+  letter-spacing: 3px !important;
+  color: var(--gray) !important;
+  margin-top: 10px !important;
+}
+
+.drop-date {
+  font-family: 'Bebas Neue', sans-serif !important;
+  font-size: 18px !important;
+  color: var(--white) !important;
+  letter-spacing: 2px !important;
+  text-align: right !important;
+  line-height: 1.4 !important;
+  text-transform: uppercase !important;
+}
+
+.drop-meta {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-end !important;
+  justify-content: center !important;
+}
+
+@media (max-width: 768px) {
+  .drop-row-full-link {
+    grid-template-columns: 80px 1fr !important;
+    padding: 16px 20px !important;
+    gap: 16px !important;
+  }
+  .drop-img-wrap { width: 80px !important; height: 80px !important; }
+  .drop-row-full-link .drop-meta { display: none !important; }
+}
+
+/* ===========================
+   OPIS ROZWIJANY — NAPRAWA
+=========================== */
+.item-desc {
+  max-height: 80px !important;
+  overflow: hidden !important;
+  transition: max-height 0.4s ease !important;
+}
+
+.item-desc.expanded {
+  max-height: 2000px !important;
+}
