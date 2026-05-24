@@ -3900,3 +3900,25 @@ img {
 .item-desc.expanded {
   max-height: 2000px !important;
 }
+
+/* ===========================
+   FORUM POST IMAGES — NIE UCINAJ
+=========================== */
+.post-img-wrap {
+  margin: 12px 0 16px !important;
+  border: 1px solid var(--border) !important;
+  width: 100% !important;
+  max-width: 560px !important;
+  overflow: hidden !important;
+  background: #111 !important;
+  aspect-ratio: unset !important;
+}
+
+.post-img-wrap img {
+  width: 100% !important;
+  height: auto !important;
+  max-height: 600px !important;
+  object-fit: contain !important;
+  object-position: center !important;
+  display: block !important;
+}
