@@ -84,12 +84,13 @@ require_once 'includes/header.php';
 
     <?php if ($item['description']): ?>
       <div class="item-desc-wrap">
-        <p class="item-desc" id="itemDesc">
+        <div class="item-desc" id="itemDesc">
           <?= nl2br(htmlspecialchars($item['description'])) ?>
-        </p>
-        <?php if (strlen($item['description']) > 200): ?>
+        </div>
+        <?php if (strlen($item['description']) > 150): ?>
           <button class="desc-toggle" id="descToggle" onclick="toggleDesc()">
-            Pokaż więcej ▼
+            <span class="desc-toggle-icon">▼</span>
+            Pokaż więcej
           </button>
         <?php endif; ?>
       </div>
@@ -161,10 +162,10 @@ const thumbs = document.querySelectorAll('.thumb');
 
 function goSlide(n) {
   slides[current].classList.remove('active');
-  thumbs[current]?.classList.remove('active');
+  if (thumbs[current]) thumbs[current].classList.remove('active');
   current = (n + slides.length) % slides.length;
   slides[current].classList.add('active');
-  thumbs[current]?.classList.add('active');
+  if (thumbs[current]) thumbs[current].classList.add('active');
 }
 
 function slide(dir) { goSlide(current + dir); }
@@ -172,9 +173,25 @@ function slide(dir) { goSlide(current + dir); }
 function toggleDesc() {
   const desc = document.getElementById('itemDesc');
   const btn  = document.getElementById('descToggle');
-  desc.classList.toggle('expanded');
-  btn.textContent = desc.classList.contains('expanded') ? 'Pokaż mniej ▲' : 'Pokaż więcej ▼';
+  const icon = btn ? btn.querySelector('.desc-toggle-icon') : null;
+  if (!desc) return;
+
+  if (desc.classList.contains('expanded')) {
+    desc.style.maxHeight = '72px';
+    desc.classList.remove('expanded');
+    if (btn)  btn.innerHTML  = '<span class="desc-toggle-icon">▼</span> Pokaż więcej';
+  } else {
+    desc.style.maxHeight = desc.scrollHeight + 'px';
+    desc.classList.add('expanded');
+    if (btn)  btn.innerHTML  = '<span class="desc-toggle-icon">▲</span> Pokaż mniej';
+  }
 }
+
+// Init: przytnij opis
+window.addEventListener('DOMContentLoaded', () => {
+  const desc = document.getElementById('itemDesc');
+  if (desc) desc.style.maxHeight = '72px';
+});
 </script>
 
 <?php require_once 'includes/footer.php'; ?>

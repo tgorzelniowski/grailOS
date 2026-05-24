@@ -153,8 +153,18 @@ function slide(dir) { goSlide(current + dir); }
 function toggleDesc() {
   const desc = document.getElementById('itemDesc');
   const btn  = document.getElementById('descToggle');
-  desc.classList.toggle('expanded');
-  btn.textContent = desc.classList.contains('expanded') ? 'Pokaż mniej ▲' : 'Pokaż więcej ▼';
+  const icon = btn ? btn.querySelector('.desc-toggle-icon') : null;
+  if (!desc) return;
+
+  if (desc.classList.contains('expanded')) {
+    desc.style.maxHeight = '72px';
+    desc.classList.remove('expanded');
+    if (btn)  btn.innerHTML  = '<span class="desc-toggle-icon">▼</span> Pokaż więcej';
+  } else {
+    desc.style.maxHeight = desc.scrollHeight + 'px';
+    desc.classList.add('expanded');
+    if (btn)  btn.innerHTML  = '<span class="desc-toggle-icon">▲</span> Pokaż mniej';
+  }
 }
 
 async function hypeToggle(dropId) {
