@@ -83,7 +83,16 @@ require_once 'includes/header.php';
     </div>
 
     <?php if ($item['description']): ?>
-      <p class="item-desc"><?= nl2br(htmlspecialchars($item['description'])) ?></p>
+      <div class="item-desc-wrap">
+        <p class="item-desc" id="itemDesc">
+          <?= nl2br(htmlspecialchars($item['description'])) ?>
+        </p>
+        <?php if (strlen($item['description']) > 200): ?>
+          <button class="desc-toggle" id="descToggle" onclick="toggleDesc()">
+            Pokaż więcej ▼
+          </button>
+        <?php endif; ?>
+      </div>
     <?php endif; ?>
 
     <!-- WARDROBE BTN -->
@@ -159,6 +168,13 @@ function goSlide(n) {
 }
 
 function slide(dir) { goSlide(current + dir); }
+
+function toggleDesc() {
+  const desc = document.getElementById('itemDesc');
+  const btn  = document.getElementById('descToggle');
+  desc.classList.toggle('expanded');
+  btn.textContent = desc.classList.contains('expanded') ? 'Pokaż mniej ▲' : 'Pokaż więcej ▼';
+}
 </script>
 
 <?php require_once 'includes/footer.php'; ?>
