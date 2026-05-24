@@ -173,25 +173,14 @@ function slide(dir) { goSlide(current + dir); }
 function toggleDesc() {
   const desc = document.getElementById('itemDesc');
   const btn  = document.getElementById('descToggle');
-  const icon = btn ? btn.querySelector('.desc-toggle-icon') : null;
   if (!desc) return;
-
-  if (desc.classList.contains('expanded')) {
-    desc.style.maxHeight = '72px';
-    desc.classList.remove('expanded');
-    if (btn)  btn.innerHTML  = '<span class="desc-toggle-icon">▼</span> Pokaż więcej';
-  } else {
-    desc.style.maxHeight = desc.scrollHeight + 'px';
-    desc.classList.add('expanded');
-    if (btn)  btn.innerHTML  = '<span class="desc-toggle-icon">▲</span> Pokaż mniej';
+  const isExpanded = desc.classList.toggle('expanded');
+  if (btn) {
+    btn.innerHTML = isExpanded
+      ? '<span class="desc-toggle-icon">▲</span> Pokaż mniej'
+      : '<span class="desc-toggle-icon">▼</span> Pokaż więcej';
   }
 }
-
-// Init: przytnij opis
-window.addEventListener('DOMContentLoaded', () => {
-  const desc = document.getElementById('itemDesc');
-  if (desc) desc.style.maxHeight = '72px';
-});
 </script>
 
 <?php require_once 'includes/footer.php'; ?>
