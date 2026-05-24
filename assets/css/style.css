@@ -3598,3 +3598,121 @@ img {
   padding-left: 16px;
   border-left: 2px solid var(--red);
 }
+
+/* ===========================
+   DROP PAGE
+=========================== */
+.drop-row-link {
+  text-decoration: none;
+  color: inherit;
+  display: grid;
+  cursor: pointer;
+}
+
+.drop-row-link:hover { background: var(--card); }
+
+.drop-detail-label {
+  font-size: 11px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--red);
+  margin-bottom: 8px;
+}
+
+.drop-detail-date {
+  padding: 20px 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  margin-top: 16px;
+}
+
+.drop-detail-val {
+  font-size: 16px;
+  letter-spacing: 1px;
+  color: var(--white);
+  margin-bottom: 6px;
+}
+
+.drop-countdown-big {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 32px;
+  letter-spacing: 2px;
+  color: var(--gray);
+}
+
+/* ===========================
+   ITEM/DROP DESCRIPTION COLLAPSIBLE
+=========================== */
+.item-desc-wrap { margin-bottom: 24px; }
+
+.item-desc {
+  font-size: 14px;
+  color: var(--gray);
+  line-height: 1.7;
+  letter-spacing: 0.3px;
+  max-height: 80px;
+  overflow: hidden;
+  transition: max-height 0.4s ease;
+  margin: 0;
+}
+
+.item-desc.expanded { max-height: 2000px; }
+
+.desc-toggle {
+  background: transparent;
+  border: none;
+  color: var(--red);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  cursor: pointer;
+  padding: 8px 0 0;
+  transition: opacity 0.2s;
+}
+
+.desc-toggle:hover { opacity: 0.7; }
+
+/* ===========================
+   ITEM SLIDER — SPÓJNE ZDJĘCIA
+=========================== */
+.slide img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  object-position: center !important;
+  background: #111 !important;
+}
+
+/* ===========================
+   FORUM — NESTED REPLIES
+=========================== */
+.reply-thread { margin-bottom: 8px; }
+
+.nested-replies {
+  margin-left: 32px;
+  border-left: 2px solid var(--border);
+  padding-left: 0;
+}
+
+.nested-reply {
+  border-left: none !important;
+  padding: 16px 20px !important;
+}
+
+.nested-reply-form {
+  margin-left: 32px;
+  border-left: 2px solid var(--red);
+  padding: 12px 16px;
+  background: rgba(255,36,0,0.03);
+}
+
+.nested-reply-input {
+  display: flex;
+  flex-direction: column;
+}
+
+@media (max-width: 768px) {
+  .nested-replies { margin-left: 16px; }
+  .nested-reply-form { margin-left: 16px; }
+}
