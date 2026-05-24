@@ -77,7 +77,7 @@ require_once 'includes/header.php';
         <?php if ($days < 0): ?>
           <span style="color:var(--gray)">Drop już był</span>
         <?php elseif ($days === 0): ?>
-          <span style="color:var(--red)">DZIŚ 🔥</span>
+          <span style="color:var(--red)">DZIŚ </span>
         <?php elseif ($days === 1): ?>
           <span style="color:var(--red)">JUTRO</span>
         <?php else: ?>
@@ -108,12 +108,12 @@ require_once 'includes/header.php';
         <button class="hype-btn <?= $drop['user_hyped'] ? 'hyped' : '' ?>"
                 id="hypeBtn"
                 onclick="hypeToggle(<?= $drop['id'] ?>)">
-          <span class="hype-fire">🔥</span>
+          <span class="hype-fire"></span>
           <span class="hype-count"><?= $drop['hype_count'] ?></span>
           <span class="hype-label"><?= $drop['user_hyped'] ? 'Hype!' : 'Hype' ?></span>
         </button>
       <?php else: ?>
-        <span class="hype-static">🔥 <?= $drop['hype_count'] ?> osób chce ten drop</span>
+        <span class="hype-static"><?= $drop['hype_count'] ?> osób zainteresowanych dropem</span>
       <?php endif; ?>
     </div>
 

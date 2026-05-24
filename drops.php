@@ -53,7 +53,7 @@ require_once 'includes/header.php';
         <?php endif; ?>
       </div>
       <div class="drop-hype-wrap">
-        🔥 <span><?= $drop['hype_count'] ?> osób chce ten drop</span>
+        <span><?= $drop['hype_count'] ?> osób zainteresowanych dropem</span>
       </div>
     </div>
 
