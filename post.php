@@ -18,30 +18,45 @@ $post = $stmt->fetch();
 if (!$post) { header('Location: /grailos/forum.php'); exit; }
 
 $reply_error = '';
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reply'])) {
     if (!isset($_SESSION['user_id'])) { header('Location: /grailos/login.php'); exit; }
     csrf_verify();
-    $content = trim($_POST['content'] ?? '');
+    $content   = trim($_POST['content'] ?? '');
+    $parent_id = (int)($_POST['parent_id'] ?? 0) ?: null;
+
     if (!$content) {
         $reply_error = 'Odpowiedź nie może być pusta.';
     } elseif (strlen($content) > 500) {
         $reply_error = 'Odpowiedź zbyt długa (max 500 znaków).';
     } else {
-        $pdo->prepare("INSERT INTO post_replies (post_id, user_id, content) VALUES (?, ?, ?)")
-            ->execute([$id, $_SESSION['user_id'], $content]);
-        header("Location: /grailos/post.php?id=$id"); exit;
+        $pdo->prepare("INSERT INTO post_replies (post_id, user_id, content, parent_id) VALUES (?, ?, ?, ?)")
+            ->execute([$id, $_SESSION['user_id'], $content, $parent_id]);
+        header("Location: /grailos/post.php?id=$id");
+        exit;
     }
 }
 
-$replies = $pdo->prepare("
+// Pobierz odpowiedzi — podziel na top-level i zagnieżdżone
+$all_replies = $pdo->prepare("
     SELECT post_replies.*, users.username, users.avatar_url
     FROM post_replies
     LEFT JOIN users ON post_replies.user_id = users.id
     WHERE post_replies.post_id = ?
     ORDER BY post_replies.created_at ASC
 ");
-$replies->execute([$id]);
-$replies = $replies->fetchAll();
+$all_replies->execute([$id]);
+$all_replies = $all_replies->fetchAll();
+
+$top_replies = [];
+$nested      = [];
+foreach ($all_replies as $r) {
+    if ($r['parent_id']) {
+        $nested[$r['parent_id']][] = $r;
+    } else {
+        $top_replies[] = $r;
+    }
+}
 
 $liked = false;
 if (isset($_SESSION['user_id'])) {
@@ -51,6 +66,20 @@ if (isset($_SESSION['user_id'])) {
 }
 
 require_once 'includes/header.php';
+
+function renderAvatar($user, $size = 40) {
+    $s = (int)$size;
+    if ($user['avatar_url']) {
+        return "<img src='" . htmlspecialchars($user['avatar_url']) . "'
+                style='width:{$s}px;height:{$s}px;border-radius:50%;object-fit:cover;border:1px solid var(--border);' alt=''>";
+    }
+    $fs = (int)($size * 0.45);
+    return "<span style='width:{$s}px;height:{$s}px;background:var(--card);border-radius:50%;
+                          display:flex;align-items:center;justify-content:center;
+                          font-family:Bebas Neue,sans-serif;font-size:{$fs}px;color:var(--red);flex-shrink:0;'>
+              " . strtoupper(htmlspecialchars($user['username'][0])) . "
+            </span>";
+}
 ?>
 
 <div style="max-width:720px; margin:0 auto; padding:0 40px 80px;">
@@ -61,14 +90,7 @@ require_once 'includes/header.php';
       <div class="post-card-meta">
         <a href="/grailos/profile.php?username=<?= urlencode($post['username']) ?>"
            class="post-av-link">
-          <?php if ($post['avatar_url']): ?>
-            <img src="<?= htmlspecialchars($post['avatar_url']) ?>"
-                 class="post-av-img post-av-lg" alt="">
-          <?php else: ?>
-            <span class="post-avatar post-avatar-lg">
-              <?= strtoupper(htmlspecialchars($post['username'][0])) ?>
-            </span>
-          <?php endif; ?>
+          <?= renderAvatar($post, 48) ?>
         </a>
         <div>
           <a href="/grailos/profile.php?username=<?= urlencode($post['username']) ?>"
@@ -79,7 +101,9 @@ require_once 'includes/header.php';
     </div>
 
     <?php if ($post['content']): ?>
-      <div class="post-card-content post-content-large"><?= nl2br(htmlspecialchars($post['content'])) ?></div>
+      <div class="post-card-content post-content-large">
+        <?= nl2br(htmlspecialchars($post['content'])) ?>
+      </div>
     <?php endif; ?>
 
     <?php if ($post['image_url']): ?>
@@ -89,7 +113,7 @@ require_once 'includes/header.php';
     <?php endif; ?>
 
     <div class="post-card-footer">
-      <span class="post-stat">💬 <?= count($replies) ?> odpowiedzi</span>
+      <span class="post-stat">💬 <?= count($all_replies) ?> odpowiedzi</span>
       <?php if (isset($_SESSION['user_id'])): ?>
         <button class="post-stat post-like-btn <?= $liked ? 'liked' : '' ?>"
                 onclick="likePost(<?= $post['id'] ?>, this)">
@@ -102,49 +126,100 @@ require_once 'includes/header.php';
     </div>
   </div>
 
-  <!-- REPLIES -->
+  <!-- ODPOWIEDZI -->
   <div class="section-label" style="padding:20px 0; border-color:var(--border);">
-    /// <?= count($replies) ?> odpowiedzi
+    /// <?= count($all_replies) ?> odpowiedzi
   </div>
 
-  <?php foreach ($replies as $r): ?>
-    <div class="post-card reply-card">
-      <div class="post-card-header">
-        <div class="post-card-meta">
-          <a href="/grailos/profile.php?username=<?= urlencode($r['username']) ?>"
-             class="post-av-link">
-            <?php if ($r['avatar_url']): ?>
-              <img src="<?= htmlspecialchars($r['avatar_url']) ?>"
-                   class="post-av-img" alt="">
-            <?php else: ?>
-              <span class="post-avatar"><?= strtoupper($r['username'][0]) ?></span>
-            <?php endif; ?>
-          </a>
-          <div>
+  <?php if ($reply_error): ?>
+    <div class="form-error" style="margin-bottom:16px;"><?= htmlspecialchars($reply_error) ?></div>
+  <?php endif; ?>
+
+  <?php foreach ($top_replies as $r): ?>
+    <div class="reply-thread" id="reply-<?= $r['id'] ?>">
+
+      <!-- GŁÓWNA ODPOWIEDŹ -->
+      <div class="post-card reply-card">
+        <div class="post-card-header">
+          <div class="post-card-meta">
             <a href="/grailos/profile.php?username=<?= urlencode($r['username']) ?>"
-               class="post-user-link">@<?= htmlspecialchars($r['username']) ?></a>
-            <div class="post-date"><?= date('d M Y, H:i', strtotime($r['created_at'])) ?></div>
+               class="post-av-link">
+              <?= renderAvatar($r, 36) ?>
+            </a>
+            <div>
+              <a href="/grailos/profile.php?username=<?= urlencode($r['username']) ?>"
+                 class="post-user-link">@<?= htmlspecialchars($r['username']) ?></a>
+              <div class="post-date"><?= date('d M Y, H:i', strtotime($r['created_at'])) ?></div>
+            </div>
           </div>
         </div>
+        <div class="post-card-content"><?= nl2br(htmlspecialchars($r['content'])) ?></div>
+        <?php if (isset($_SESSION['user_id'])): ?>
+          <button class="reply-toggle-btn"
+                  onclick="toggleReplyForm('rf-<?= $r['id'] ?>')">
+            ↩ Odpowiedz
+          </button>
+        <?php endif; ?>
       </div>
-      <div class="post-card-content"><?= nl2br(htmlspecialchars($r['content'])) ?></div>
+
+      <!-- ZAGNIEŻDŻONE ODPOWIEDZI -->
+      <?php if (!empty($nested[$r['id']])): ?>
+        <div class="nested-replies">
+          <?php foreach ($nested[$r['id']] as $nr): ?>
+            <div class="post-card reply-card nested-reply">
+              <div class="post-card-header">
+                <div class="post-card-meta">
+                  <a href="/grailos/profile.php?username=<?= urlencode($nr['username']) ?>"
+                     class="post-av-link">
+                    <?= renderAvatar($nr, 28) ?>
+                  </a>
+                  <div>
+                    <a href="/grailos/profile.php?username=<?= urlencode($nr['username']) ?>"
+                       class="post-user-link">@<?= htmlspecialchars($nr['username']) ?></a>
+                    <div class="post-date"><?= date('d M, H:i', strtotime($nr['created_at'])) ?></div>
+                  </div>
+                </div>
+              </div>
+              <div class="post-card-content"><?= nl2br(htmlspecialchars($nr['content'])) ?></div>
+            </div>
+          <?php endforeach; ?>
+        </div>
+      <?php endif; ?>
+
+      <!-- FORMULARZ ODPOWIEDZI NA TEN KOMENTARZ -->
+      <?php if (isset($_SESSION['user_id'])): ?>
+        <form method="POST" class="nested-reply-form" id="rf-<?= $r['id'] ?>" style="display:none;">
+          <?= csrf_field() ?>
+          <input type="hidden" name="reply" value="1">
+          <input type="hidden" name="parent_id" value="<?= $r['id'] ?>">
+          <div class="nested-reply-input">
+            <textarea name="content" class="compose-textarea"
+                      placeholder="Odpowiadasz @<?= htmlspecialchars($r['username']) ?>..."
+                      rows="2" maxlength="500"></textarea>
+            <div style="display:flex; gap:8px; margin-top:8px;">
+              <button type="submit" class="btn" style="font-size:11px; padding:6px 14px;">Wyślij →</button>
+              <button type="button" class="btn btn-outline" style="font-size:11px; padding:6px 14px;"
+                      onclick="toggleReplyForm('rf-<?= $r['id'] ?>')">Anuluj</button>
+            </div>
+          </div>
+        </form>
+      <?php endif; ?>
+
     </div>
   <?php endforeach; ?>
 
-  <!-- FORMULARZ ODPOWIEDZI -->
+  <!-- NOWA ODPOWIEDŹ GŁÓWNA -->
   <?php if (isset($_SESSION['user_id'])): ?>
     <div style="margin-top:24px;">
-      <?php if ($reply_error): ?>
-        <div class="form-error" style="margin-bottom:16px;"><?= htmlspecialchars($reply_error) ?></div>
-      <?php endif; ?>
       <form method="POST" class="compose-card">
         <?= csrf_field() ?>
+        <input type="hidden" name="reply" value="1">
         <textarea name="content" class="compose-textarea"
                   placeholder="Napisz odpowiedź..."
                   maxlength="500" rows="3"></textarea>
         <div class="compose-actions">
           <span class="compose-hint">max 500 znaków</span>
-          <button type="submit" name="reply" class="btn">Odpowiedz →</button>
+          <button type="submit" class="btn">Odpowiedz →</button>
         </div>
       </form>
     </div>
@@ -157,6 +232,12 @@ require_once 'includes/header.php';
 </div>
 
 <script>
+function toggleReplyForm(id) {
+  const form = document.getElementById(id);
+  form.style.display = form.style.display === 'none' ? 'block' : 'none';
+  if (form.style.display === 'block') form.querySelector('textarea').focus();
+}
+
 async function likePost(postId, btn) {
   const res  = await fetch('/grailos/post_like.php', {
     method: 'POST',
