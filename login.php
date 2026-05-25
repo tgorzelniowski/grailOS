@@ -77,6 +77,12 @@ require_once 'includes/header.php';
         <input type="password" name="password" class="form-input">
       </div>
       <button type="submit" class="btn" style="width:100%">Zaloguj się →</button>
+      <p class="auth-switch" style="margin-top:8px;">
+        <a href="/grailos/forgot_password.php"
+           style="font-size:11px;letter-spacing:2px;color:var(--gray);">
+          Zapomniałem hasła
+        </a>
+      </p>
       <p class="auth-switch">Nie masz konta? <a href="/grailos/register.php">Zarejestruj się</a></p>
     </form>
   </div>
