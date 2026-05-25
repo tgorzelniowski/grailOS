@@ -9,6 +9,22 @@
   box-sizing: border-box;
 }
 
+/* Normalizacja elementów formularzy — Chrome/Safari nie dziedziczą fontu */
+button,
+input,
+textarea,
+select {
+  font-family: 'Barlow Condensed', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  -webkit-appearance: none;
+  appearance: none;
+  border-radius: 0;
+  cursor: pointer;
+}
+
 :root {
   --black:  #0a0a0a;
   --white:  #ffffff;
@@ -101,6 +117,12 @@ img {
   font-weight: 700;
   cursor: pointer;
   border: none;
+  -webkit-appearance: none;
+  appearance: none;
+  border-radius: 0;
+  line-height: 1;
+  vertical-align: middle;
+  -webkit-font-smoothing: antialiased;
 }
 
 .btn:hover { opacity: 0.85; }
@@ -4170,23 +4192,26 @@ img {
 .notify-icon { font-size: 16px; line-height: 1; }
 
 /* ===========================
-   FORUM POST IMAGES — NIE UCINAJ
+   FORUM POST IMAGES — WYŚRODKOWANE, NIE UCINANE
 =========================== */
 .post-img-wrap {
-  margin: 12px 0 16px !important;
+  margin: 12px auto 16px !important;
   border: 1px solid var(--border) !important;
-  width: 100% !important;
   max-width: 560px !important;
+  width: 100% !important;
   overflow: hidden !important;
   background: #111 !important;
   aspect-ratio: unset !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
 
 .post-img-wrap img {
-  width: 100% !important;
+  width: auto !important;
+  max-width: 100% !important;
   height: auto !important;
-  max-height: 600px !important;
+  max-height: 560px !important;
   object-fit: contain !important;
-  object-position: center !important;
   display: block !important;
 }
