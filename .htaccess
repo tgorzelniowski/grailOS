@@ -1,0 +1,38 @@
+# ==========================================
+#  GrailOS — główny .htaccess
+# ==========================================
+
+# Wyłącz listowanie katalogów
+Options -Indexes
+
+# Blokuj dostęp do ukrytych plików (.git, .env, itp.)
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>
+
+# Blokuj dostęp do plików konfiguracyjnych i wrażliwych
+<FilesMatch "\.(sql|log|env|ini|bak|sh|json|lock|md|gitignore)$">
+    Require all denied
+</FilesMatch>
+
+# Blokuj bezpośredni dostęp do katalogu config/
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^config/ - [F,L]
+    RewriteRule ^includes/ - [F,L]
+</IfModule>
+
+# Nagłówki bezpieczeństwa (jeśli mod_headers aktywny)
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set X-XSS-Protection "1; mode=block"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+
+    # Nie cache'uj stron z danymi sesji
+    <FilesMatch "\.(php)$">
+        Header set Cache-Control "no-store, no-cache, must-revalidate, max-age=0"
+        Header set Pragma "no-cache"
+    </FilesMatch>
+</IfModule>

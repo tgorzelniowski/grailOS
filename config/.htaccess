@@ -1,0 +1,2 @@
+# Blokuj wszelki bezpośredni dostęp HTTP do katalogu config/
+Require all denied

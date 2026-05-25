@@ -1,6 +1,79 @@
 <?php
 
 // ============================================
+// NAGŁÓWKI BEZPIECZEŃSTWA HTTP
+// ============================================
+function send_security_headers(): void {
+    if (headers_sent()) return;
+
+    header('X-Content-Type-Options: nosniff');
+    header('X-Frame-Options: SAMEORIGIN');
+    header('X-XSS-Protection: 1; mode=block');
+    header('Referrer-Policy: strict-origin-when-cross-origin');
+    header('Permissions-Policy: geolocation=(), microphone=(), camera=()');
+
+    // Content-Security-Policy — dopasowane do zasobów projektu
+    header(
+        "Content-Security-Policy: " .
+        "default-src 'self'; " .
+        "script-src 'self' 'unsafe-inline'; " .
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " .
+        "font-src 'self' https://fonts.gstatic.com; " .
+        "img-src 'self' data: blob: https:; " .
+        "connect-src 'self'; " .
+        "frame-ancestors 'self';"
+    );
+}
+
+// ============================================
+// WALIDACJA SESJI (fingerprint + timeout)
+// ============================================
+function validate_session(): void {
+    if (!isset($_SESSION['user_id'])) return;
+
+    $timeout = 30 * 60; // 30 minut bezczynności
+
+    // Sprawdź timeout
+    if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) > $timeout) {
+        _destroy_session();
+        header('Location: /grailos/login.php?expired=1');
+        exit;
+    }
+    $_SESSION['last_activity'] = time();
+
+    // Sprawdź fingerprint przeglądarki
+    if (isset($_SESSION['ua_fingerprint'])) {
+        $current = hash('sha256', $_SERVER['HTTP_USER_AGENT'] ?? '');
+        if (!hash_equals($_SESSION['ua_fingerprint'], $current)) {
+            _destroy_session();
+            header('Location: /grailos/login.php?security=1');
+            exit;
+        }
+    }
+}
+
+// Ustaw fingerprint przy logowaniu (wywołaj z login.php)
+function set_session_fingerprint(): void {
+    $_SESSION['ua_fingerprint']  = hash('sha256', $_SERVER['HTTP_USER_AGENT'] ?? '');
+    $_SESSION['last_activity']   = time();
+    $_SESSION['session_created'] = time();
+}
+
+// Zniszcz sesję w całości
+function _destroy_session(): void {
+    $_SESSION = [];
+    if (ini_get('session.use_cookies')) {
+        $p = session_get_cookie_params();
+        setcookie(
+            session_name(), '', time() - 3600,
+            $p['path'], $p['domain'],
+            $p['secure'], $p['httponly']
+        );
+    }
+    session_destroy();
+}
+
+// ============================================
 // CSRF PROTECTION
 // ============================================
 function csrf_token(): string {
@@ -17,12 +90,11 @@ function csrf_field(): string {
 function csrf_verify(): void {
     if (
         empty($_POST['csrf_token']) ||
-        !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])
+        !hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'])
     ) {
         http_response_code(403);
         die('Błąd bezpieczeństwa. Odśwież stronę i spróbuj ponownie.');
     }
-    // Regeneruj token po użyciu
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
@@ -34,7 +106,6 @@ function check_rate_limit(string $key, int $max, int $window): bool {
     if (!isset($_SESSION['rate'][$key])) {
         $_SESSION['rate'][$key] = [];
     }
-    // Usuń stare wpisy
     $_SESSION['rate'][$key] = array_values(array_filter(
         $_SESSION['rate'][$key],
         fn($t) => $t > $now - $window
@@ -54,12 +125,10 @@ function upload_image(array $file, string $folder): array {
         return ['error' => 'Błąd podczas przesyłania pliku.'];
     }
 
-    // Max 5MB
     if ($file['size'] > 5 * 1024 * 1024) {
         return ['error' => 'Plik za duży. Maksymalnie 5MB.'];
     }
 
-    // Weryfikuj MIME type przez finfo (bezpieczniejsze niż $_FILES['type'])
     $finfo = new finfo(FILEINFO_MIME_TYPE);
     $mime  = $finfo->file($file['tmp_name']);
     $allowed_mime = ['image/jpeg', 'image/png', 'image/webp'];
@@ -68,14 +137,11 @@ function upload_image(array $file, string $folder): array {
         return ['error' => 'Dozwolone tylko pliki JPG, PNG lub WebP.'];
     }
 
-    // Weryfikuj rozszerzenie
-    $ext_map = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'];
-    $ext = $ext_map[$mime];
+    $ext_map  = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'];
+    $ext      = $ext_map[$mime];
+    $filename = bin2hex(random_bytes(16)) . '.' . $ext;
 
-    // Losowa nazwa — nie można odgadnąć ścieżki
-    $filename   = bin2hex(random_bytes(16)) . '.' . $ext;
     $upload_dir = __DIR__ . "/../assets/uploads/$folder/";
-
     if (!is_dir($upload_dir)) {
         mkdir($upload_dir, 0755, true);
     }

@@ -1,6 +1,5 @@
 <?php
 require_once 'config/db.php';
-session_destroy();
+_destroy_session();
 header('Location: /grailos/');
 exit;
-?>

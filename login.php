@@ -3,6 +3,13 @@ require_once 'config/db.php';
 
 $error = '';
 
+// Komunikaty z walidacji sesji
+if (!empty($_GET['expired'])) {
+    $error = 'Sesja wygasła z powodu braku aktywności. Zaloguj się ponownie.';
+} elseif (!empty($_GET['security'])) {
+    $error = 'Sesja została zakończona ze względów bezpieczeństwa. Zaloguj się ponownie.';
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_verify();
 
@@ -34,6 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $_SESSION['is_admin']   = (bool) $user['is_admin'];
                     $_SESSION['avatar_url'] = $user['avatar_url'] ?? '';
                     unset($_SESSION['rate']);
+                    set_session_fingerprint();
                     header('Location: /grailos/');
                     exit;
                 }
