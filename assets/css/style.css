@@ -3902,6 +3902,74 @@ img {
 }
 
 /* ===========================
+   COOKIE CONSENT BANNER
+=========================== */
+.cookie-banner {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #0d0d0d;
+  border-top: 1px solid var(--border);
+  padding: 20px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+  z-index: 9999;
+  transition: transform 0.35s ease, opacity 0.35s ease;
+}
+
+.cookie-banner-body { flex: 1; min-width: 0; }
+
+.cookie-banner-tag {
+  font-size: 10px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--red);
+  margin-bottom: 8px;
+}
+
+.cookie-banner-text {
+  font-size: 13px;
+  color: var(--gray);
+  letter-spacing: 0.3px;
+  line-height: 1.55;
+  margin: 0;
+}
+
+.cookie-banner-text a {
+  color: var(--red);
+  text-decoration: none;
+}
+
+.cookie-banner-text a:hover { text-decoration: underline; }
+
+.cookie-banner-actions {
+  display: flex;
+  gap: 12px;
+  flex-shrink: 0;
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  .cookie-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 20px;
+    gap: 16px;
+  }
+  .cookie-banner-actions {
+    width: 100%;
+    flex-direction: column;
+  }
+  .cookie-banner-actions .btn {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* ===========================
    FORUM POST IMAGES — NIE UCINAJ
 =========================== */
 .post-img-wrap {

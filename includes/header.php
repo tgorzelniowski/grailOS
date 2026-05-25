@@ -153,3 +153,5 @@ document.addEventListener('click', e => {
   }
 });
 </script>
+
+<?php require_once __DIR__ . '/cookie_consent.php'; ?>
