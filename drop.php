@@ -233,7 +233,6 @@ async function toggleNotify(dropId) {
   const data = await res.json();
   if (data.ok) {
     btn?.classList.toggle('notified', data.subscribed);
-    if (icon)  icon.textContent  = data.subscribed ? '🔔' : '🔕';
     if (label) label.textContent = data.subscribed ? 'Powiadomimy Cię!' : 'Powiadom mnie';
   }
 }
