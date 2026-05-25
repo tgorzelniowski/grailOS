@@ -49,7 +49,7 @@ $totalNewsletter= (int)$pdo->query("SELECT COUNT(*) FROM newsletter_subscribers 
     type="text"
     id="adminSearch"
     class="admin-search-input"
-    placeholder="Szukaj akcji… (np. drop, user, newsletter)"
+    placeholder="SZUKAJ AKCJI…"
     autocomplete="off"
     oninput="filterAdminCards(this.value)"
   >
@@ -65,7 +65,7 @@ $totalNewsletter= (int)$pdo->query("SELECT COUNT(*) FROM newsletter_subscribers 
 <!-- GRUPY AKCJI -->
 <div id="adminCards">
 
-  <div class="admin-group-label">/// Katalog</div>
+  <div class="admin-group-label">Katalog</div>
   <div class="admin-actions" data-group="katalog">
     <a href="/grailos/admin/add_clothing.php" class="admin-card"
        data-tags="dodaj produkt ubranie katalog clothing add">
@@ -81,7 +81,7 @@ $totalNewsletter= (int)$pdo->query("SELECT COUNT(*) FROM newsletter_subscribers 
     </a>
   </div>
 
-  <div class="admin-group-label">/// Dropy</div>
+  <div class="admin-group-label">Dropy</div>
   <div class="admin-actions" data-group="dropy">
     <a href="/grailos/admin/add_drop.php" class="admin-card"
        data-tags="dodaj drop drops add nowy">
@@ -104,7 +104,7 @@ $totalNewsletter= (int)$pdo->query("SELECT COUNT(*) FROM newsletter_subscribers 
     </a>
   </div>
 
-  <div class="admin-group-label">/// Społeczność</div>
+  <div class="admin-group-label">Społeczność</div>
   <div class="admin-actions" data-group="spolecznosc">
     <a href="/grailos/admin/manage_fits.php" class="admin-card"
        data-tags="fity moderuj posty fits moderate usuń">
@@ -126,7 +126,7 @@ $totalNewsletter= (int)$pdo->query("SELECT COUNT(*) FROM newsletter_subscribers 
     </a>
   </div>
 
-  <div class="admin-group-label">/// Marketing</div>
+  <div class="admin-group-label">Marketing</div>
   <div class="admin-actions" data-group="marketing">
     <a href="/grailos/admin/send_newsletter.php" class="admin-card"
        data-tags="newsletter email wyślij subskrybenci send mailing">
