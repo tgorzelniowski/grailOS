@@ -117,6 +117,46 @@ require_once 'includes/header.php';
       <?php endif; ?>
     </div>
 
+    <!-- POWIADOM MNIE -->
+    <?php if ($days > 0): ?>
+    <div style="margin-top:24px; padding-top:24px; border-top:1px solid var(--border);">
+      <div class="drop-detail-label">/// Powiadomienie</div>
+      <?php
+        $is_notified = false;
+        if ($uid) {
+            $nstmt = $pdo->prepare("SELECT id FROM drop_notifications WHERE drop_id = ? AND user_id = ?");
+            $nstmt->execute([$drop['id'], $uid]);
+            $is_notified = (bool)$nstmt->fetch();
+        }
+      ?>
+      <?php if ($uid): ?>
+        <button class="notify-btn <?= $is_notified ? 'notified' : '' ?>"
+                id="notifyBtn"
+                onclick="toggleNotify(<?= $drop['id'] ?>)">
+          <span class="notify-icon"><?= $is_notified ? '🔔' : '🔕' ?></span>
+          <span class="notify-label"><?= $is_notified ? 'Powiadomimy Cię!' : 'Powiadom mnie' ?></span>
+        </button>
+      <?php else: ?>
+        <p style="font-size:12px;color:var(--gray);letter-spacing:1px;margin-bottom:12px;">
+          Zostaw email — powiadomimy Cię 24h przed dropem.
+        </p>
+        <form class="notify-guest-form" id="notifyGuestForm" onsubmit="notifyGuest(event)">
+          <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
+          <input type="hidden" name="drop_id" value="<?= $drop['id'] ?>">
+          <div style="display:flex;gap:8px;">
+            <input type="email" name="email" id="notifyEmail"
+                   class="form-input" placeholder="twoj@email.com"
+                   style="flex:1;" required>
+            <button type="submit" class="btn" style="font-size:11px;padding:8px 16px;white-space:nowrap;">
+              Zapisz →
+            </button>
+          </div>
+          <div id="notifyMsg" style="font-size:12px;letter-spacing:1px;margin-top:8px;"></div>
+        </form>
+      <?php endif; ?>
+    </div>
+    <?php endif; ?>
+
     <!-- KUP -->
     <?php if ($drop['link']): ?>
       <div style="margin-top:24px;">
@@ -175,6 +215,43 @@ async function hypeToggle(dropId) {
     btn.querySelector('.hype-count').textContent = data.count;
     btn.querySelector('.hype-label').textContent  = data.hyped ? 'Hype!' : 'Hype';
   }
+}
+
+async function toggleNotify(dropId) {
+  const btn   = document.getElementById('notifyBtn');
+  const label = btn?.querySelector('.notify-label');
+  const icon  = btn?.querySelector('.notify-icon');
+  const body  = new URLSearchParams({
+    csrf_token: '<?= csrf_token() ?>',
+    drop_id: dropId,
+  });
+  const res  = await fetch('/grailos/drop_notify.php', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+    body: body.toString(),
+  });
+  const data = await res.json();
+  if (data.ok) {
+    btn?.classList.toggle('notified', data.subscribed);
+    if (icon)  icon.textContent  = data.subscribed ? '🔔' : '🔕';
+    if (label) label.textContent = data.subscribed ? 'Powiadomimy Cię!' : 'Powiadom mnie';
+  }
+}
+
+async function notifyGuest(e) {
+  e.preventDefault();
+  const form = e.target;
+  const msg  = document.getElementById('notifyMsg');
+  const body = new URLSearchParams(new FormData(form));
+  const res  = await fetch('/grailos/drop_notify.php', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+    body: body.toString(),
+  });
+  const data = await res.json();
+  msg.textContent = data.msg || data.error || '';
+  msg.style.color = data.ok ? '#2ecc71' : 'var(--red)';
+  if (data.ok) form.reset();
 }
 </script>
 
