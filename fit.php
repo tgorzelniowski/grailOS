@@ -92,23 +92,42 @@ try {
 
 $all_fit_imgs = array_merge([$fit['image_url']], array_column($extra_fit_imgs, 'image_url'));
 
+// Policz wszystkie komentarze + odpowiedzi
+$total_comment_count = count($comments);
+foreach ($replies_map as $rlist) {
+    $total_comment_count += count($rlist);
+}
+
+$multi = count($all_fit_imgs) > 1;
+
 require_once 'includes/header.php';
 ?>
 
-<div class="fit-page-v2">
+<div class="<?= $multi ? 'item-page-v2' : 'fit-page-v2' ?>">
 
-  <!-- ZDJĘCIE (sticky) -->
-  <div class="fit-page-img">
-    <img id="fitMainImg" src="<?= htmlspecialchars($all_fit_imgs[0]) ?>" alt="Fit">
-    <?php if (count($all_fit_imgs) > 1): ?>
-      <div class="fit-gallery-strip">
-        <?php foreach ($all_fit_imgs as $gi => $gimg): ?>
-          <button class="fit-gallery-thumb <?= $gi === 0 ? 'active' : '' ?>"
-                  onclick="switchFitImg(this, '<?= htmlspecialchars($gimg) ?>')">
-            <img src="<?= htmlspecialchars($gimg) ?>" alt="">
-          </button>
-        <?php endforeach; ?>
-      </div>
+  <!-- KAFELKI PO LEWEJ (tylko gdy multi) -->
+  <?php if ($multi): ?>
+    <div class="item-thumbs-v">
+      <?php foreach ($all_fit_imgs as $gi => $gimg): ?>
+        <button class="item-thumb-v <?= $gi === 0 ? 'active' : '' ?>"
+                onclick="goSlide(<?= $gi ?>)">
+          <img src="<?= htmlspecialchars($gimg) ?>" alt="">
+        </button>
+      <?php endforeach; ?>
+    </div>
+  <?php endif; ?>
+
+  <!-- ZDJĘCIE GŁÓWNE -->
+  <div class="<?= $multi ? 'item-main-img' : 'fit-page-img' ?>">
+    <?php if ($multi): ?>
+      <?php foreach ($all_fit_imgs as $gi => $gimg): ?>
+        <div class="item-slide <?= $gi === 0 ? 'active' : '' ?>">
+          <img src="<?= htmlspecialchars($gimg) ?>" alt="Fit">
+        </div>
+      <?php endforeach; ?>
+    <?php else: ?>
+      <img src="<?= htmlspecialchars($all_fit_imgs[0]) ?>" alt="Fit"
+           style="width:100%; height:100%; object-fit:contain; display:block;">
     <?php endif; ?>
   </div>
 
@@ -165,7 +184,11 @@ require_once 'includes/header.php';
 
     <!-- KOMENTARZE -->
     <div class="comments-section" id="comments">
-      <div class="comments-title">/// <?= count($comments) ?> komentarzy</div>
+      <button class="comments-toggle-btn" onclick="toggleComments()">
+        <span>/// <?= $total_comment_count ?> <?= $total_comment_count == 1 ? 'komentarz' : 'komentarzy' ?></span>
+        <span id="commentsArrow">▼</span>
+      </button>
+      <div id="commentsBody">
 
       <?php foreach ($comments as $c):
         $c_replies = $replies_map[$c['id']] ?? [];
@@ -291,16 +314,33 @@ require_once 'includes/header.php';
           <a href="/grailos/login.php">Zaloguj się</a> by komentować.
         </p>
       <?php endif; ?>
+      </div><!-- /commentsBody -->
     </div>
 
   </div>
 </div>
 
 <script>
-function switchFitImg(btn, src) {
-  document.getElementById('fitMainImg').src = src;
-  document.querySelectorAll('.fit-gallery-thumb').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
+// Galeria multi-image (item-page-v2 slide system)
+let current = 0;
+const slides  = document.querySelectorAll('.item-slide');
+const thumbsV = document.querySelectorAll('.item-thumb-v');
+
+function goSlide(n) {
+  if (!slides.length) return;
+  slides[current].classList.remove('active');
+  if (thumbsV[current]) thumbsV[current].classList.remove('active');
+  current = (n + slides.length) % slides.length;
+  slides[current].classList.add('active');
+  if (thumbsV[current]) thumbsV[current].classList.add('active');
+}
+
+function toggleComments() {
+  const body  = document.getElementById('commentsBody');
+  const arrow = document.getElementById('commentsArrow');
+  const open  = body.style.display !== 'none';
+  body.style.display = open ? 'none' : 'block';
+  arrow.textContent  = open ? '▶' : '▼';
 }
 
 function toggleReply(id) {
