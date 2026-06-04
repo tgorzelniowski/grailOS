@@ -26,7 +26,7 @@
     <a href="/grailos/privacy.php">Polityka prywatności</a>
     <a href="/grailos/terms.php">Regulamin</a>
   </div>
-  <p class="footer-copy">© 2025 GrailOS. All rights reserved.</p>
+  <p class="footer-copy">© 2026 GrailOS. All rights reserved.</p>
 </footer>
 
 <!-- CUSTOM CONFIRM MODAL -->
