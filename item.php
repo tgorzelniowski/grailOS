@@ -34,10 +34,10 @@ if (isset($_SESSION['user_id'])) {
 if (!isset($_SESSION['recently_viewed'])) $_SESSION['recently_viewed'] = [];
 $_SESSION['recently_viewed'] = array_values(array_filter($_SESSION['recently_viewed'], fn($i) => $i !== $id));
 array_unshift($_SESSION['recently_viewed'], $id);
-$_SESSION['recently_viewed'] = array_slice($_SESSION['recently_viewed'], 0, 6);
+$_SESSION['recently_viewed'] = array_slice($_SESSION['recently_viewed'], 0, 5);
 
 // Pobierz ostatnio przeglądane (bez bieżącego)
-$rv_ids   = array_slice(array_filter($_SESSION['recently_viewed'], fn($i) => $i !== $id), 0, 5);
+$rv_ids   = array_slice(array_filter($_SESSION['recently_viewed'], fn($i) => $i !== $id), 0, 4);
 $rv_items = [];
 if ($rv_ids) {
     $ph = implode(',', array_fill(0, count($rv_ids), '?'));

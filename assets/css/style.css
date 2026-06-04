@@ -4454,8 +4454,8 @@ img {
 .item-page-v2 {
   display: grid;
   grid-template-columns: 112px 1fr 380px;
+  align-items: start;
   border-bottom: 1px solid var(--border);
-  min-height: 60vh;
 }
 
 .item-thumbs-v {
@@ -4549,10 +4549,6 @@ img {
 
 .item-info-v {
   padding: 40px 32px 80px;
-  overflow-y: auto;
-  max-height: calc(100vh - 60px);
-  position: sticky;
-  top: 60px;
 }
 
 .item-brand-v {
@@ -4653,16 +4649,23 @@ img {
 .item-desc-v2-toggle:hover { color: var(--red); }
 
 .item-desc-v2 {
-  display: none;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease, padding 0.4s ease, opacity 0.3s ease;
+  opacity: 0;
   font-size: 13px;
   color: var(--gray);
   line-height: 1.75;
   letter-spacing: 0.3px;
-  padding: 4px 0 20px;
+  padding: 0;
   border-top: 1px solid var(--border);
 }
 
-.item-desc-v2.expanded { display: block; }
+.item-desc-v2.expanded {
+  max-height: 2000px;
+  opacity: 1;
+  padding: 14px 0 20px;
+}
 
 @media (max-width: 1000px) {
   .item-page-v2 { grid-template-columns: 112px 1fr 300px; }
