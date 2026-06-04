@@ -6,82 +6,9 @@
   <p class="page-sub">Znajdź swój grail. Przeglądaj, filtruj, inspiruj się.</p>
 </section>
 
-<div class="filter-toggle-wrap">
-  <button class="filter-toggle-btn" onclick="toggleFilters()">
-    Filtry <span id="filterArrow">▼</span>
-  </button>
-</div>
-
-<div class="catalog-filters" id="catalogFilters">
-  <!-- reszta filtrów bez zmian -->
-</div>
-
-<script>
-function toggleFilters() {
-  const f = document.getElementById('catalogFilters');
-  const a = document.getElementById('filterArrow');
-  f.classList.toggle('filters-open');
-  a.textContent = f.classList.contains('filters-open') ? '▲' : '▼';
-}
-</script>
-
 <?php
 $brands = $pdo->query("SELECT DISTINCT brand FROM clothing ORDER BY brand ASC")->fetchAll(PDO::FETCH_COLUMN);
-?>
 
-<div class="catalog-filters">
-  <form method="GET" action="/grailos/catalog.php" class="filters-form">
-
-    <input type="text" name="search" placeholder="Szukaj..."
-           value="<?= htmlspecialchars($_GET['search'] ?? '') ?>"
-           class="filter-input">
-
-    <select name="category" class="filter-select">
-      <option value="">Wszystkie kategorie</option>
-      <?php foreach (['hoodie','tshirt','pants','jacket','sneakers','cap','other'] as $cat): ?>
-        <option value="<?= $cat ?>" <?= ($_GET['category'] ?? '') === $cat ? 'selected' : '' ?>>
-          <?= ucfirst($cat) ?>
-        </option>
-      <?php endforeach; ?>
-    </select>
-
-    <select name="brand" class="filter-select">
-      <option value="">Wszystkie marki</option>
-      <?php foreach ($brands as $brand): ?>
-        <option value="<?= htmlspecialchars($brand) ?>"
-          <?= ($_GET['brand'] ?? '') === $brand ? 'selected' : '' ?>>
-          <?= htmlspecialchars($brand) ?>
-        </option>
-      <?php endforeach; ?>
-    </select>
-
-    <div class="filter-price-wrap">
-      <input type="number" name="min_price" placeholder="Min zł"
-             value="<?= htmlspecialchars($_GET['min_price'] ?? '') ?>"
-             class="filter-input filter-price" min="0">
-      <span class="price-sep">—</span>
-      <input type="number" name="max_price" placeholder="Max zł"
-             value="<?= htmlspecialchars($_GET['max_price'] ?? '') ?>"
-             class="filter-input filter-price" min="0">
-    </div>
-
-    <select name="sort" class="filter-select">
-      <option value="newest"     <?= ($_GET['sort'] ?? '') === 'newest'     ? 'selected' : '' ?>>Najnowsze</option>
-      <option value="price_asc"  <?= ($_GET['sort'] ?? '') === 'price_asc'  ? 'selected' : '' ?>>Cena: rosnąco</option>
-      <option value="price_desc" <?= ($_GET['sort'] ?? '') === 'price_desc' ? 'selected' : '' ?>>Cena: malejąco</option>
-      <option value="az"         <?= ($_GET['sort'] ?? '') === 'az'         ? 'selected' : '' ?>>A-Z</option>
-    </select>
-
-    <button type="submit" class="btn">Filtruj</button>
-
-    <?php if (!empty($_GET['search']) || !empty($_GET['category']) || !empty($_GET['brand']) || !empty($_GET['min_price']) || !empty($_GET['max_price'])): ?>
-      <a href="/grailos/catalog.php" class="btn btn-outline">Resetuj</a>
-    <?php endif; ?>
-
-  </form>
-</div>
-
-<?php
 $conditions = [];
 $params = [];
 
@@ -117,12 +44,7 @@ $sort  = match($_GET['sort'] ?? 'newest') {
 $stmt = $pdo->prepare("SELECT * FROM clothing $where $sort");
 $stmt->execute($params);
 $items = $stmt->fetchAll();
-?>
 
-<div class="section-label">/// <?= count($items) ?> produktów</div>
-
-<?php
-// Pobierz hover images dla wszystkich wyświetlanych itemów
 $item_ids  = array_column($items, 'id');
 $hover_map = [];
 if ($item_ids) {
@@ -143,57 +65,160 @@ if ($item_ids) {
 }
 ?>
 
-<div class="clothing-grid">
-  <?php if ($items): ?>
-    <?php foreach ($items as $item):
-      $hover_img   = $hover_map[$item['id']] ?? null;
-      $in_wardrobe = false;
-      if (isset($_SESSION['user_id'])) {
-        $wcheck = $pdo->prepare("SELECT id FROM wardrobe_items WHERE user_id = ? AND clothing_id = ?");
-        $wcheck->execute([$_SESSION['user_id'], $item['id']]);
-        $in_wardrobe = (bool)$wcheck->fetch();
-      }
-    ?>
-      <div class="clothing-card">
-        <a href="/grailos/item.php?id=<?= $item['id'] ?>" class="clothing-card-link">
-          <div class="clothing-card-img">
-            <?php if ($item['image_url']): ?>
-              <img src="<?= htmlspecialchars($item['image_url']) ?>"
-                   class="img-main" alt="<?= htmlspecialchars($item['name']) ?>">
-              <?php if ($hover_img): ?>
-                <img src="<?= htmlspecialchars($hover_img) ?>"
-                     class="img-hover" alt="">
-              <?php endif; ?>
-            <?php else: ?>
-              <span class="no-img-text">NO IMG</span>
-            <?php endif; ?>
-          </div>
-          <div class="clothing-card-brand"><?= htmlspecialchars($item['brand']) ?></div>
-          <div class="clothing-card-name"><?= htmlspecialchars($item['name']) ?></div>
-        </a>
-        <div class="clothing-card-footer">
-          <div class="clothing-card-price">
-            <?= $item['price'] ? number_format($item['price'], 2) . ' zł' : '—' ?>
-          </div>
-          <?php if (isset($_SESSION['user_id'])): ?>
-            <form method="POST" action="/grailos/wardrobe_toggle.php">
-              <?= csrf_field() ?>
-              <input type="hidden" name="clothing_id" value="<?= $item['id'] ?>">
-              <button type="submit"
-                      class="wardrobe-btn <?= $in_wardrobe ? 'in-wardrobe' : '' ?>"
-                      title="<?= $in_wardrobe ? 'Usuń z szafy' : 'Dodaj do szafy' ?>">
-                <?= $in_wardrobe ? '✓' : '+' ?>
-              </button>
-            </form>
-          <?php endif; ?>
+<div class="catalog-layout">
+
+  <!-- SIDEBAR FILTRY -->
+  <aside class="catalog-sidebar">
+    <form method="GET" action="/grailos/catalog.php" id="catalogFilterForm">
+
+      <div class="filter-section">
+        <div class="filter-section-title">Szukaj</div>
+        <input type="text" name="search"
+               placeholder="Wpisz nazwę lub markę..."
+               value="<?= htmlspecialchars($_GET['search'] ?? '') ?>"
+               class="sidebar-filter-input">
+      </div>
+
+      <div class="filter-section">
+        <div class="filter-section-title">Kategoria</div>
+        <label class="filter-label">
+          <input type="radio" name="category" value=""
+                 <?= empty($_GET['category']) ? 'checked' : '' ?>
+                 onchange="this.form.submit()">
+          Wszystkie
+        </label>
+        <?php foreach (['hoodie','tshirt','pants','jacket','sneakers','cap','other'] as $cat): ?>
+          <label class="filter-label">
+            <input type="radio" name="category" value="<?= $cat ?>"
+                   <?= ($_GET['category'] ?? '') === $cat ? 'checked' : '' ?>
+                   onchange="this.form.submit()">
+            <?= ucfirst($cat) ?>
+          </label>
+        <?php endforeach; ?>
+      </div>
+
+      <div class="filter-section">
+        <div class="filter-section-title">Marka</div>
+        <label class="filter-label">
+          <input type="radio" name="brand" value=""
+                 <?= empty($_GET['brand']) ? 'checked' : '' ?>
+                 onchange="this.form.submit()">
+          Wszystkie
+        </label>
+        <?php foreach ($brands as $brand): ?>
+          <label class="filter-label">
+            <input type="radio" name="brand" value="<?= htmlspecialchars($brand) ?>"
+                   <?= ($_GET['brand'] ?? '') === $brand ? 'checked' : '' ?>
+                   onchange="this.form.submit()">
+            <?= htmlspecialchars($brand) ?>
+          </label>
+        <?php endforeach; ?>
+      </div>
+
+      <div class="filter-section">
+        <div class="filter-section-title">Cena (zł)</div>
+        <div class="sidebar-price-row">
+          <input type="number" name="min_price" placeholder="Min"
+                 value="<?= htmlspecialchars($_GET['min_price'] ?? '') ?>"
+                 class="sidebar-price-input" min="0">
+          <span class="price-sep">—</span>
+          <input type="number" name="max_price" placeholder="Max"
+                 value="<?= htmlspecialchars($_GET['max_price'] ?? '') ?>"
+                 class="sidebar-price-input" min="0">
         </div>
       </div>
-    <?php endforeach; ?>
-  <?php else: ?>
-    <div style="grid-column:span 3; padding:80px; text-align:center; color:#444; letter-spacing:3px; text-transform:uppercase; font-size:13px;">
-      Brak wyników.
+
+      <div class="filter-section">
+        <div class="filter-section-title">Sortowanie</div>
+        <?php foreach ([
+          'newest'     => 'Najnowsze',
+          'price_asc'  => 'Cena ↑',
+          'price_desc' => 'Cena ↓',
+          'az'         => 'A–Z',
+        ] as $val => $label): ?>
+          <label class="filter-label">
+            <input type="radio" name="sort" value="<?= $val ?>"
+                   <?= ($_GET['sort'] ?? 'newest') === $val ? 'checked' : '' ?>
+                   onchange="this.form.submit()">
+            <?= $label ?>
+          </label>
+        <?php endforeach; ?>
+      </div>
+
+      <div class="sidebar-filter-btns">
+        <button type="submit" class="btn" style="width:100%;">Filtruj</button>
+        <?php if (!empty($_GET['search']) || !empty($_GET['category']) || !empty($_GET['brand']) || !empty($_GET['min_price']) || !empty($_GET['max_price'])): ?>
+          <a href="/grailos/catalog.php" class="btn btn-outline"
+             style="width:100%; text-align:center; display:block;">Resetuj ×</a>
+        <?php endif; ?>
+      </div>
+
+    </form>
+  </aside>
+
+  <!-- PRODUKTY -->
+  <div class="catalog-content">
+
+    <div class="catalog-toolbar">
+      <span class="catalog-count">/// <?= count($items) ?> produktów</span>
     </div>
-  <?php endif; ?>
+
+    <div class="clothing-grid clothing-grid--catalog">
+      <?php if ($items): ?>
+        <?php foreach ($items as $item):
+          $hover_img   = $hover_map[$item['id']] ?? null;
+          $in_wardrobe = false;
+          if (isset($_SESSION['user_id'])) {
+            $wcheck = $pdo->prepare("SELECT id FROM wardrobe_items WHERE user_id = ? AND clothing_id = ?");
+            $wcheck->execute([$_SESSION['user_id'], $item['id']]);
+            $in_wardrobe = (bool)$wcheck->fetch();
+          }
+        ?>
+          <div class="clothing-card">
+            <a href="/grailos/item.php?id=<?= $item['id'] ?>" class="clothing-card-link">
+              <div class="clothing-card-img">
+                <?php if ($item['image_url']): ?>
+                  <img src="<?= htmlspecialchars($item['image_url']) ?>"
+                       class="img-main" alt="<?= htmlspecialchars($item['name']) ?>">
+                  <?php if ($hover_img): ?>
+                    <img src="<?= htmlspecialchars($hover_img) ?>"
+                         class="img-hover" alt="">
+                  <?php endif; ?>
+                <?php else: ?>
+                  <span class="no-img-text">NO IMG</span>
+                <?php endif; ?>
+              </div>
+              <div class="clothing-card-brand"><?= htmlspecialchars($item['brand']) ?></div>
+              <div class="clothing-card-name"><?= htmlspecialchars($item['name']) ?></div>
+            </a>
+            <div class="clothing-card-footer">
+              <div class="clothing-card-price">
+                <?= $item['price'] ? number_format($item['price'], 2) . ' zł' : '—' ?>
+              </div>
+              <?php if (isset($_SESSION['user_id'])): ?>
+                <form method="POST" action="/grailos/wardrobe_toggle.php">
+                  <?= csrf_field() ?>
+                  <input type="hidden" name="clothing_id" value="<?= $item['id'] ?>">
+                  <button type="submit"
+                          class="wardrobe-btn <?= $in_wardrobe ? 'in-wardrobe' : '' ?>"
+                          title="<?= $in_wardrobe ? 'Usuń z szafy' : 'Dodaj do szafy' ?>">
+                    <?= $in_wardrobe ? '✓' : '+' ?>
+                  </button>
+                </form>
+              <?php endif; ?>
+            </div>
+          </div>
+        <?php endforeach; ?>
+      <?php else: ?>
+        <div style="grid-column:span 4; padding:80px; text-align:center; color:#444;
+                    letter-spacing:3px; text-transform:uppercase; font-size:13px;">
+          Brak wyników.
+        </div>
+      <?php endif; ?>
+    </div>
+
+  </div>
+
 </div>
 
 <?php require_once 'includes/footer.php'; ?>

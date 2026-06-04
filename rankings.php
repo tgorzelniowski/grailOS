@@ -16,7 +16,7 @@ $week = $pdo->query("
     WHERE fits.created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
     GROUP BY fits.id
     ORDER BY votes DESC
-    LIMIT 6
+    LIMIT 10
 ")->fetchAll();
 
 $month = $pdo->query("
@@ -28,7 +28,7 @@ $month = $pdo->query("
     WHERE fits.created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
     GROUP BY fits.id
     ORDER BY votes DESC
-    LIMIT 6
+    LIMIT 10
 ")->fetchAll();
 
 function renderRankingCard($fit, $position) { ?>
@@ -67,7 +67,7 @@ function renderRankingCard($fit, $position) { ?>
   <?php if ($week):
     foreach ($week as $i => $fit) renderRankingCard($fit, $i + 1);
   else: ?>
-    <div style="grid-column:span 3; padding:60px; text-align:center; color:#444; letter-spacing:3px; text-transform:uppercase; font-size:12px;">
+    <div style="width:100%; padding:60px; text-align:center; color:#444; letter-spacing:3px; text-transform:uppercase; font-size:12px;">
       Za mało fitów w tym tygodniu.
     </div>
   <?php endif; ?>
@@ -78,7 +78,7 @@ function renderRankingCard($fit, $position) { ?>
   <?php if ($month):
     foreach ($month as $i => $fit) renderRankingCard($fit, $i + 1);
   else: ?>
-    <div style="grid-column:span 3; padding:60px; text-align:center; color:#444; letter-spacing:3px; text-transform:uppercase; font-size:12px;">
+    <div style="width:100%; padding:60px; text-align:center; color:#444; letter-spacing:3px; text-transform:uppercase; font-size:12px;">
       Za mało fitów w tym miesiącu.
     </div>
   <?php endif; ?>

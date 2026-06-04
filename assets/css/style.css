@@ -4312,10 +4312,10 @@ img {
 }
 
 /* ===========================
-   HOMEPAGE — SIATKA UBRAŃ (4 karty, wyśrodkowane, nieco większe)
+   HOMEPAGE — SIATKA UBRAŃ (4 karty, wyśrodkowane, większe)
 =========================== */
 .clothing-grid--home {
-  grid-template-columns: repeat(4, minmax(0, 260px)) !important;
+  grid-template-columns: repeat(4, minmax(0, 300px)) !important;
   justify-content: center !important;
   gap: 8px !important;
   background: transparent !important;
@@ -4323,20 +4323,20 @@ img {
 
 .clothing-grid--home .clothing-card {
   border: 1px solid var(--border) !important;
-  padding: 10px !important;
+  padding: 12px !important;
 }
 
 .clothing-grid--home .clothing-card-img {
   aspect-ratio: 1/1 !important;
-  margin-bottom: 8px !important;
+  margin-bottom: 10px !important;
 }
 
 .clothing-grid--home .clothing-card-name {
-  font-size: 11px !important;
+  font-size: 12px !important;
 }
 
-@media (max-width: 900px) {
-  .clothing-grid--home { grid-template-columns: repeat(2, minmax(0, 260px)) !important; }
+@media (max-width: 1000px) {
+  .clothing-grid--home { grid-template-columns: repeat(2, minmax(0, 300px)) !important; }
 }
 
 /* ===========================
@@ -4392,10 +4392,10 @@ img {
 }
 
 /* ===========================
-   FITS GRID — 3 KOLUMNY, MNIEJSZE, WYŚRODKOWANE
+   FITS GRID — 4 KOLUMNY, WYŚRODKOWANE
 =========================== */
 .fits-grid {
-  grid-template-columns: repeat(3, minmax(0, 280px)) !important;
+  grid-template-columns: repeat(4, minmax(0, 280px)) !important;
   justify-content: center !important;
   gap: 16px !important;
   background: transparent !important;
@@ -4406,11 +4406,15 @@ img {
   aspect-ratio: 1/1 !important;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1100px) {
+  .fits-grid { grid-template-columns: repeat(3, minmax(0, 280px)) !important; }
+}
+
+@media (max-width: 768px) {
   .fits-grid { grid-template-columns: repeat(2, minmax(0, 280px)) !important; }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 500px) {
   .fits-grid {
     grid-template-columns: minmax(0, 280px) !important;
     padding: 12px 20px !important;
@@ -4418,12 +4422,21 @@ img {
 }
 
 /* ===========================
-   RANKINGS — TOP 6, 3 KOLUMNY, GAP, MNIEJSZE FITY
+   RANKINGS — TOP 10, 4 KOLUMNY, OSTATNI WIERSZ WYŚRODKOWANY
 =========================== */
 .ranking-grid {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  justify-content: center !important;
   gap: 16px !important;
   background: transparent !important;
   padding: 16px 40px !important;
+}
+
+.ranking-card {
+  flex: 0 1 220px !important;
+  max-width: 240px !important;
+  min-width: 140px !important;
 }
 
 .ranking-img {
@@ -4431,11 +4444,166 @@ img {
 }
 
 @media (max-width: 768px) {
-  .ranking-grid {
-    grid-template-columns: repeat(2, 1fr) !important;
-    padding: 12px 20px !important;
-    gap: 12px !important;
+  .ranking-grid { padding: 12px 20px !important; gap: 12px !important; }
+  .ranking-card { flex: 0 1 160px !important; }
+}
+
+/* ===========================
+   CATALOG — SIDEBAR LAYOUT
+=========================== */
+.catalog-layout {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  align-items: start;
+  border-top: 1px solid var(--border);
+}
+
+.catalog-sidebar {
+  border-right: 1px solid var(--border);
+  padding: 24px 20px;
+  position: sticky;
+  top: 60px;
+  max-height: calc(100vh - 60px);
+  overflow-y: auto;
+}
+
+.catalog-sidebar::-webkit-scrollbar { width: 4px; }
+.catalog-sidebar::-webkit-scrollbar-track { background: transparent; }
+.catalog-sidebar::-webkit-scrollbar-thumb { background: var(--border); }
+
+.filter-section {
+  border-bottom: 1px solid var(--border);
+  padding: 18px 0;
+}
+
+.filter-section:first-child { padding-top: 0; }
+.filter-section:last-of-type { border-bottom: none; }
+
+.filter-section-title {
+  font-size: 10px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--white);
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.filter-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  letter-spacing: 1px;
+  color: var(--gray);
+  cursor: pointer;
+  padding: 3px 0;
+  transition: color 0.15s;
+  text-transform: uppercase;
+}
+
+.filter-label:hover { color: var(--white); }
+
+.filter-label input[type="radio"] {
+  accent-color: var(--red);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.sidebar-filter-input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  color: var(--white);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px;
+  letter-spacing: 1px;
+  padding: 8px 0;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.sidebar-filter-input:focus { border-bottom-color: var(--red); }
+.sidebar-filter-input::placeholder { color: #444; }
+
+.sidebar-price-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sidebar-price-input {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  color: var(--white);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px;
+  padding: 6px 0;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.sidebar-price-input:focus { border-bottom-color: var(--red); }
+.sidebar-price-input::placeholder { color: #444; }
+
+.sidebar-filter-btns {
+  padding-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.catalog-content { min-width: 0; }
+
+.catalog-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 24px;
+  border-bottom: 1px solid var(--border);
+}
+
+.catalog-count {
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--gray);
+}
+
+.clothing-grid--catalog {
+  grid-template-columns: repeat(4, 1fr) !important;
+  background: var(--border) !important;
+  gap: 1px !important;
+}
+
+.clothing-grid--catalog .clothing-card {
+  padding: 14px !important;
+}
+
+.clothing-grid--catalog .clothing-card-img {
+  aspect-ratio: 3/4 !important;
+}
+
+@media (max-width: 1100px) {
+  .clothing-grid--catalog { grid-template-columns: repeat(3, 1fr) !important; }
+}
+
+@media (max-width: 900px) {
+  .catalog-layout { grid-template-columns: 1fr; }
+  .catalog-sidebar {
+    position: static;
+    max-height: none;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
   }
+  .clothing-grid--catalog { grid-template-columns: repeat(2, 1fr) !important; }
+}
+
+@media (max-width: 480px) {
+  .clothing-grid--catalog { grid-template-columns: 1fr !important; }
 }
 
 /* ===========================
