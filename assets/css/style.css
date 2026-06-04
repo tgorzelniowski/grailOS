@@ -4449,6 +4449,257 @@ img {
 }
 
 /* ===========================
+   ITEM PAGE V2 — FARFETCH LAYOUT
+=========================== */
+.item-page-v2 {
+  display: grid;
+  grid-template-columns: 112px 1fr 380px;
+  border-bottom: 1px solid var(--border);
+  min-height: 60vh;
+}
+
+.item-thumbs-v {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 20px 12px;
+  border-right: 1px solid var(--border);
+  position: sticky;
+  top: 60px;
+  height: 68vh;
+  overflow-y: auto;
+}
+
+.item-thumbs-v::-webkit-scrollbar { width: 3px; }
+.item-thumbs-v::-webkit-scrollbar-thumb { background: var(--border); }
+
+.item-thumb-v {
+  width: 86px;
+  height: 86px;
+  flex-shrink: 0;
+  background: var(--card);
+  border: 1px solid transparent;
+  cursor: pointer;
+  overflow: hidden;
+  padding: 0;
+  transition: border-color 0.2s;
+}
+
+.item-thumb-v.active,
+.item-thumb-v:hover { border-color: var(--red); }
+
+.item-thumb-v img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.item-main-img {
+  position: sticky;
+  top: 60px;
+  height: 68vh;
+  background: #0f0f0f;
+  border-right: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.item-slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.item-slide.active { opacity: 1; }
+
+.item-slide img {
+  max-width: 88%;
+  max-height: 88%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
+
+.item-nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(10,10,10,0.65);
+  border: 1px solid var(--border);
+  color: var(--white);
+  font-size: 22px;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.item-nav-btn:hover { background: var(--red); border-color: var(--red); }
+.item-nav-prev { left: 12px; }
+.item-nav-next { right: 12px; }
+
+.item-info-v {
+  padding: 40px 32px 80px;
+  overflow-y: auto;
+  max-height: calc(100vh - 60px);
+  position: sticky;
+  top: 60px;
+}
+
+.item-brand-v {
+  font-size: 11px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--red);
+  margin-bottom: 8px;
+}
+
+.item-name-v {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 38px;
+  line-height: 1;
+  letter-spacing: 2px;
+  margin-bottom: 16px;
+  text-transform: uppercase;
+}
+
+.item-price-v {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 28px;
+  letter-spacing: 1px;
+  color: var(--white);
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.item-wardrobe-btn {
+  width: 100%;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.item-buy-section {
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 0;
+}
+
+.item-section-label {
+  font-size: 10px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--gray);
+  margin-bottom: 12px;
+  margin-top: 4px;
+}
+
+.item-price-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.item-price-row:last-child { border-bottom: none; }
+.item-price-best .item-store-name { color: var(--white); }
+
+.item-store-name {
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--gray);
+  margin-top: 4px;
+}
+
+.item-store-price {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 20px;
+  letter-spacing: 1px;
+  color: var(--white);
+  white-space: nowrap;
+}
+
+.item-desc-v2-section { border-top: 1px solid var(--border); }
+
+.item-desc-v2-toggle {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: var(--white);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  padding: 14px 0;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: color 0.2s;
+}
+
+.item-desc-v2-toggle:hover { color: var(--red); }
+
+.item-desc-v2 {
+  display: none;
+  font-size: 13px;
+  color: var(--gray);
+  line-height: 1.75;
+  letter-spacing: 0.3px;
+  padding: 4px 0 20px;
+  border-top: 1px solid var(--border);
+}
+
+.item-desc-v2.expanded { display: block; }
+
+@media (max-width: 1000px) {
+  .item-page-v2 { grid-template-columns: 112px 1fr 300px; }
+  .item-info-v { padding: 32px 24px 60px; }
+}
+
+@media (max-width: 768px) {
+  .item-page-v2 {
+    grid-template-columns: 72px 1fr;
+    grid-template-rows: 55vw auto;
+  }
+  .item-thumbs-v {
+    grid-column: 1;
+    grid-row: 1;
+    position: static;
+    height: 55vw;
+    padding: 8px 6px;
+  }
+  .item-thumb-v { width: 56px; height: 56px; }
+  .item-main-img {
+    grid-column: 2;
+    grid-row: 1;
+    position: static;
+    height: 55vw;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+  .item-info-v {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    position: static;
+    max-height: none;
+    padding: 24px 20px 60px;
+  }
+}
+
+/* ===========================
    SETTINGS — WYŚRODKOWANIE
 =========================== */
 .settings-wrap {
