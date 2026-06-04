@@ -4312,10 +4312,10 @@ img {
 }
 
 /* ===========================
-   HOMEPAGE — SIATKA UBRAŃ (4 karty, wyśrodkowane)
+   HOMEPAGE — SIATKA UBRAŃ (4 karty, wyśrodkowane, nieco większe)
 =========================== */
 .clothing-grid--home {
-  grid-template-columns: repeat(4, minmax(0, 200px)) !important;
+  grid-template-columns: repeat(4, minmax(0, 260px)) !important;
   justify-content: center !important;
   gap: 8px !important;
   background: transparent !important;
@@ -4336,15 +4336,15 @@ img {
 }
 
 @media (max-width: 900px) {
-  .clothing-grid--home { grid-template-columns: repeat(2, minmax(0, 200px)) !important; }
+  .clothing-grid--home { grid-template-columns: repeat(2, minmax(0, 260px)) !important; }
 }
 
 /* ===========================
-   HOMEPAGE — BLOKI DROPÓW (mniejsze + padding)
+   HOMEPAGE — BLOKI DROPÓW (mniejsze + większy padding)
 =========================== */
 .drops-list .drop-row-full-link {
   grid-template-columns: 80px 1fr auto !important;
-  padding: 18px 40px !important;
+  padding: 24px 40px !important;
   gap: 18px !important;
 }
 
@@ -4356,7 +4356,7 @@ img {
 @media (max-width: 768px) {
   .drops-list .drop-row-full-link {
     grid-template-columns: 60px 1fr !important;
-    padding: 14px 20px !important;
+    padding: 16px 20px !important;
     gap: 12px !important;
   }
   .drops-list .drop-img-wrap {
@@ -4370,7 +4370,7 @@ img {
 =========================== */
 .drops-list--page .drop-row-full-link {
   grid-template-columns: 140px 1fr auto !important;
-  padding: 24px 40px !important;
+  padding: 28px 40px !important;
   gap: 28px !important;
 }
 
@@ -4392,22 +4392,27 @@ img {
 }
 
 /* ===========================
-   FITS GRID — 3 KOLUMNY Z GAPEM
+   FITS GRID — 3 KOLUMNY, MNIEJSZE, WYŚRODKOWANE
 =========================== */
 .fits-grid {
-  grid-template-columns: repeat(3, 1fr) !important;
+  grid-template-columns: repeat(3, minmax(0, 280px)) !important;
+  justify-content: center !important;
   gap: 16px !important;
   background: transparent !important;
   padding: 16px 40px !important;
 }
 
-@media (max-width: 1024px) {
-  .fits-grid { grid-template-columns: repeat(2, 1fr) !important; }
+.fits-grid .fit-img-wrap {
+  aspect-ratio: 1/1 !important;
+}
+
+@media (max-width: 900px) {
+  .fits-grid { grid-template-columns: repeat(2, minmax(0, 280px)) !important; }
 }
 
 @media (max-width: 600px) {
   .fits-grid {
-    grid-template-columns: 1fr !important;
+    grid-template-columns: minmax(0, 280px) !important;
     padding: 12px 20px !important;
   }
 }
@@ -4434,18 +4439,20 @@ img {
 }
 
 /* ===========================
-   POST IMAGES — OSTATECZNA NAPRAWA (nie ucinaj, wyśrodkuj)
+   POST IMAGES — NAPRAWA ROZSZERZANIA BLOKU
+   Wcześniejszy max-height:400px blokował wzrost bloku posta.
 =========================== */
 .post-img-wrap {
   margin: 12px auto 16px !important;
   max-width: 560px !important;
   width: 100% !important;
+  max-height: none !important;
+  height: auto !important;
   border: 1px solid var(--border) !important;
   background: var(--card) !important;
-  overflow: visible !important;
+  overflow: hidden !important;
   display: block !important;
   aspect-ratio: unset !important;
-  height: auto !important;
 }
 
 .post-img-wrap img {
