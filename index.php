@@ -13,7 +13,7 @@
 <section class="hero">
   <div class="hero-tag">The operating system for your wardrobe</div>
   <h1 class="hero-title">FIND<br>YOUR<br><span>GRAIL</span></h1>
-  <p class="hero-sub">Catalog. Drops. Fits. Rankings. Wszystko o streetwearze w jednym miejscu.</p>
+  <p class="hero-sub">Catalog. Drops. Fits. Forum. Rankings. Wszystko o streetwearze w jednym miejscu.</p>
   <a href="/grailos/catalog.php" class="btn">Explore catalog →</a>
 </section>
 
