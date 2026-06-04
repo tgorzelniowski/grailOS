@@ -66,11 +66,11 @@ $drops = $pdo->query("SELECT * FROM drops ORDER BY drop_date DESC")->fetchAll();
               <?php endif; ?>
             </td>
             <td>
-              <form method="POST"
-                    onsubmit="return confirm('Usunac drop <?= htmlspecialchars(addslashes($drop['name'])) ?>?')">
+              <form method="POST">
                 <?= csrf_field() ?>
                 <input type="hidden" name="delete_id" value="<?= $drop['id'] ?>">
-                <button type="submit" class="btn-delete">Usuń</button>
+                <button type="button" class="btn-delete"
+                        onclick="grailConfirm('Usunąć drop?', () => this.closest('form').submit())">Usuń</button>
               </form>
             </td>
           </tr>
