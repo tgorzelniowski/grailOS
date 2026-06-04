@@ -19,6 +19,17 @@ $week = $pdo->query("
     LIMIT 10
 ")->fetchAll();
 
+$alltime = $pdo->query("
+    SELECT fits.*, users.username, users.avatar_url,
+           COUNT(fit_votes.id) AS votes
+    FROM fits
+    LEFT JOIN users     ON fits.user_id = users.id
+    LEFT JOIN fit_votes ON fits.id = fit_votes.fit_id
+    GROUP BY fits.id
+    ORDER BY votes DESC
+    LIMIT 10
+")->fetchAll();
+
 $month = $pdo->query("
     SELECT fits.*, users.username, users.avatar_url,
            COUNT(fit_votes.id) AS votes
@@ -61,6 +72,17 @@ function renderRankingCard($fit, $position) { ?>
   </div>
 <?php }
 ?>
+
+<div class="section-label">/// All Time Top</div>
+<div class="ranking-grid">
+  <?php if ($alltime):
+    foreach ($alltime as $i => $fit) renderRankingCard($fit, $i + 1);
+  else: ?>
+    <div style="width:100%; padding:60px; text-align:center; color:#444; letter-spacing:3px; text-transform:uppercase; font-size:12px;">
+      Brak fitów.
+    </div>
+  <?php endif; ?>
+</div>
 
 <div class="section-label">/// Top tygodnia</div>
 <div class="ranking-grid">

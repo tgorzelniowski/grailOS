@@ -494,10 +494,14 @@ img {
 =========================== */
 .admin-stats {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   gap: 1px;
   background: var(--border);
   border-bottom: 1px solid var(--border);
+}
+
+.admin-stat {
+  padding: 28px 24px;
 }
 
 .admin-stat {
@@ -523,41 +527,44 @@ img {
 
 .admin-actions {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1px;
   background: var(--border);
   border-bottom: 1px solid var(--border);
-  margin-bottom: 0;
 }
 
 .admin-card {
   background: var(--black);
-  padding: 40px;
+  padding: 24px 28px;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: background 0.2s, border-color 0.2s;
   text-decoration: none;
   color: var(--white);
   display: block;
+  border-left: 3px solid transparent;
 }
 
-.admin-card:hover { background: var(--card); }
+.admin-card:hover {
+  background: var(--card);
+  border-left-color: var(--red);
+}
 
 .admin-card-icon {
-  font-size: 40px;
+  font-size: 28px;
   color: var(--red);
-  margin-bottom: 16px;
+  margin-bottom: 10px;
   line-height: 1;
 }
 
 .admin-card-title {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 28px;
+  font-size: 22px;
   letter-spacing: 2px;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .admin-card-sub {
-  font-size: 12px;
+  font-size: 11px;
   letter-spacing: 2px;
   text-transform: uppercase;
   color: var(--gray);
@@ -4716,6 +4723,238 @@ img {
 }
 
 /* ===========================
+   REDDIT-STYLE FORUM POSTS
+=========================== */
+.reddit-post {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  background: var(--black);
+  transition: background 0.15s;
+  cursor: pointer;
+}
+
+.reddit-post:hover { background: #0e0e0e; }
+
+.reddit-vote-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 12px 10px;
+  background: rgba(255,255,255,0.02);
+  border-right: 1px solid var(--border);
+  min-width: 52px;
+  gap: 4px;
+}
+
+.reddit-vote-btn {
+  background: transparent;
+  border: none;
+  color: var(--gray);
+  font-size: 18px;
+  cursor: pointer;
+  padding: 4px 6px;
+  line-height: 1;
+  font-family: inherit;
+  transition: color 0.15s;
+}
+
+.reddit-vote-btn:hover,
+.reddit-vote-btn.liked { color: var(--red); }
+
+.reddit-vote-btn-static {
+  font-size: 18px;
+  color: #333;
+  line-height: 1;
+}
+
+.reddit-vote-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 20px;
+  color: var(--white);
+  letter-spacing: 1px;
+  line-height: 1;
+}
+
+.reddit-main {
+  flex: 1;
+  padding: 14px 20px 12px;
+  min-width: 0;
+}
+
+.reddit-meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  gap: 8px;
+}
+
+.reddit-username {
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--red);
+  text-decoration: none;
+  font-weight: 600;
+  transition: opacity 0.15s;
+}
+
+.reddit-username:hover { opacity: 0.75; }
+
+.reddit-time {
+  font-size: 11px;
+  color: #444;
+  letter-spacing: 1px;
+}
+
+.reddit-text {
+  font-size: 15px;
+  color: var(--white);
+  line-height: 1.65;
+  letter-spacing: 0.3px;
+  margin-bottom: 12px;
+}
+
+.reddit-img-wrap {
+  max-width: 540px;
+  margin-bottom: 12px;
+  border: 1px solid var(--border);
+  background: var(--card);
+}
+
+.reddit-img-wrap img {
+  width: 100%;
+  height: auto;
+  max-height: 500px;
+  object-fit: contain;
+  display: block;
+}
+
+.reddit-actions-row {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.reddit-action-btn {
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--gray);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  padding: 5px 10px;
+  font-family: 'Barlow Condensed', sans-serif;
+  transition: background 0.15s, color 0.15s;
+}
+
+.reddit-action-btn:hover {
+  background: rgba(255,255,255,0.06);
+  color: var(--white);
+}
+
+@media (max-width: 768px) {
+  .reddit-vote-col { min-width: 40px; padding: 10px 6px; }
+  .reddit-main { padding: 12px 14px; }
+}
+
+/* ===========================
+   FIT GALLERY STRIP
+=========================== */
+.fit-gallery-strip {
+  display: flex;
+  gap: 6px;
+  padding: 8px;
+  background: #0a0a0a;
+  border-top: 1px solid var(--border);
+  overflow-x: auto;
+  flex-shrink: 0;
+}
+
+.fit-gallery-thumb {
+  width: 60px;
+  height: 60px;
+  flex-shrink: 0;
+  background: var(--card);
+  border: 1px solid transparent;
+  cursor: pointer;
+  overflow: hidden;
+  padding: 0;
+  transition: border-color 0.2s;
+}
+
+.fit-gallery-thumb.active,
+.fit-gallery-thumb:hover { border-color: var(--red); }
+
+.fit-gallery-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* ===========================
+   FIT COMMENTS — ULEPSZONE
+=========================== */
+.comment {
+  padding: 14px 16px;
+  border: none;
+  border-left: 2px solid var(--border);
+  background: rgba(255,255,255,0.015);
+  margin-bottom: 8px;
+  transition: border-color 0.2s;
+}
+
+.comment:hover { border-left-color: var(--red); }
+
+.comment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.comment-user {
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--red);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.comment-date {
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: #444;
+}
+
+.comment-content {
+  font-size: 14px;
+  color: #ccc;
+  line-height: 1.6;
+  letter-spacing: 0.3px;
+}
+
+.comment-replies {
+  margin-top: 10px;
+  padding-left: 14px;
+  border-left: 2px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.comment-reply {
+  padding: 10px 12px;
+  background: rgba(255,255,255,0.02);
+}
+
+/* ===========================
    FIT PAGE V2 — ITEM-STYLE LAYOUT
 =========================== */
 .fit-page-v2 {
@@ -4732,17 +4971,16 @@ img {
   border-right: 1px solid var(--border);
   overflow: hidden;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
 }
 
-.fit-page-img img {
-  max-width: 92%;
-  max-height: 92%;
-  width: auto;
-  height: auto;
+.fit-page-img #fitMainImg {
+  flex: 1;
+  width: 100%;
+  height: 0;
   object-fit: contain;
   display: block;
+  background: #0a0a0a;
 }
 
 .fit-page-info {

@@ -82,6 +82,16 @@ if (isset($_SESSION['user_id'])) {
     $user_voted = (bool)$v->fetch();
 }
 
+// Dodatkowe zdjęcia (tabela fit_images)
+$extra_fit_imgs = [];
+try {
+    $ei = $pdo->prepare("SELECT * FROM fit_images WHERE fit_id = ? ORDER BY sort_order ASC");
+    $ei->execute([$id]);
+    $extra_fit_imgs = $ei->fetchAll();
+} catch (Exception $e) {}
+
+$all_fit_imgs = array_merge([$fit['image_url']], array_column($extra_fit_imgs, 'image_url'));
+
 require_once 'includes/header.php';
 ?>
 
@@ -89,7 +99,17 @@ require_once 'includes/header.php';
 
   <!-- ZDJĘCIE (sticky) -->
   <div class="fit-page-img">
-    <img src="<?= htmlspecialchars($fit['image_url']) ?>" alt="Fit">
+    <img id="fitMainImg" src="<?= htmlspecialchars($all_fit_imgs[0]) ?>" alt="Fit">
+    <?php if (count($all_fit_imgs) > 1): ?>
+      <div class="fit-gallery-strip">
+        <?php foreach ($all_fit_imgs as $gi => $gimg): ?>
+          <button class="fit-gallery-thumb <?= $gi === 0 ? 'active' : '' ?>"
+                  onclick="switchFitImg(this, '<?= htmlspecialchars($gimg) ?>')">
+            <img src="<?= htmlspecialchars($gimg) ?>" alt="">
+          </button>
+        <?php endforeach; ?>
+      </div>
+    <?php endif; ?>
   </div>
 
   <!-- INFO + KOMENTARZE -->
@@ -113,7 +133,11 @@ require_once 'includes/header.php';
            class="post-user-link">@<?= htmlspecialchars($fit['username']) ?></a>
         <div class="post-date"><?= date('d M Y, H:i', strtotime($fit['created_at'])) ?></div>
       </div>
-      <div style="margin-left:auto; display:flex; gap:10px; align-items:center;">
+      <div style="margin-left:auto; display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+        <?php if (isset($_SESSION['user_id']) && $fit['user_id'] == $_SESSION['user_id']): ?>
+          <a href="/grailos/edit_fit.php?id=<?= $fit['id'] ?>"
+             class="btn btn-outline" style="font-size:11px; padding:6px 14px;">Edytuj</a>
+        <?php endif; ?>
         <?php if (isset($_SESSION['user_id'])): ?>
           <button class="vote-btn <?= $user_voted ? 'voted' : '' ?>"
                   style="font-size:15px; padding:8px 20px;"
@@ -273,6 +297,12 @@ require_once 'includes/header.php';
 </div>
 
 <script>
+function switchFitImg(btn, src) {
+  document.getElementById('fitMainImg').src = src;
+  document.querySelectorAll('.fit-gallery-thumb').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
 function toggleReply(id) {
   const form = document.getElementById(id);
   form.style.display = form.style.display === 'none' ? 'block' : 'none';

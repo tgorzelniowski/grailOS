@@ -164,62 +164,73 @@ require_once 'includes/header.php';
       $can_delete = isset($_SESSION['user_id']) &&
                     ($post['user_id'] == $_SESSION['user_id'] || $_SESSION['is_admin']);
     ?>
-      <div class="post-card post-card-clickable"
+      <div class="reddit-post post-card-clickable"
            data-href="/grailos/post.php?id=<?= $post['id'] ?>">
-        <div class="post-card-header">
-          <div class="post-card-meta">
-            <a href="/grailos/profile.php?username=<?= urlencode($post['username']) ?>"
-               class="post-av-link">
-              <?php if ($post['avatar_url']): ?>
-                <img src="<?= htmlspecialchars($post['avatar_url']) ?>"
-                     class="post-av-img" alt="">
-              <?php else: ?>
-                <span class="post-avatar">
-                  <?= strtoupper(htmlspecialchars($post['username'][0])) ?>
-                </span>
-              <?php endif; ?>
-            </a>
-            <div>
-              <a href="/grailos/profile.php?username=<?= urlencode($post['username']) ?>"
-                 class="post-user-link">@<?= htmlspecialchars($post['username']) ?></a>
-              <div class="post-date"><?= date('d M Y, H:i', strtotime($post['created_at'])) ?></div>
-            </div>
-          </div>
-          <?php if ($can_delete): ?>
-            <form method="POST" action="/grailos/delete_post.php">
-              <?= csrf_field() ?>
-              <input type="hidden" name="post_id" value="<?= $post['id'] ?>">
-              <button type="button" class="post-delete-btn"
-                      onclick="grailConfirm('Usunąć ten post?', () => this.closest('form').submit())">✕</button>
-            </form>
+
+        <!-- LEWA KOLUMNA: głosy -->
+        <div class="reddit-vote-col">
+          <?php if (isset($_SESSION['user_id'])): ?>
+            <button class="reddit-vote-btn post-like-btn <?= $liked ? 'liked' : '' ?>"
+                    onclick="event.stopPropagation(); likePost(<?= $post['id'] ?>, this)">▲</button>
+          <?php else: ?>
+            <span class="reddit-vote-btn-static">▲</span>
           <?php endif; ?>
+          <span class="reddit-vote-num">
+            <span class="like-count"><?= $post['likes'] ?></span>
+          </span>
         </div>
 
-        <?php if ($post['content']): ?>
-          <div class="post-card-content"><?= nl2br(htmlspecialchars($post['content'])) ?></div>
-        <?php endif; ?>
-
-        <?php if ($post['image_url']): ?>
-          <div class="post-img-wrap">
-            <img src="<?= htmlspecialchars($post['image_url']) ?>" alt="Post image">
+        <!-- PRAWA KOLUMNA: treść -->
+        <div class="reddit-main">
+          <div class="reddit-meta-row">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <a href="/grailos/profile.php?username=<?= urlencode($post['username']) ?>"
+                 class="post-av-link" onclick="event.stopPropagation()">
+                <?php if ($post['avatar_url']): ?>
+                  <img src="<?= htmlspecialchars($post['avatar_url']) ?>"
+                       class="post-av-img" alt="" style="width:28px;height:28px;">
+                <?php else: ?>
+                  <span class="post-avatar" style="width:28px;height:28px;font-size:13px;">
+                    <?= strtoupper(htmlspecialchars($post['username'][0])) ?>
+                  </span>
+                <?php endif; ?>
+              </a>
+              <a href="/grailos/profile.php?username=<?= urlencode($post['username']) ?>"
+                 class="reddit-username" onclick="event.stopPropagation()">
+                @<?= htmlspecialchars($post['username']) ?>
+              </a>
+              <span class="reddit-time"><?= date('d M Y, H:i', strtotime($post['created_at'])) ?></span>
+            </div>
+            <?php if ($can_delete): ?>
+              <form method="POST" action="/grailos/delete_post.php" onclick="event.stopPropagation()">
+                <?= csrf_field() ?>
+                <input type="hidden" name="post_id" value="<?= $post['id'] ?>">
+                <button type="button" class="post-delete-btn"
+                        onclick="event.stopPropagation(); grailConfirm('Usunąć ten post?', () => this.closest('form').submit())">✕</button>
+              </form>
+            <?php endif; ?>
           </div>
-        <?php endif; ?>
 
-        <div class="post-card-footer">
-          <a href="/grailos/post.php?id=<?= $post['id'] ?>" class="post-stat">
-            💬 <?= $post['replies'] ?> <?= $post['replies'] == 1 ? 'odpowiedź' : 'odpowiedzi' ?>
-          </a>
-          <?php if (isset($_SESSION['user_id'])): ?>
-            <button class="post-stat post-like-btn <?= $liked ? 'liked' : '' ?>"
-                    onclick="likePost(<?= $post['id'] ?>, this)">
-              ♥ <span class="like-count"><?= $post['likes'] ?></span>
-            </button>
-          <?php else: ?>
-            <span class="post-stat">♥ <?= $post['likes'] ?></span>
+          <?php if ($post['content']): ?>
+            <div class="reddit-text"><?= nl2br(htmlspecialchars($post['content'])) ?></div>
           <?php endif; ?>
-          <a href="/grailos/post.php?id=<?= $post['id'] ?>" class="post-stat post-reply-link">
-            Odpowiedz →
-          </a>
+
+          <?php if ($post['image_url']): ?>
+            <div class="reddit-img-wrap">
+              <img src="<?= htmlspecialchars($post['image_url']) ?>" alt="">
+            </div>
+          <?php endif; ?>
+
+          <div class="reddit-actions-row">
+            <a href="/grailos/post.php?id=<?= $post['id'] ?>" class="reddit-action-btn"
+               onclick="event.stopPropagation()">
+              💬 <?= $post['replies'] ?> <?= $post['replies'] == 1 ? 'odpowiedź' : 'odpowiedzi' ?>
+            </a>
+            <a href="/grailos/post.php?id=<?= $post['id'] ?>" class="reddit-action-btn"
+               onclick="event.stopPropagation()">
+              Odpowiedz →
+            </a>
+          </div>
         </div>
       </div>
     <?php endforeach; ?>
