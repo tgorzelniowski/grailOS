@@ -232,7 +232,7 @@ $outfits = $outfits->fetchAll();
       </div>
     <?php endforeach; ?>
   <?php else: ?>
-    <div style="grid-column:span 3; padding:40px; text-align:center; color:#444; letter-spacing:3px; text-transform:uppercase; font-size:12px;">
+    <div style="grid-column:1/-1; padding:40px; text-align:center; color:#444; letter-spacing:3px; text-transform:uppercase; font-size:12px;">
       <?= $is_own ? 'Brak outfitów. <a href="/grailos/create_outfit.php" style="color:var(--red)">Stwórz pierwszy →</a>' : 'Brak outfitów' ?>
     </div>
   <?php endif; ?>
@@ -265,7 +265,7 @@ $outfits = $outfits->fetchAll();
   </div>
 <?php endforeach; ?>
   <?php else: ?>
-    <div style="grid-column:span 3; padding:40px; text-align:center; color:#444; letter-spacing:3px; text-transform:uppercase; font-size:12px;">Szafa pusta</div>
+    <div style="grid-column:1/-1; padding:40px; text-align:center; color:#444; letter-spacing:3px; text-transform:uppercase; font-size:12px;">Szafa pusta</div>
   <?php endif; ?>
 </div>
 

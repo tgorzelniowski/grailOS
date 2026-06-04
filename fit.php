@@ -19,7 +19,6 @@ if (!$fit) { header('Location: /grailos/fits.php'); exit; }
 
 $comment_error = '';
 
-// Nowy komentarz
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['comment'])) {
     if (!isset($_SESSION['user_id'])) { header('Location: /grailos/login.php'); exit; }
     csrf_verify();
@@ -36,7 +35,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['comment'])) {
     }
 }
 
-// Odpowiedź na komentarz
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reply_comment_id'])) {
     if (!isset($_SESSION['user_id'])) { header('Location: /grailos/login.php'); exit; }
     csrf_verify();
@@ -50,7 +48,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reply_comment_id'])) 
     exit;
 }
 
-// Pobierz komentarze
 $stmt2 = $pdo->prepare("
     SELECT fit_comments.*, users.username, users.avatar_url
     FROM fit_comments
@@ -61,7 +58,6 @@ $stmt2 = $pdo->prepare("
 $stmt2->execute([$id]);
 $comments = $stmt2->fetchAll();
 
-// Pobierz odpowiedzi do każdego komentarza
 $replies_map = [];
 if ($comments) {
     $comment_ids  = array_column($comments, 'id');
@@ -79,7 +75,6 @@ if ($comments) {
     }
 }
 
-// Czy głosował
 $user_voted = false;
 if (isset($_SESSION['user_id'])) {
     $v = $pdo->prepare("SELECT id FROM fit_votes WHERE fit_id = ? AND user_id = ?");
@@ -90,40 +85,43 @@ if (isset($_SESSION['user_id'])) {
 require_once 'includes/header.php';
 ?>
 
-<div class="fit-single-wrap">
-  <div class="fit-single-img">
+<div class="fit-page-v2">
+
+  <!-- ZDJĘCIE (sticky) -->
+  <div class="fit-page-img">
     <img src="<?= htmlspecialchars($fit['image_url']) ?>" alt="Fit">
   </div>
 
-  <div class="fit-single-content">
-    <div class="fit-single-header">
-      <div class="post-card-meta">
+  <!-- INFO + KOMENTARZE -->
+  <div class="fit-page-info">
+
+    <!-- UŻYTKOWNIK -->
+    <div class="fit-page-user">
+      <a href="/grailos/profile.php?username=<?= urlencode($fit['username']) ?>"
+         class="post-av-link">
+        <?php if ($fit['avatar_url']): ?>
+          <img src="<?= htmlspecialchars($fit['avatar_url']) ?>"
+               class="post-av-img post-av-lg" alt="">
+        <?php else: ?>
+          <span class="post-avatar post-avatar-lg">
+            <?= strtoupper($fit['username'][0]) ?>
+          </span>
+        <?php endif; ?>
+      </a>
+      <div>
         <a href="/grailos/profile.php?username=<?= urlencode($fit['username']) ?>"
-           class="post-av-link">
-          <?php if ($fit['avatar_url']): ?>
-            <img src="<?= htmlspecialchars($fit['avatar_url']) ?>"
-                 class="post-av-img post-av-lg" alt="">
-          <?php else: ?>
-            <span class="post-avatar post-avatar-lg">
-              <?= strtoupper($fit['username'][0]) ?>
-            </span>
-          <?php endif; ?>
-        </a>
-        <div>
-          <a href="/grailos/profile.php?username=<?= urlencode($fit['username']) ?>"
-             class="post-user-link">@<?= htmlspecialchars($fit['username']) ?></a>
-          <div class="post-date"><?= date('d M Y, H:i', strtotime($fit['created_at'])) ?></div>
-        </div>
+           class="post-user-link">@<?= htmlspecialchars($fit['username']) ?></a>
+        <div class="post-date"><?= date('d M Y, H:i', strtotime($fit['created_at'])) ?></div>
       </div>
-      <div style="display:flex; gap:12px; align-items:center;">
+      <div style="margin-left:auto; display:flex; gap:10px; align-items:center;">
         <?php if (isset($_SESSION['user_id'])): ?>
           <button class="vote-btn <?= $user_voted ? 'voted' : '' ?>"
-                  style="font-size:16px; padding:10px 24px;"
+                  style="font-size:15px; padding:8px 20px;"
                   onclick="handleVote(<?= $fit['id'] ?>, this)">
             ♥ <span class="vote-count"><?= $fit['votes'] ?></span>
           </button>
         <?php else: ?>
-          <span class="vote-count-static" style="font-size:16px;">♥ <?= $fit['votes'] ?></span>
+          <span class="vote-count-static" style="font-size:15px;">♥ <?= $fit['votes'] ?></span>
         <?php endif; ?>
         <?php if (isset($_SESSION['user_id']) && ($fit['user_id'] == $_SESSION['user_id'] || $_SESSION['is_admin'])): ?>
           <form method="POST" action="/grailos/delete_fit.php">
@@ -136,15 +134,14 @@ require_once 'includes/header.php';
       </div>
     </div>
 
+    <!-- OPIS -->
     <?php if ($fit['description']): ?>
-      <p class="fit-single-desc"><?= htmlspecialchars($fit['description']) ?></p>
+      <p class="fit-page-desc"><?= htmlspecialchars($fit['description']) ?></p>
     <?php endif; ?>
 
     <!-- KOMENTARZE -->
     <div class="comments-section" id="comments">
-      <div class="comments-title">
-        /// <?= count($comments) ?> komentarzy
-      </div>
+      <div class="comments-title">/// <?= count($comments) ?> komentarzy</div>
 
       <?php foreach ($comments as $c):
         $c_replies = $replies_map[$c['id']] ?? [];
@@ -175,12 +172,9 @@ require_once 'includes/header.php';
 
           <?php if (isset($_SESSION['user_id'])): ?>
             <button class="reply-toggle-btn"
-                    onclick="toggleReply('reply-form-<?= $c['id'] ?>')">
-              Odpowiedz
-            </button>
+                    onclick="toggleReply('reply-form-<?= $c['id'] ?>')">Odpowiedz</button>
           <?php endif; ?>
 
-          <!-- ODPOWIEDZI NA KOMENTARZ -->
           <?php if ($c_replies): ?>
             <div class="comment-replies">
               <?php foreach ($c_replies as $r): ?>
@@ -200,22 +194,19 @@ require_once 'includes/header.php';
                       <?php endif; ?>
                     </a>
                     <a href="/grailos/profile.php?username=<?= urlencode($r['username']) ?>"
-                       style="font-size:11px;letter-spacing:2px;text-transform:uppercase;
-                              color:var(--red);text-decoration:none;">
+                       style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--red);text-decoration:none;">
                       @<?= htmlspecialchars($r['username']) ?>
                     </a>
-                    <span style="font-size:11px;color:#444;letter-spacing:1px;">
+                    <span style="font-size:11px;color:#444;">
                       <?= date('d M, H:i', strtotime($r['created_at'])) ?>
                     </span>
                   </div>
-                  <div style="font-size:13px;color:var(--gray);line-height:1.5;letter-spacing:0.3px;">
+                  <div style="font-size:13px;color:var(--gray);line-height:1.5;">
                     <?= htmlspecialchars($r['content']) ?>
                   </div>
                   <?php if (isset($_SESSION['user_id'])): ?>
                     <button class="reply-toggle-btn"
-                            onclick="toggleReply('rrf-<?= $r['id'] ?>')">
-                      Odpowiedz
-                    </button>
+                            onclick="toggleReply('rrf-<?= $r['id'] ?>')">Odpowiedz</button>
                     <form method="POST" class="reply-form"
                           id="rrf-<?= $r['id'] ?>" style="display:none;">
                       <?= csrf_field() ?>
@@ -226,10 +217,8 @@ require_once 'includes/header.php';
                                   rows="2" maxlength="500"></textarea>
                       </div>
                       <div style="display:flex; gap:8px;">
-                        <button type="submit" class="btn"
-                                style="font-size:11px; padding:6px 14px;">Wyślij →</button>
-                        <button type="button" class="btn btn-outline"
-                                style="font-size:11px; padding:6px 14px;"
+                        <button type="submit" class="btn" style="font-size:11px; padding:6px 14px;">Wyślij →</button>
+                        <button type="button" class="btn btn-outline" style="font-size:11px; padding:6px 14px;"
                                 onclick="toggleReply('rrf-<?= $r['id'] ?>')">Anuluj</button>
                       </div>
                     </form>
@@ -239,12 +228,9 @@ require_once 'includes/header.php';
             </div>
           <?php endif; ?>
 
-          <!-- FORMULARZ ODPOWIEDZI -->
           <?php if (isset($_SESSION['user_id'])): ?>
-            <form method="POST"
-                  class="reply-form"
-                  id="reply-form-<?= $c['id'] ?>"
-                  style="display:none;">
+            <form method="POST" class="reply-form"
+                  id="reply-form-<?= $c['id'] ?>" style="display:none;">
               <?= csrf_field() ?>
               <input type="hidden" name="reply_comment_id" value="<?= $c['id'] ?>">
               <div class="form-group" style="margin-top:8px;">
@@ -253,13 +239,9 @@ require_once 'includes/header.php';
                           rows="2" maxlength="500"></textarea>
               </div>
               <div style="display:flex; gap:8px;">
-                <button type="submit" class="btn"
-                        style="font-size:11px; padding:6px 14px;">Wyślij →</button>
-                <button type="button" class="btn btn-outline"
-                        style="font-size:11px; padding:6px 14px;"
-                        onclick="toggleReply('reply-form-<?= $c['id'] ?>')">
-                  Anuluj
-                </button>
+                <button type="submit" class="btn" style="font-size:11px; padding:6px 14px;">Wyślij →</button>
+                <button type="button" class="btn btn-outline" style="font-size:11px; padding:6px 14px;"
+                        onclick="toggleReply('reply-form-<?= $c['id'] ?>')">Anuluj</button>
               </div>
             </form>
           <?php endif; ?>
@@ -271,7 +253,7 @@ require_once 'includes/header.php';
         <?php if ($comment_error): ?>
           <div class="form-error" style="margin:16px 0;"><?= htmlspecialchars($comment_error) ?></div>
         <?php endif; ?>
-        <form method="POST" class="comment-form">
+        <form method="POST" class="comment-form" style="margin-top:8px;">
           <?= csrf_field() ?>
           <div class="form-group">
             <textarea name="comment" class="form-input form-textarea"
@@ -286,6 +268,7 @@ require_once 'includes/header.php';
         </p>
       <?php endif; ?>
     </div>
+
   </div>
 </div>
 

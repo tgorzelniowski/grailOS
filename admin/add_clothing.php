@@ -116,14 +116,17 @@ require_once __DIR__ . '/../includes/header.php';
     </div>
 
     <!-- ZDJĘCIA -->
-    <div class="form-section-title" style="margin-top:32px;">/// Zdjęcia</div>
-    <div class="form-group">
-      <label class="form-label">Wybierz zdjęcia (pierwsze = główne)</label>
-      <input type="file" name="images[]" class="form-input form-file"
-             accept="image/jpeg,image/png,image/webp" multiple
-             onchange="previewFiles(this)">
+    <div class="form-section-title" style="margin-top:32px;">/// Zdjęcia (pierwsze = główne)</div>
+    <div id="img-inputs">
+      <div class="img-input-row" style="display:flex; align-items:center; gap:12px; margin-bottom:8px;">
+        <input type="file" name="images[]" class="form-input form-file"
+               accept="image/jpeg,image/png,image/webp"
+               onchange="previewSingleImg(this, 0)">
+        <div id="prev0"></div>
+      </div>
     </div>
-    <div class="img-preview-wrap" id="imgPreview"></div>
+    <button type="button" class="btn btn-outline" style="margin-top:4px;"
+            onclick="addImgInput()">+ Dodaj kolejne zdjęcie</button>
 
     <!-- LINKI DO SKLEPÓW -->
     <div class="form-section-title" style="margin-top:32px;">/// Linki do sklepów</div>
@@ -162,22 +165,32 @@ function addLink() {
   wrap.appendChild(row);
 }
 
-function previewFiles(input) {
-  const wrap = document.getElementById('imgPreview');
-  wrap.innerHTML = '';
-  Array.from(input.files).forEach((file, i) => {
-    const reader = new FileReader();
-    reader.onload = e => {
-      const div = document.createElement('div');
-      div.className = 'img-preview-item';
-      div.innerHTML = `
-        <img src="${e.target.result}" alt="">
-        <span>${i === 0 ? '★ Główne' : `#${i+1}`}</span>
-      `;
-      wrap.appendChild(div);
-    };
-    reader.readAsDataURL(file);
-  });
+let imgCount = 1;
+
+function addImgInput() {
+  const wrap = document.getElementById('img-inputs');
+  const i = imgCount++;
+  const row = document.createElement('div');
+  row.style.cssText = 'display:flex; align-items:center; gap:12px; margin-bottom:8px;';
+  row.innerHTML = `
+    <input type="file" name="images[]" class="form-input form-file"
+           accept="image/jpeg,image/png,image/webp"
+           onchange="previewSingleImg(this, ${i})">
+    <div id="prev${i}"></div>
+    <button type="button" class="btn-delete" onclick="this.parentElement.remove()">✕</button>
+  `;
+  wrap.appendChild(row);
+}
+
+function previewSingleImg(input, idx) {
+  if (!input.files[0]) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const el = document.getElementById('prev' + idx);
+    if (el) el.innerHTML =
+      `<img src="${e.target.result}" style="height:72px;width:72px;object-fit:contain;border:1px solid #222;background:#111;">`;
+  };
+  reader.readAsDataURL(input.files[0]);
 }
 </script>
 
