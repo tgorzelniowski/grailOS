@@ -4441,6 +4441,12 @@ img {
 
 .ranking-img {
   aspect-ratio: 1/1 !important;
+  background: var(--card) !important;
+}
+
+.ranking-img img {
+  object-fit: contain !important;
+  background: var(--card) !important;
 }
 
 @media (max-width: 768px) {
@@ -4785,6 +4791,9 @@ img {
   gap: 12px;
   align-items: center;
   flex-wrap: wrap;
+  justify-content: center;
+  max-width: 600px;
+  margin: 0 auto;
 }
 
 .fits-filter-input {

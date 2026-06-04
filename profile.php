@@ -212,7 +212,7 @@ $outfits = $outfits->fetchAll();
             <?= csrf_field() ?>
             <input type="hidden" name="outfit_id" value="<?= $outfit['id'] ?>">
             <button type="button" class="inline-delete-btn"
-                    onclick="grailConfirm('Usunąć outfit?', () => this.closest(\'form\').submit())"
+                    onclick="grailConfirm('Usunąć outfit?', () => this.closest(&quot;form&quot;).submit())"
                     style="opacity:1;">✕</button>
           </form>
         <?php endif; ?>

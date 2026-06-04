@@ -34,7 +34,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['new_post'])) {
     }
 }
 
-$posts = $pdo->query("
+$search_user = trim($_GET['user'] ?? '');
+$search_kw   = trim($_GET['kw']   ?? '');
+$where_parts = [];
+$filter_params = [];
+
+if ($search_user !== '') {
+    $where_parts[]  = "users.username LIKE ?";
+    $filter_params[] = '%' . $search_user . '%';
+}
+if ($search_kw !== '') {
+    $where_parts[]  = "posts.content LIKE ?";
+    $filter_params[] = '%' . $search_kw . '%';
+}
+$where = $where_parts ? 'WHERE ' . implode(' AND ', $where_parts) : '';
+
+$stmt = $pdo->prepare("
     SELECT posts.*, users.username, users.avatar_url,
            COUNT(DISTINCT post_likes.id)   AS likes,
            COUNT(DISTINCT post_replies.id) AS replies
@@ -42,21 +57,37 @@ $posts = $pdo->query("
     LEFT JOIN users        ON posts.user_id = users.id
     LEFT JOIN post_likes   ON posts.id = post_likes.post_id
     LEFT JOIN post_replies ON posts.id = post_replies.post_id
+    $where
     GROUP BY posts.id
     ORDER BY posts.created_at DESC
-")->fetchAll();
+");
+$stmt->execute($filter_params);
+$posts = $stmt->fetchAll();
 
 require_once 'includes/header.php';
 ?>
-<!-- reszta HTML forum.php bez zmian od poprzedniej wersji -->
-
-<?php require_once 'includes/header.php'; ?>
 
 <section class="page-header">
   <div class="page-header-tag">/// Community</div>
   <h1 class="page-title">FORUM</h1>
   <p class="page-sub">Pytaj, odpowiadaj, dziel się.</p>
 </section>
+<!-- WYSZUKIWARKA -->
+<div class="fits-filter-bar">
+  <form method="GET" action="/grailos/forum.php" class="fits-filter-form">
+    <input type="text" name="user" placeholder="@użytkownik"
+           value="<?= htmlspecialchars($search_user) ?>"
+           class="fits-filter-input">
+    <input type="text" name="kw" placeholder="Słowo kluczowe w treści..."
+           value="<?= htmlspecialchars($search_kw) ?>"
+           class="fits-filter-input">
+    <button type="submit" class="btn">Szukaj</button>
+    <?php if ($search_user !== '' || $search_kw !== ''): ?>
+      <a href="/grailos/forum.php" class="btn btn-outline">Resetuj ×</a>
+    <?php endif; ?>
+  </form>
+</div>
+
 <!-- COMPOSE -->
 <div class="compose-wrap">
   <?php if (isset($_SESSION['user_id'])): ?>
