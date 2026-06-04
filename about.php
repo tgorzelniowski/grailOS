@@ -19,7 +19,7 @@
     <div class="about-tag">/// The mission</div>
     <h2 class="about-heading">Wszystko o streetwearze. W jednym miejscu.</h2>
     <p class="about-text">
-      Catalog. Drops. Fits. Rankings. GrailOS to system operacyjny twojej garderoby.
+      Catalog. Drops. Fits. Forum. Rankings. GrailOS to system operacyjny twojej garderoby.
       Znajdziesz tu inspirację, nie przegapisz żadnego dropu i pokażesz swój fit światu.
     </p>
   </div>
