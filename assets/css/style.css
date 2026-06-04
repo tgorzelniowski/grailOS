@@ -4310,3 +4310,102 @@ img {
   object-fit: contain !important;
   display: block !important;
 }
+
+/* ===========================
+   HOMEPAGE — MNIEJSZA SIATKA UBRAŃ
+=========================== */
+.clothing-grid--home {
+  grid-template-columns: repeat(6, 1fr) !important;
+}
+
+.clothing-grid--home .clothing-card {
+  padding: 8px !important;
+}
+
+.clothing-grid--home .clothing-card-img {
+  aspect-ratio: 1/1 !important;
+  margin-bottom: 8px !important;
+}
+
+.clothing-grid--home .clothing-card-name {
+  font-size: 11px !important;
+}
+
+@media (max-width: 1200px) {
+  .clothing-grid--home { grid-template-columns: repeat(4, 1fr) !important; }
+}
+
+@media (max-width: 768px) {
+  .clothing-grid--home { grid-template-columns: repeat(3, 1fr) !important; }
+}
+
+/* ===========================
+   HOMEPAGE — MNIEJSZE BLOKI DROPÓW
+=========================== */
+.drops-list .drop-row-full-link {
+  grid-template-columns: 80px 1fr auto !important;
+  padding: 12px 40px !important;
+  gap: 18px !important;
+}
+
+.drops-list .drop-img-wrap {
+  width: 80px !important;
+  height: 80px !important;
+}
+
+@media (max-width: 768px) {
+  .drops-list .drop-row-full-link {
+    grid-template-columns: 60px 1fr !important;
+    padding: 10px 20px !important;
+    gap: 12px !important;
+  }
+  .drops-list .drop-img-wrap {
+    width: 60px !important;
+    height: 60px !important;
+  }
+}
+
+/* ===========================
+   FITS GRID — 4 KOLUMNY
+=========================== */
+.fits-grid {
+  grid-template-columns: repeat(4, 1fr) !important;
+}
+
+@media (max-width: 1024px) {
+  .fits-grid { grid-template-columns: repeat(3, 1fr) !important; }
+}
+
+@media (max-width: 768px) {
+  .fits-grid { grid-template-columns: repeat(2, 1fr) !important; }
+}
+
+/* ===========================
+   RANKINGS — MNIEJSZE FITY (1:1)
+=========================== */
+.ranking-img {
+  aspect-ratio: 1/1 !important;
+}
+
+/* ===========================
+   POST IMAGES — OSTATECZNA NAPRAWA (nie ucinaj)
+=========================== */
+.post-img-wrap {
+  margin: 12px 0 16px !important;
+  max-width: 560px !important;
+  width: 100% !important;
+  border: 1px solid var(--border) !important;
+  background: var(--card) !important;
+  overflow: visible !important;
+  display: block !important;
+  aspect-ratio: unset !important;
+  height: auto !important;
+}
+
+.post-img-wrap img {
+  width: 100% !important;
+  height: auto !important;
+  max-height: none !important;
+  object-fit: fill !important;
+  display: block !important;
+}
