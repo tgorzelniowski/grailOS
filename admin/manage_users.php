@@ -73,8 +73,8 @@ $users = $pdo->query("
                   <button type="submit" class="btn" style="font-size:11px; padding:6px 14px;">Unban</button>
                 <?php else: ?>
                   <input type="hidden" name="ban_id" value="<?= $user['id'] ?>">
-                  <button type="submit" class="btn-delete"
-                          onclick="return confirm('Zbanowac @<?= htmlspecialchars($user['username']) ?>?')">
+                  <button type="button" class="btn-delete"
+                          onclick="grailConfirm('Zbanować @<?= htmlspecialchars($user['username']) ?>?', () => this.closest('form').submit())">
                     Ban
                   </button>
                 <?php endif; ?>

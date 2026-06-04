@@ -68,8 +68,8 @@ require_once __DIR__ . '/../includes/header.php';
             <?= csrf_field() ?>
             <input type="hidden" name="clothing_id" value="<?= $clothing_id ?>">
             <input type="hidden" name="delete_img_id" value="<?= $img['id'] ?>">
-            <button type="submit" class="btn-delete" style="width:100%; margin-top:8px;"
-                    onclick="return confirm('Usunąć zdjęcie?')">Usuń</button>
+            <button type="button" class="btn-delete" style="width:100%; margin-top:8px;"
+                    onclick="grailConfirm('Usunąć zdjęcie?', () => this.closest('form').submit())">Usuń</button>
           </form>
         </div>
       <?php endforeach; ?>

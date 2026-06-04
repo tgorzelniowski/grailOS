@@ -50,10 +50,11 @@ $items = $pdo->query("SELECT * FROM clothing ORDER BY created_at DESC")->fetchAl
             <td style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
               <a href="/grailos/admin/edit_clothing.php?id=<?= $item['id'] ?>"
                 class="btn" style="font-size:11px; padding:6px 14px;">Edytuj</a>
-              <form method="POST" onsubmit="return confirm('Na pewno usunąć?')">
+              <form method="POST">
                 <?= csrf_field() ?>
                 <input type="hidden" name="delete_id" value="<?= $item['id'] ?>">
-                <button type="submit" class="btn-delete">Usuń</button>
+                <button type="button" class="btn-delete"
+                        onclick="grailConfirm('Na pewno usunąć?', () => this.closest('form').submit())">Usuń</button>
               </form>
             </td>
           </tr>

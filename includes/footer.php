@@ -29,6 +29,81 @@
   <p class="footer-copy">© 2025 GrailOS. All rights reserved.</p>
 </footer>
 
+<!-- CUSTOM CONFIRM MODAL -->
+<div id="grailConfirmOverlay">
+  <div id="grailConfirmBox">
+    <p id="grailConfirmMsg"></p>
+    <div class="grail-confirm-btns">
+      <button id="grailConfirmYes" class="btn">Usuń</button>
+      <button class="btn btn-outline" onclick="grailConfirmClose()">Anuluj</button>
+    </div>
+  </div>
+</div>
+
+<style>
+#grailConfirmOverlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.78);
+  z-index: 9999;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(3px);
+}
+#grailConfirmOverlay.open { display: flex; }
+#grailConfirmBox {
+  background: #111;
+  border: 1px solid #2a2a2a;
+  padding: 36px 40px;
+  min-width: 280px;
+  max-width: 360px;
+  width: 90%;
+  text-align: center;
+}
+#grailConfirmMsg {
+  font-size: 14px;
+  letter-spacing: 1px;
+  color: #fff;
+  margin-bottom: 28px;
+  line-height: 1.6;
+  text-transform: uppercase;
+}
+.grail-confirm-btns {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+.grail-confirm-btns .btn { min-width: 90px; }
+</style>
+
+<script>
+let _grailCb = null;
+
+function grailConfirm(msg, onYes) {
+  _grailCb = onYes;
+  document.getElementById('grailConfirmMsg').textContent = msg;
+  document.getElementById('grailConfirmOverlay').classList.add('open');
+  document.getElementById('grailConfirmYes').focus();
+}
+
+function grailConfirmClose() {
+  document.getElementById('grailConfirmOverlay').classList.remove('open');
+  _grailCb = null;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('grailConfirmYes').addEventListener('click', () => {
+    const cb = _grailCb;
+    grailConfirmClose();
+    if (cb) cb();
+  });
+  document.getElementById('grailConfirmOverlay').addEventListener('click', e => {
+    if (e.target.id === 'grailConfirmOverlay') grailConfirmClose();
+  });
+});
+</script>
+
 <script>
 async function newsletterSubmit(e) {
   e.preventDefault();

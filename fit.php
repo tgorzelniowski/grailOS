@@ -126,11 +126,11 @@ require_once 'includes/header.php';
           <span class="vote-count-static" style="font-size:16px;">♥ <?= $fit['votes'] ?></span>
         <?php endif; ?>
         <?php if (isset($_SESSION['user_id']) && ($fit['user_id'] == $_SESSION['user_id'] || $_SESSION['is_admin'])): ?>
-          <form method="POST" action="/grailos/delete_fit.php"
-                onsubmit="return confirm('Usunąć ten fit?')">
+          <form method="POST" action="/grailos/delete_fit.php">
             <?= csrf_field() ?>
             <input type="hidden" name="fit_id" value="<?= $fit['id'] ?>">
-            <button type="submit" class="btn-delete">Usuń</button>
+            <button type="button" class="btn-delete"
+                    onclick="grailConfirm('Usunąć ten fit?', () => this.closest('form').submit())">Usuń</button>
           </form>
         <?php endif; ?>
       </div>

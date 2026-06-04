@@ -155,11 +155,11 @@ require_once 'includes/header.php';
             </div>
           </div>
           <?php if ($can_delete): ?>
-            <form method="POST" action="/grailos/delete_post.php"
-                  onsubmit="return confirm('Usunąć ten post?')">
+            <form method="POST" action="/grailos/delete_post.php">
               <?= csrf_field() ?>
               <input type="hidden" name="post_id" value="<?= $post['id'] ?>">
-              <button type="submit" class="post-delete-btn">✕</button>
+              <button type="button" class="post-delete-btn"
+                      onclick="grailConfirm('Usunąć ten post?', () => this.closest('form').submit())">✕</button>
             </form>
           <?php endif; ?>
         </div>

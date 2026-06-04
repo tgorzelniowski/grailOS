@@ -110,10 +110,10 @@ $outfits = $outfits->fetchAll();
         </label>
       </form>
       <?php if ($user['avatar_url']): ?>
-        <form method="POST" action="/grailos/delete_avatar.php"
-              onsubmit="return confirm('Usunąć zdjęcie profilowe?')">
+        <form method="POST" action="/grailos/delete_avatar.php">
           <?= csrf_field() ?>
-          <button type="submit" class="avatar-action-btn avatar-delete-btn" title="Usuń zdjęcie">✕</button>
+          <button type="button" class="avatar-action-btn avatar-delete-btn" title="Usuń zdjęcie"
+                  onclick="grailConfirm('Usunąć zdjęcie profilowe?', () => this.closest('form').submit())">✕</button>
         </form>
       <?php endif; ?>
     </div>
@@ -206,7 +206,16 @@ $outfits = $outfits->fetchAll();
       $outfit_imgs->execute([$outfit['id']]);
       $imgs = $outfit_imgs->fetchAll(PDO::FETCH_COLUMN);
     ?>
-      <div class="outfit-card">
+      <div class="outfit-card" style="position:relative;">
+        <?php if ($is_own): ?>
+          <form method="POST" action="/grailos/delete_outfit.php" class="outfit-delete-form">
+            <?= csrf_field() ?>
+            <input type="hidden" name="outfit_id" value="<?= $outfit['id'] ?>">
+            <button type="button" class="inline-delete-btn"
+                    onclick="grailConfirm('Usunąć outfit?', () => this.closest(\'form\').submit())"
+                    style="opacity:1;">✕</button>
+          </form>
+        <?php endif; ?>
         <div class="outfit-card-imgs">
           <?php foreach (array_pad($imgs, 4, null) as $img): ?>
             <div class="outfit-card-img">
@@ -248,8 +257,8 @@ $outfits = $outfits->fetchAll();
             style="position:absolute; top:8px; right:8px;">
         <?= csrf_field() ?>
         <input type="hidden" name="wardrobe_item_id" value="<?= $item['id'] ?>">
-        <button type="submit" class="inline-delete-btn"
-                onclick="return confirm('Usunąć z szafy?')"
+        <button type="button" class="inline-delete-btn"
+                onclick="grailConfirm('Usunąć z szafy?', () => this.closest('form').submit())"
                 style="opacity:1;">✕</button>
       </form>
     <?php endif; ?>

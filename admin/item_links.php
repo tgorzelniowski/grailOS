@@ -88,8 +88,8 @@ require_once __DIR__ . '/../includes/header.php';
                 <?= csrf_field() ?>
                 <input type="hidden" name="clothing_id" value="<?= $clothing_id ?>">
                 <input type="hidden" name="delete_link_id" value="<?= $link['id'] ?>">
-                <button type="submit" class="btn-delete"
-                        onclick="return confirm('Usunąć link?')">Usuń</button>
+                <button type="button" class="btn-delete"
+                        onclick="grailConfirm('Usunąć link?', () => this.closest('form').submit())">Usuń</button>
               </form>
             </td>
           </tr>

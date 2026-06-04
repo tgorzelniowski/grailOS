@@ -62,11 +62,11 @@ $fits = $pdo->query("
             <td>💬 <?= $fit['comments'] ?></td>
             <td style="color:var(--gray); font-size:12px;"><?= date('d M Y', strtotime($fit['created_at'])) ?></td>
             <td>
-              <form method="POST"
-                    onsubmit="return confirm('Na pewno usunac ten fit?')">
+              <form method="POST">
                 <?= csrf_field() ?>
                 <input type="hidden" name="delete_id" value="<?= $fit['id'] ?>">
-                <button type="submit" class="btn-delete">Usuń</button>
+                <button type="button" class="btn-delete"
+                        onclick="grailConfirm('Na pewno usunąć ten fit?', () => this.closest('form').submit())">Usuń</button>
               </form>
             </td>
           </tr>

@@ -51,11 +51,11 @@ $posts = $pdo->query("
               <?= date('d M Y', strtotime($post['created_at'])) ?>
             </td>
             <td>
-              <form method="POST"
-                    onsubmit="return confirm('Usunac ten post?')">
+              <form method="POST">
                 <?= csrf_field() ?>
                 <input type="hidden" name="delete_id" value="<?= $post['id'] ?>">
-                <button type="submit" class="btn-delete">Usuń</button>
+                <button type="button" class="btn-delete"
+                        onclick="grailConfirm('Usunąć ten post?', () => this.closest('form').submit())">Usuń</button>
               </form>
             </td>
           </tr>

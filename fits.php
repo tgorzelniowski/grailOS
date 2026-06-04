@@ -108,11 +108,11 @@ $fits = $stmt->fetchAll();
         </a>
         <?php if ($can_delete): ?>
           <form method="POST" action="/grailos/delete_fit.php"
-                class="inline-delete-form"
-                onsubmit="return confirm('Usunąć ten fit?')">
+                class="inline-delete-form">
             <?= csrf_field() ?>
             <input type="hidden" name="fit_id" value="<?= $fit['id'] ?>">
-            <button type="submit" class="inline-delete-btn">✕</button>
+            <button type="button" class="inline-delete-btn"
+                    onclick="grailConfirm('Usunąć ten fit?', () => this.closest('form').submit())">✕</button>
           </form>
         <?php endif; ?>
       </div>

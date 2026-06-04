@@ -217,8 +217,8 @@ require_once __DIR__ . '/../includes/header.php';
               <input type="hidden" name="clothing_id" value="<?= $id ?>">
               <input type="hidden" name="action" value="delete_img">
               <input type="hidden" name="img_id" value="<?= $img['id'] ?>">
-              <button type="submit" class="btn-delete" style="width:100%;"
-                      onclick="return confirm('Usunąć?')">Usuń</button>
+              <button type="button" class="btn-delete" style="width:100%;"
+                      onclick="grailConfirm('Usunąć?', () => this.closest('form').submit())">Usuń</button>
             </form>
           </div>
         <?php endforeach; ?>
@@ -264,8 +264,8 @@ require_once __DIR__ . '/../includes/header.php';
                   <input type="hidden" name="clothing_id" value="<?= $id ?>">
                   <input type="hidden" name="action" value="delete_link">
                   <input type="hidden" name="link_id" value="<?= $link['id'] ?>">
-                  <button type="submit" class="btn-delete"
-                          onclick="return confirm('Usunąć?')">✕</button>
+                  <button type="button" class="btn-delete"
+                          onclick="grailConfirm('Usunąć?', () => this.closest('form').submit())">✕</button>
                 </form>
               </td>
             </tr>

@@ -81,8 +81,8 @@ require_once __DIR__ . '/../includes/header.php';
                 placeholder="Treść newslettera..."><?= htmlspecialchars($_POST['content'] ?? '') ?></textarea>
     </div>
     <div style="display:flex;gap:12px;align-items:center;">
-      <button type="submit" class="btn"
-              onclick="return confirm('Wysłać newsletter do <?= (int)$total_subs ?> subskrybentów?')">
+      <button type="button" class="btn"
+              onclick="grailConfirm('Wysłać newsletter do <?= (int)$total_subs ?> subskrybentów?', () => this.closest('form').submit())">
         Wyślij newsletter →
       </button>
       <a href="/grailos/admin/" class="btn btn-outline">← Admin</a>

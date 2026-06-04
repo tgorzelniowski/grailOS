@@ -4710,6 +4710,16 @@ img {
 }
 
 /* ===========================
+   PROFILE — OUTFIT DELETE BTN
+=========================== */
+.outfit-delete-form {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 10;
+}
+
+/* ===========================
    PROFILE — MNIEJSZA SZAFA
 =========================== */
 .clothing-grid--profile {
