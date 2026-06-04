@@ -266,9 +266,16 @@ $outfits = $outfits->fetchAll();
   <?php if ($posts): ?>
     <?php foreach ($posts as $post): ?>
       <a href="/grailos/post.php?id=<?= $post['id'] ?>" class="post-card post-card-link">
+        <?php if ($post['content']): ?>
         <div class="post-card-content" style="padding-left:0;">
           <?= htmlspecialchars(mb_substr($post['content'], 0, 200)) ?>
         </div>
+        <?php endif; ?>
+        <?php if ($post['image_url']): ?>
+        <div class="post-img-wrap" style="margin-left:0; max-width:100%;">
+          <img src="<?= htmlspecialchars($post['image_url']) ?>" alt="">
+        </div>
+        <?php endif; ?>
         <div class="post-card-footer" style="padding-left:0;">
           <span class="post-stat"><?= date('d M Y', strtotime($post['created_at'])) ?></span>
           <span class="post-stat">💬 <?= $post['replies'] ?></span>

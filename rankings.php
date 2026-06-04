@@ -16,7 +16,7 @@ $week = $pdo->query("
     WHERE fits.created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
     GROUP BY fits.id
     ORDER BY votes DESC
-    LIMIT 3
+    LIMIT 6
 ")->fetchAll();
 
 $month = $pdo->query("
@@ -28,7 +28,7 @@ $month = $pdo->query("
     WHERE fits.created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
     GROUP BY fits.id
     ORDER BY votes DESC
-    LIMIT 3
+    LIMIT 6
 ")->fetchAll();
 
 function renderRankingCard($fit, $position) { ?>

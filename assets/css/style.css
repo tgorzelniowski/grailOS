@@ -4312,14 +4312,18 @@ img {
 }
 
 /* ===========================
-   HOMEPAGE — MNIEJSZA SIATKA UBRAŃ
+   HOMEPAGE — SIATKA UBRAŃ (4 karty, wyśrodkowane)
 =========================== */
 .clothing-grid--home {
-  grid-template-columns: repeat(6, 1fr) !important;
+  grid-template-columns: repeat(4, minmax(0, 200px)) !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  background: transparent !important;
 }
 
 .clothing-grid--home .clothing-card {
-  padding: 8px !important;
+  border: 1px solid var(--border) !important;
+  padding: 10px !important;
 }
 
 .clothing-grid--home .clothing-card-img {
@@ -4331,20 +4335,16 @@ img {
   font-size: 11px !important;
 }
 
-@media (max-width: 1200px) {
-  .clothing-grid--home { grid-template-columns: repeat(4, 1fr) !important; }
-}
-
-@media (max-width: 768px) {
-  .clothing-grid--home { grid-template-columns: repeat(3, 1fr) !important; }
+@media (max-width: 900px) {
+  .clothing-grid--home { grid-template-columns: repeat(2, minmax(0, 200px)) !important; }
 }
 
 /* ===========================
-   HOMEPAGE — MNIEJSZE BLOKI DROPÓW
+   HOMEPAGE — BLOKI DROPÓW (mniejsze + padding)
 =========================== */
 .drops-list .drop-row-full-link {
   grid-template-columns: 80px 1fr auto !important;
-  padding: 12px 40px !important;
+  padding: 18px 40px !important;
   gap: 18px !important;
 }
 
@@ -4356,7 +4356,7 @@ img {
 @media (max-width: 768px) {
   .drops-list .drop-row-full-link {
     grid-template-columns: 60px 1fr !important;
-    padding: 10px 20px !important;
+    padding: 14px 20px !important;
     gap: 12px !important;
   }
   .drops-list .drop-img-wrap {
@@ -4366,32 +4366,78 @@ img {
 }
 
 /* ===========================
-   FITS GRID — 4 KOLUMNY
+   DROPS PAGE — WIĘKSZE BLOKI (tylko podstrona)
 =========================== */
-.fits-grid {
-  grid-template-columns: repeat(4, 1fr) !important;
+.drops-list--page .drop-row-full-link {
+  grid-template-columns: 140px 1fr auto !important;
+  padding: 24px 40px !important;
+  gap: 28px !important;
 }
 
-@media (max-width: 1024px) {
-  .fits-grid { grid-template-columns: repeat(3, 1fr) !important; }
+.drops-list--page .drop-img-wrap {
+  width: 140px !important;
+  height: 140px !important;
 }
 
 @media (max-width: 768px) {
-  .fits-grid { grid-template-columns: repeat(2, 1fr) !important; }
+  .drops-list--page .drop-row-full-link {
+    grid-template-columns: 90px 1fr !important;
+    padding: 18px 20px !important;
+    gap: 16px !important;
+  }
+  .drops-list--page .drop-img-wrap {
+    width: 90px !important;
+    height: 90px !important;
+  }
 }
 
 /* ===========================
-   RANKINGS — MNIEJSZE FITY (1:1)
+   FITS GRID — 3 KOLUMNY Z GAPEM
 =========================== */
+.fits-grid {
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 16px !important;
+  background: transparent !important;
+  padding: 16px 40px !important;
+}
+
+@media (max-width: 1024px) {
+  .fits-grid { grid-template-columns: repeat(2, 1fr) !important; }
+}
+
+@media (max-width: 600px) {
+  .fits-grid {
+    grid-template-columns: 1fr !important;
+    padding: 12px 20px !important;
+  }
+}
+
+/* ===========================
+   RANKINGS — TOP 6, 3 KOLUMNY, GAP, MNIEJSZE FITY
+=========================== */
+.ranking-grid {
+  gap: 16px !important;
+  background: transparent !important;
+  padding: 16px 40px !important;
+}
+
 .ranking-img {
   aspect-ratio: 1/1 !important;
 }
 
+@media (max-width: 768px) {
+  .ranking-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    padding: 12px 20px !important;
+    gap: 12px !important;
+  }
+}
+
 /* ===========================
-   POST IMAGES — OSTATECZNA NAPRAWA (nie ucinaj)
+   POST IMAGES — OSTATECZNA NAPRAWA (nie ucinaj, wyśrodkuj)
 =========================== */
 .post-img-wrap {
-  margin: 12px 0 16px !important;
+  margin: 12px auto 16px !important;
   max-width: 560px !important;
   width: 100% !important;
   border: 1px solid var(--border) !important;

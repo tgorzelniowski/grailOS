@@ -83,7 +83,7 @@ $fits = $stmt->fetchAll();
       </div>
     <?php endforeach; ?>
   <?php else: ?>
-    <div style="grid-column:span 4;padding:80px;text-align:center;color:#444;letter-spacing:3px;text-transform:uppercase;font-size:13px;">
+    <div style="grid-column:span 3;padding:80px;text-align:center;color:#444;letter-spacing:3px;text-transform:uppercase;font-size:13px;">
       Brak fitów.
     </div>
   <?php endif; ?>

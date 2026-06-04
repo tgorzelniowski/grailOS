@@ -24,7 +24,7 @@ require_once 'includes/header.php';
 </section>
 
 <div class="section-label">/// Nadchodzące dropy</div>
-<div class="drops-list">
+<div class="drops-list drops-list--page">
 
 <?php if ($drops): foreach ($drops as $drop):
   $days = (int)ceil((strtotime($drop['drop_date']) - time()) / 86400);

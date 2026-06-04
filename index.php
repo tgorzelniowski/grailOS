@@ -21,7 +21,7 @@
 <div class="section-label">/// New in catalog</div>
 <div class="clothing-grid clothing-grid--home">
   <?php
-    $stmt = $pdo->query("SELECT * FROM clothing ORDER BY created_at DESC LIMIT 6");
+    $stmt = $pdo->query("SELECT * FROM clothing ORDER BY created_at DESC LIMIT 4");
     $items = $stmt->fetchAll();
 
     if ($items):
