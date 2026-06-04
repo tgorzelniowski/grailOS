@@ -178,9 +178,9 @@ require_once 'includes/header.php';
                class="post-av-link" onclick="event.stopPropagation()">
               <?php if ($post['avatar_url']): ?>
                 <img src="<?= htmlspecialchars($post['avatar_url']) ?>"
-                     class="post-av-img" alt="" style="width:32px;height:32px;">
+                     class="post-av-img" alt="">
               <?php else: ?>
-                <span class="post-avatar" style="width:32px;height:32px;font-size:14px;">
+                <span class="post-avatar">
                   <?= strtoupper(htmlspecialchars($post['username'][0])) ?>
                 </span>
               <?php endif; ?>

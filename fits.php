@@ -56,8 +56,11 @@ $where_sql = $where_parts ? 'WHERE ' . implode(' AND ', $where_parts) : '';
 
 $stmt = $pdo->prepare("
     SELECT fits.*, users.username, users.avatar_url,
-           COUNT(DISTINCT fit_votes.id)    AS votes,
-           COUNT(DISTINCT fit_comments.id) AS comments,
+           COUNT(DISTINCT fit_votes.id) AS votes,
+           (SELECT COUNT(*) FROM fit_comments WHERE fit_comments.fit_id = fits.id)
+           + (SELECT COUNT(*) FROM fit_comment_replies fcr
+              INNER JOIN fit_comments fc ON fcr.comment_id = fc.id
+              WHERE fc.fit_id = fits.id) AS comments,
            MAX(CASE WHEN f.follower_id = ? THEN 1 ELSE 0 END) AS is_followed
     FROM fits
     LEFT JOIN users        ON fits.user_id    = users.id
