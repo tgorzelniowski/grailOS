@@ -17,8 +17,42 @@
   <?php endif; ?>
 </div>
 
+<!-- FILTRY -->
+<div class="fits-filter-bar">
+  <form method="GET" action="/grailos/fits.php" class="fits-filter-form">
+    <input type="text" name="user"
+           placeholder="@użytkownik"
+           value="<?= htmlspecialchars($_GET['user'] ?? '') ?>"
+           class="fits-filter-input">
+    <input type="text" name="kw"
+           placeholder="Słowo kluczowe w opisie..."
+           value="<?= htmlspecialchars($_GET['kw'] ?? '') ?>"
+           class="fits-filter-input">
+    <button type="submit" class="btn">Szukaj</button>
+    <?php if (!empty($_GET['user']) || !empty($_GET['kw'])): ?>
+      <a href="/grailos/fits.php" class="btn btn-outline">Resetuj ×</a>
+    <?php endif; ?>
+  </form>
+</div>
+
 <?php
-$uid = (int)($_SESSION['user_id'] ?? 0);
+$uid        = (int)($_SESSION['user_id'] ?? 0);
+$search_user = trim($_GET['user'] ?? '');
+$search_kw   = trim($_GET['kw']   ?? '');
+
+$where_parts  = [];
+$filter_params = [];
+
+if ($search_user !== '') {
+    $where_parts[]  = "users.username LIKE ?";
+    $filter_params[] = '%' . $search_user . '%';
+}
+if ($search_kw !== '') {
+    $where_parts[]  = "fits.description LIKE ?";
+    $filter_params[] = '%' . $search_kw . '%';
+}
+
+$where_sql = $where_parts ? 'WHERE ' . implode(' AND ', $where_parts) : '';
 
 $stmt = $pdo->prepare("
     SELECT fits.*, users.username, users.avatar_url,
@@ -30,10 +64,11 @@ $stmt = $pdo->prepare("
     LEFT JOIN fit_votes    ON fits.id          = fit_votes.fit_id
     LEFT JOIN fit_comments ON fits.id          = fit_comments.fit_id
     LEFT JOIN follows f    ON f.following_id   = fits.user_id AND f.follower_id = ?
+    $where_sql
     GROUP BY fits.id
     ORDER BY is_followed DESC, fits.created_at DESC
 ");
-$stmt->execute([$uid, $uid]);
+$stmt->execute(array_merge([$uid, $uid], $filter_params));
 $fits = $stmt->fetchAll();
 ?>
 

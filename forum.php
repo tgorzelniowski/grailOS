@@ -133,7 +133,8 @@ require_once 'includes/header.php';
       $can_delete = isset($_SESSION['user_id']) &&
                     ($post['user_id'] == $_SESSION['user_id'] || $_SESSION['is_admin']);
     ?>
-      <div class="post-card">
+      <div class="post-card post-card-clickable"
+           data-href="/grailos/post.php?id=<?= $post['id'] ?>">
         <div class="post-card-header">
           <div class="post-card-meta">
             <a href="/grailos/profile.php?username=<?= urlencode($post['username']) ?>"
@@ -199,6 +200,14 @@ require_once 'includes/header.php';
 </div>
 
 <script>
+document.querySelectorAll('.post-card-clickable').forEach(card => {
+  card.addEventListener('click', e => {
+    if (!e.target.closest('a, button, form')) {
+      window.location.href = card.dataset.href;
+    }
+  });
+});
+
 async function likePost(postId, btn) {
   const res  = await fetch('/grailos/post_like.php', {
     method: 'POST',

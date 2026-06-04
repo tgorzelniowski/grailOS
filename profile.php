@@ -54,7 +54,7 @@ $posts = $pdo->prepare("
     SELECT posts.*, COUNT(post_replies.id) AS replies
     FROM posts LEFT JOIN post_replies ON posts.id = post_replies.post_id
     WHERE posts.user_id = ?
-    GROUP BY posts.id ORDER BY posts.created_at DESC LIMIT 5
+    GROUP BY posts.id ORDER BY posts.created_at DESC LIMIT 10
 ");
 $posts->execute([$user['id']]);
 $posts = $posts->fetchAll();
@@ -194,7 +194,7 @@ $outfits = $outfits->fetchAll();
     <a href="/grailos/create_outfit.php" class="btn" style="margin-right:40px; font-size:11px; padding:6px 16px;">+ Nowy outfit</a>
   <?php endif; ?>
 </div>
-<div class="outfits-grid">
+<div class="outfits-grid outfits-grid--profile">
   <?php if ($outfits): ?>
     <?php foreach ($outfits as $outfit):
       $outfit_imgs = $pdo->prepare("
@@ -231,7 +231,7 @@ $outfits = $outfits->fetchAll();
 
 <!-- SZAFA -->
 <div class="section-label">/// Szafa (<?= $wardrobe_count ?> itemów)</div>
-<div class="clothing-grid">
+<div class="clothing-grid clothing-grid--profile">
   <?php if ($wardrobe): ?>
     <?php foreach ($wardrobe as $item): ?>
   <div class="clothing-card" style="position:relative;">
@@ -261,11 +261,21 @@ $outfits = $outfits->fetchAll();
 </div>
 
 <!-- POSTY -->
-<div class="section-label">/// Ostatnie posty</div>
-<div class="forum-feed" style="margin-bottom:80px;">
+<div class="section-label" style="display:flex; justify-content:space-between; align-items:center;">
+  <span>/// Ostatnie posty (<?= count($posts) ?>)</span>
+  <?php if (count($posts) > 3): ?>
+    <button class="profile-posts-toggle btn btn-outline"
+            style="margin-right:40px; font-size:11px; padding:6px 16px;"
+            onclick="toggleProfilePosts(this)">
+      Pokaż więcej ↓
+    </button>
+  <?php endif; ?>
+</div>
+<div class="forum-feed profile-posts-feed" style="margin-bottom:80px;">
   <?php if ($posts): ?>
-    <?php foreach ($posts as $post): ?>
-      <a href="/grailos/post.php?id=<?= $post['id'] ?>" class="post-card post-card-link">
+    <?php foreach ($posts as $i => $post): ?>
+      <a href="/grailos/post.php?id=<?= $post['id'] ?>"
+         class="post-card post-card-link profile-post-item <?= $i >= 3 ? 'profile-post-hidden' : '' ?>">
         <?php if ($post['content']): ?>
         <div class="post-card-content" style="padding-left:0;">
           <?= htmlspecialchars(mb_substr($post['content'], 0, 200)) ?>
@@ -286,6 +296,16 @@ $outfits = $outfits->fetchAll();
     <div style="padding:40px; text-align:center; color:#444; letter-spacing:3px; text-transform:uppercase; font-size:12px;">Brak postów</div>
   <?php endif; ?>
 </div>
+
+<script>
+function toggleProfilePosts(btn) {
+  const hidden = document.querySelectorAll('.profile-post-hidden');
+  const expanded = btn.getAttribute('data-expanded') === '1';
+  hidden.forEach(el => el.style.display = expanded ? 'none' : 'block');
+  btn.setAttribute('data-expanded', expanded ? '0' : '1');
+  btn.textContent = expanded ? 'Pokaż więcej ↓' : 'Zwiń ↑';
+}
+</script>
 
 <script>
 async function toggleFollow(userId) {

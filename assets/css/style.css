@@ -4449,6 +4449,103 @@ img {
 }
 
 /* ===========================
+   SETTINGS — WYŚRODKOWANIE
+=========================== */
+.settings-wrap {
+  margin: 0 auto !important;
+}
+
+/* ===========================
+   PROFILE — MNIEJSZA SZAFA
+=========================== */
+.clothing-grid--profile {
+  grid-template-columns: repeat(6, 1fr) !important;
+}
+
+.clothing-grid--profile .clothing-card {
+  padding: 8px !important;
+}
+
+.clothing-grid--profile .clothing-card-img {
+  aspect-ratio: 1/1 !important;
+  margin-bottom: 6px !important;
+}
+
+.clothing-grid--profile .clothing-card-name {
+  font-size: 10px !important;
+}
+
+.clothing-grid--profile .clothing-card-brand {
+  font-size: 9px !important;
+}
+
+@media (max-width: 768px) {
+  .clothing-grid--profile { grid-template-columns: repeat(3, 1fr) !important; }
+}
+
+/* ===========================
+   PROFILE — MNIEJSZE OUTFITY
+=========================== */
+.outfits-grid--profile {
+  grid-template-columns: repeat(4, 1fr) !important;
+}
+
+@media (max-width: 768px) {
+  .outfits-grid--profile { grid-template-columns: repeat(2, 1fr) !important; }
+}
+
+/* ===========================
+   PROFILE — ROZWIJANE POSTY
+=========================== */
+.profile-post-hidden {
+  display: none;
+}
+
+/* ===========================
+   FORUM — KLIKALNY POST
+=========================== */
+.post-card-clickable {
+  cursor: pointer;
+}
+
+/* ===========================
+   FITS — PASEK FILTRÓW
+=========================== */
+.fits-filter-bar {
+  padding: 16px 40px;
+  border-bottom: 1px solid var(--border);
+}
+
+.fits-filter-form {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.fits-filter-input {
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid var(--border);
+  color: var(--white);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 14px;
+  letter-spacing: 1px;
+  padding: 8px 0;
+  outline: none;
+  transition: border-color 0.2s;
+  min-width: 180px;
+}
+
+.fits-filter-input:focus { border-bottom-color: var(--red); }
+.fits-filter-input::placeholder { color: #444; }
+
+@media (max-width: 768px) {
+  .fits-filter-bar { padding: 14px 20px; }
+  .fits-filter-input { min-width: 140px; }
+}
+
+/* ===========================
    CATALOG — SIDEBAR LAYOUT
 =========================== */
 .catalog-layout {
