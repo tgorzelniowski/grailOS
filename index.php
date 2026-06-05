@@ -6,7 +6,7 @@
   <span>///</span>
   <span>Twoje centrum streetwearu</span>
   <span>///</span>
-  <span>Catalog. Drops. Fits. Rankings.</span>
+  <span>Catalog. Drops. Fits. Forum. Rankings.</span>
 </div>
 
 <!-- STORIES -->
