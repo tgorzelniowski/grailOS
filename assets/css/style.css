@@ -5098,11 +5098,15 @@ img {
    PROFILE — MNIEJSZA SZAFA
 =========================== */
 .clothing-grid--profile {
-  grid-template-columns: repeat(6, 1fr) !important;
+  grid-template-columns: repeat(4, minmax(0, 200px)) !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  background: transparent !important;
 }
 
 .clothing-grid--profile .clothing-card {
   padding: 8px !important;
+  border: 1px solid var(--border) !important;
 }
 
 .clothing-grid--profile .clothing-card-img {
@@ -5119,7 +5123,7 @@ img {
 }
 
 @media (max-width: 768px) {
-  .clothing-grid--profile { grid-template-columns: repeat(3, 1fr) !important; }
+  .clothing-grid--profile { grid-template-columns: repeat(2, 1fr) !important; }
 }
 
 /* ===========================

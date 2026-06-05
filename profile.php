@@ -306,7 +306,7 @@ $outfits = $outfits->fetchAll();
 <?php if ($see_wardrobe): ?>
 <div class="section-label" style="display:flex; justify-content:space-between; align-items:center;">
   <span>/// Szafa (<?= $wardrobe_count ?> itemów)</span>
-  <?php if ($wardrobe_count > 6): ?>
+  <?php if ($wardrobe_count > 4): ?>
     <button class="btn btn-outline" style="margin-right:40px; font-size:11px; padding:6px 14px;"
             onclick="toggleCollapse(this, '.wardrobe-collapse-item')">Pokaż więcej ↓</button>
   <?php endif; ?>
@@ -314,7 +314,7 @@ $outfits = $outfits->fetchAll();
 <div class="clothing-grid clothing-grid--profile">
   <?php if ($wardrobe): ?>
     <?php foreach ($wardrobe as $widx => $item): ?>
-  <div class="clothing-card <?= $widx >= 6 ? 'wardrobe-collapse-item' : '' ?>" style="position:relative;">
+  <div class="clothing-card <?= $widx >= 4 ? 'wardrobe-collapse-item' : '' ?>" style="position:relative;">
     <div class="clothing-card-img">
       <?php if ($item['image_url']): ?>
         <img src="<?= htmlspecialchars($item['image_url']) ?>" alt="">
