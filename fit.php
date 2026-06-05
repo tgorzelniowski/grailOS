@@ -142,6 +142,10 @@ function renderReplyTree($reply, $comment_id, $child_replies, $fit_id, $depth = 
           @<?= htmlspecialchars($reply['username']) ?>
         </a>
         <span style="font-size:11px;color:#444;"><?= date('d M, H:i', strtotime($reply['created_at'])) ?></span>
+        <?php if (isset($_SESSION['user_id']) && $reply['user_id'] != $_SESSION['user_id']): ?>
+          <button class="report-btn" style="margin-left:auto;"
+                  onclick="grailReport('fit_reply', <?= (int)$reply['id'] ?>, 'Zgłaszasz odpowiedź @<?= htmlspecialchars($reply['username']) ?>')">⚑</button>
+        <?php endif; ?>
         <?php if ($can_del): ?>
           <form method="POST" action="/grailos/delete_fit_comment.php" style="margin-left:auto;">
             <?= csrf_field() ?>
@@ -249,6 +253,10 @@ require_once 'includes/header.php';
       <?php endif; ?>
 
       <div style="margin-left:auto; display:flex; gap:8px; align-items:center;">
+        <?php if (isset($_SESSION['user_id']) && $fit['user_id'] != $_SESSION['user_id']): ?>
+          <button class="report-btn"
+                  onclick="grailReport('fit', <?= (int)$fit['id'] ?>, 'Zgłaszasz fit @<?= htmlspecialchars($fit['username']) ?>')">⚑ Zgłoś</button>
+        <?php endif; ?>
         <?php if (isset($_SESSION['user_id']) && $fit['user_id'] == $_SESSION['user_id']): ?>
           <a href="/grailos/edit_fit.php?id=<?= $fit['id'] ?>"
              class="btn btn-outline" style="font-size:11px; padding:5px 12px;">Edytuj</a>
@@ -301,6 +309,9 @@ require_once 'includes/header.php';
             </div>
             <div style="display:flex; align-items:center; gap:10px;">
               <span class="comment-date"><?= date('d M, H:i', strtotime($c['created_at'])) ?></span>
+              <?php if (isset($_SESSION['user_id']) && $c['user_id'] != $_SESSION['user_id']): ?>
+                <button class="report-btn" onclick="grailReport('fit_comment', <?= (int)$c['id'] ?>, 'Zgłaszasz komentarz @<?= htmlspecialchars($c['username']) ?>')">⚑</button>
+              <?php endif; ?>
               <?php if (isset($_SESSION['user_id']) && ($c['user_id'] == $_SESSION['user_id'] || !empty($_SESSION['is_admin']))): ?>
                 <form method="POST" action="/grailos/delete_fit_comment.php">
                   <?= csrf_field() ?>

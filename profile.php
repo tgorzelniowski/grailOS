@@ -165,12 +165,16 @@ $outfits = $outfits->fetchAll();
   <?php endif; ?>
 
   <?php if (!$is_own && isset($_SESSION['user_id'])): ?>
-    <button class="follow-btn <?= $is_following ? 'following' : '' ?>"
-            id="followBtn"
-            onclick="toggleFollow(<?= $user['id'] ?>)">
-      <span class="follow-label"><?= $is_following ? 'Obserwujesz' : '+ Obserwuj' ?></span>
-      <span class="unfollow-label">Unfollow</span>
-    </button>
+    <div style="display:flex; align-items:center; gap:14px; margin-top:16px;">
+      <button class="follow-btn <?= $is_following ? 'following' : '' ?>"
+              id="followBtn" style="margin-top:0;"
+              onclick="toggleFollow(<?= $user['id'] ?>)">
+        <span class="follow-label"><?= $is_following ? 'Obserwujesz' : '+ Obserwuj' ?></span>
+        <span class="unfollow-label">Unfollow</span>
+      </button>
+      <button class="report-btn"
+              onclick="grailReport('profile', <?= (int)$user['id'] ?>, 'Zgłaszasz profil @<?= htmlspecialchars($user['username']) ?>')">⚑ Zgłoś</button>
+    </div>
   <?php endif; ?>
   </div>
 </section>

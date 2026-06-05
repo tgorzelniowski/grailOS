@@ -8,6 +8,8 @@ $totalUsers     = (int)$pdo->query("SELECT COUNT(*) FROM users")->fetchColumn();
 $totalPosts     = (int)$pdo->query("SELECT COUNT(*) FROM posts")->fetchColumn();
 $totalFits      = (int)$pdo->query("SELECT COUNT(*) FROM fits")->fetchColumn();
 $totalNewsletter= (int)$pdo->query("SELECT COUNT(*) FROM newsletter_subscribers WHERE confirmed=1")->fetchColumn();
+$openReports = 0;
+try { $openReports = (int)$pdo->query("SELECT COUNT(*) FROM reports WHERE status='open'")->fetchColumn(); } catch (Exception $e) {}
 ?>
 
 <section class="page-header">
@@ -40,6 +42,10 @@ $totalNewsletter= (int)$pdo->query("SELECT COUNT(*) FROM newsletter_subscribers 
   <div class="admin-stat">
     <div class="admin-stat-number"><?= $totalNewsletter ?></div>
     <div class="admin-stat-label">Newsletter</div>
+  </div>
+  <div class="admin-stat">
+    <div class="admin-stat-number" style="<?= $openReports > 0 ? 'color:var(--red)' : '' ?>"><?= $openReports ?></div>
+    <div class="admin-stat-label">Zgłoszenia</div>
   </div>
 </div>
 
@@ -123,6 +129,12 @@ $totalNewsletter= (int)$pdo->query("SELECT COUNT(*) FROM newsletter_subscribers 
       <div class="admin-card-icon">⊘</div>
       <div class="admin-card-title">Użytkownicy</div>
       <div class="admin-card-sub">Banuj i zarządzaj userami</div>
+    </a>
+    <a href="/grailos/admin/manage_reports.php" class="admin-card"
+       data-tags="zgłoszenia reports moderacja tickety raporty skargi">
+      <div class="admin-card-icon">⚑</div>
+      <div class="admin-card-title">Zgłoszenia<?= $openReports > 0 ? ' ('.$openReports.')' : '' ?></div>
+      <div class="admin-card-sub">Tickety od użytkowników</div>
     </a>
   </div>
 

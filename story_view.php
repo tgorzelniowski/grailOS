@@ -107,6 +107,10 @@ require_once 'includes/header.php';
                   onclick="grailConfirm('Usunąć storkę?', () => this.closest('form').submit())">✕ Usuń</button>
         </form>
       <?php endif; ?>
+      <?php if (!$is_owner): ?>
+        <button class="report-btn" style="color:#aaa;"
+                onclick="grailReport('story', <?= (int)$story['id'] ?>, 'Zgłaszasz storkę @<?= htmlspecialchars($author_user['username']) ?>')">⚑</button>
+      <?php endif; ?>
       <a href="/grailos/" class="story-close">✕</a>
     </div>
   </div>

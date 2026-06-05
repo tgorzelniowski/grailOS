@@ -104,6 +104,131 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 
+<!-- REPORT MODAL -->
+<?php if (isset($_SESSION['user_id'])): ?>
+<div id="grailReportOverlay">
+  <div id="grailReportBox">
+    <div class="grail-report-head">
+      <span class="grail-report-title">/// Zgłoś treść</span>
+      <button class="grail-report-x" onclick="grailReportClose()">✕</button>
+    </div>
+    <p class="grail-report-sub" id="grailReportSub"></p>
+    <div class="form-group">
+      <label class="form-label">Powód</label>
+      <select id="grailReportReason" class="form-input">
+        <option value="Spam">Spam</option>
+        <option value="Obraźliwe / nękanie">Obraźliwe / nękanie</option>
+        <option value="Treści niecenzuralne / NSFW">Treści niecenzuralne / NSFW</option>
+        <option value="Mowa nienawiści">Mowa nienawiści</option>
+        <option value="Nieprawdziwe informacje">Nieprawdziwe informacje</option>
+        <option value="Podszywanie się">Podszywanie się</option>
+        <option value="Inne">Inne</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Szczegóły (opcjonalnie)</label>
+      <textarea id="grailReportDetails" class="form-input form-textarea" rows="3" maxlength="1000"
+                placeholder="Opisz problem..."></textarea>
+    </div>
+    <div id="grailReportMsg" class="grail-report-msg"></div>
+    <div class="grail-confirm-btns" style="justify-content:flex-end;">
+      <button class="btn btn-outline" onclick="grailReportClose()">Anuluj</button>
+      <button class="btn" id="grailReportSend" onclick="grailReportSend()">Wyślij zgłoszenie →</button>
+    </div>
+  </div>
+</div>
+
+<style>
+#grailReportOverlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.78); z-index: 9999;
+  align-items: center; justify-content: center;
+  backdrop-filter: blur(3px); padding: 20px;
+}
+#grailReportOverlay.open { display: flex; }
+#grailReportBox {
+  background: #111; border: 1px solid #2a2a2a;
+  padding: 28px 32px; max-width: 440px; width: 100%;
+}
+.grail-report-head {
+  display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;
+}
+.grail-report-title {
+  font-size: 11px; letter-spacing: 4px; text-transform: uppercase; color: var(--red);
+}
+.grail-report-x {
+  background: transparent; border: none; color: var(--gray); font-size: 16px; cursor: pointer;
+}
+.grail-report-x:hover { color: var(--white); }
+.grail-report-sub {
+  font-size: 12px; color: var(--gray); letter-spacing: 1px; margin: 0 0 18px;
+}
+.grail-report-msg {
+  font-size: 12px; letter-spacing: 1px; min-height: 16px; margin-bottom: 10px;
+}
+.report-btn {
+  background: transparent; border: none; color: #555;
+  font-family: 'Barlow Condensed', sans-serif; font-size: 11px; letter-spacing: 2px;
+  text-transform: uppercase; cursor: pointer; padding: 4px 8px; transition: color 0.2s;
+}
+.report-btn:hover { color: var(--red); }
+</style>
+
+<script>
+let _reportType = '', _reportId = 0;
+
+function grailReport(type, id, label) {
+  _reportType = type; _reportId = id;
+  document.getElementById('grailReportSub').textContent = label || ('Zgłaszasz: ' + type + ' #' + id);
+  document.getElementById('grailReportMsg').textContent = '';
+  document.getElementById('grailReportDetails').value = '';
+  document.getElementById('grailReportReason').selectedIndex = 0;
+  const send = document.getElementById('grailReportSend');
+  send.disabled = false; send.textContent = 'Wyślij zgłoszenie →';
+  document.getElementById('grailReportOverlay').classList.add('open');
+}
+function grailReportClose() {
+  document.getElementById('grailReportOverlay').classList.remove('open');
+}
+async function grailReportSend() {
+  const send = document.getElementById('grailReportSend');
+  const msg  = document.getElementById('grailReportMsg');
+  send.disabled = true; send.textContent = 'Wysyłanie...';
+  const body = new URLSearchParams({
+    csrf_token: '<?= csrf_token() ?>',
+    content_type: _reportType,
+    content_id: _reportId,
+    reason: document.getElementById('grailReportReason').value,
+    details: document.getElementById('grailReportDetails').value,
+  });
+  try {
+    const res = await fetch('/grailos/report_submit.php', {
+      method: 'POST',
+      headers: {'Content-Type':'application/x-www-form-urlencoded'},
+      body: body.toString(),
+    });
+    const data = await res.json();
+    if (data.ok) {
+      msg.style.color = '#2ecc71';
+      msg.textContent = data.already ? 'Już zgłoszono — dziękujemy.' : 'Zgłoszenie wysłane. Dziękujemy!';
+      setTimeout(grailReportClose, 1200);
+    } else {
+      msg.style.color = 'var(--red)';
+      msg.textContent = data.error || 'Błąd.';
+      send.disabled = false; send.textContent = 'Wyślij zgłoszenie →';
+    }
+  } catch (e) {
+    msg.style.color = 'var(--red)'; msg.textContent = 'Błąd połączenia.';
+    send.disabled = false; send.textContent = 'Wyślij zgłoszenie →';
+  }
+}
+document.addEventListener('DOMContentLoaded', () => {
+  const ov = document.getElementById('grailReportOverlay');
+  if (ov) ov.addEventListener('click', e => { if (e.target.id === 'grailReportOverlay') grailReportClose(); });
+});
+</script>
+<?php endif; ?>
+
 <script>
 async function newsletterSubmit(e) {
   e.preventDefault();
