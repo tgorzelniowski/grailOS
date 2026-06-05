@@ -269,7 +269,8 @@ $outfits = $outfits->fetchAll();
       $outfit_imgs->execute([$outfit['id']]);
       $imgs = $outfit_imgs->fetchAll(PDO::FETCH_COLUMN);
     ?>
-      <div class="outfit-card <?= $oidx >= 4 ? 'outfit-collapse-item' : '' ?>" style="position:relative;">
+      <div class="outfit-card profile-clickable <?= $oidx >= 4 ? 'outfit-collapse-item' : '' ?>"
+           data-href="/grailos/view_outfit.php?id=<?= $outfit['id'] ?>" style="position:relative; cursor:pointer;">
         <?php if ($is_own): ?>
           <form method="POST" action="/grailos/delete_outfit.php" class="outfit-delete-form">
             <?= csrf_field() ?>
@@ -314,7 +315,8 @@ $outfits = $outfits->fetchAll();
 <div class="clothing-grid clothing-grid--profile">
   <?php if ($wardrobe): ?>
     <?php foreach ($wardrobe as $widx => $item): ?>
-  <div class="clothing-card <?= $widx >= 4 ? 'wardrobe-collapse-item' : '' ?>" style="position:relative;">
+  <div class="clothing-card <?= $widx >= 4 ? 'wardrobe-collapse-item' : '' ?> <?= $item['clothing_id'] ? 'profile-clickable' : '' ?>"
+       <?= $item['clothing_id'] ? 'data-href="/grailos/item.php?id=' . (int)$item['clothing_id'] . '" style="position:relative; cursor:pointer;"' : 'style="position:relative;"' ?>>
     <div class="clothing-card-img">
       <?php if ($item['image_url']): ?>
         <img src="<?= htmlspecialchars($item['image_url']) ?>" alt="">
@@ -421,7 +423,7 @@ function toggleCollapse(btn, selector) {
   btn.textContent = expanded ? 'Pokaż więcej ↓' : 'Zwiń ↑';
 }
 
-document.querySelectorAll('.profile-posts-feed .post-card-clickable').forEach(card => {
+document.querySelectorAll('.profile-posts-feed .post-card-clickable, .profile-clickable').forEach(card => {
   card.addEventListener('click', e => {
     if (!e.target.closest('a, button, form')) {
       window.location.href = card.dataset.href;
