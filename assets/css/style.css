@@ -4483,13 +4483,11 @@ img {
 }
 
 @media (max-width: 768px) {
-  .fits-grid { grid-template-columns: repeat(2, minmax(0, 280px)) !important; }
-}
-
-@media (max-width: 500px) {
+  /* 2 fity na szerokość — elastyczne kolumny, nie znikają na wąskich ekranach */
   .fits-grid {
-    grid-template-columns: minmax(0, 280px) !important;
-    padding: 12px 20px !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+    padding: 12px 16px !important;
   }
 }
 
@@ -4751,32 +4749,43 @@ img {
 }
 
 @media (max-width: 768px) {
+  /* Układ kolumnowy: zdjęcie → kafelki (poziomo) → info */
   .item-page-v2 {
-    grid-template-columns: 72px 1fr;
-    grid-template-rows: 55vw auto;
+    display: flex;
+    flex-direction: column;
   }
-  .item-thumbs-v {
-    grid-column: 1;
-    grid-row: 1;
-    position: static;
-    height: 55vw;
-    padding: 8px 6px;
-  }
-  .item-thumb-v { width: 56px; height: 56px; }
   .item-main-img {
-    grid-column: 2;
-    grid-row: 1;
-    position: static;
-    height: 55vw;
+    position: relative;   /* kontekst dla absolutnych .item-slide */
+    top: auto;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1 / 1;
     border-right: none;
     border-bottom: 1px solid var(--border);
+    order: 1;
   }
-  .item-info-v {
-    grid-column: 1 / -1;
-    grid-row: 2;
+  .item-thumbs-v {
     position: static;
+    top: auto;
+    height: auto;
+    flex-direction: row;
+    width: 100%;
+    gap: 6px;
+    padding: 8px;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+    overflow-y: hidden;
+    order: 2;
+  }
+  .item-thumb-v { width: 56px; height: 56px; }
+  .item-info-v {
+    position: static;
+    top: auto;
     max-height: none;
+    width: 100%;
     padding: 24px 20px 60px;
+    order: 3;
   }
 }
 
@@ -5425,6 +5434,8 @@ img {
   .clothing-grid--catalog { grid-template-columns: repeat(3, 1fr) !important; }
 }
 
+.catalog-filter-toggle { display: none; }
+
 @media (max-width: 900px) {
   .catalog-layout { grid-template-columns: 1fr; }
   .catalog-sidebar {
@@ -5432,12 +5443,27 @@ img {
     max-height: none;
     border-right: none;
     border-bottom: 1px solid var(--border);
+    display: none;            /* domyślnie zwinięte na mobile */
+  }
+  .catalog-sidebar.open { display: block; }
+  .catalog-filter-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--border);
+    color: var(--white);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 16px 20px;
+    cursor: pointer;
   }
   .clothing-grid--catalog { grid-template-columns: repeat(2, 1fr) !important; }
-}
-
-@media (max-width: 480px) {
-  .clothing-grid--catalog { grid-template-columns: 1fr !important; }
+  .clothing-grid--catalog .clothing-card { padding: 8px !important; }
 }
 
 /* ===========================

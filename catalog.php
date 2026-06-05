@@ -81,10 +81,15 @@ if ($item_ids) {
 }
 ?>
 
+<!-- TOGGLE FILTRÓW (mobile) -->
+<button type="button" class="catalog-filter-toggle" onclick="toggleCatalogFilters(this)">
+  <span>Filtry</span><span id="catFilterArrow">▾</span>
+</button>
+
 <div class="catalog-layout">
 
   <!-- SIDEBAR FILTRY -->
-  <aside class="catalog-sidebar">
+  <aside class="catalog-sidebar" id="catalogSidebar">
     <form method="GET" action="/grailos/catalog.php" id="catalogFilterForm">
 
       <div class="filter-section">
@@ -259,5 +264,13 @@ if ($item_ids) {
   </div>
 
 </div>
+
+<script>
+function toggleCatalogFilters(btn) {
+  const sb = document.getElementById('catalogSidebar');
+  sb.classList.toggle('open');
+  document.getElementById('catFilterArrow').textContent = sb.classList.contains('open') ? '▴' : '▾';
+}
+</script>
 
 <?php require_once 'includes/footer.php'; ?>
