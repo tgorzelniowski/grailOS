@@ -18,7 +18,7 @@ if (isset($_SESSION['user_id'])):
           AND (s.user_id = ?
                OR s.user_id IN (SELECT following_id FROM follows WHERE follower_id = ?))
         GROUP BY s.user_id, u.username, u.avatar_url
-        ORDER BY is_me DESC, (unseen_count > 0) DESC, latest DESC
+        ORDER BY is_me DESC, unseen_count DESC, latest DESC
     ");
     try {
         $sb_stmt->execute([$me, $me, $me, $me]);
