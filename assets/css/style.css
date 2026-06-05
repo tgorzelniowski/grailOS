@@ -5982,3 +5982,58 @@ img {
   .story-filter-btn, .story-badge-pick { font-size: 11px; padding: 6px 10px; }
   .story-sticker { width: 40px; height: 40px; font-size: 19px; }
 }
+
+/* ===========================
+   FORUM — KATEGORIE
+=========================== */
+.forum-cats {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  padding: 14px 40px;
+  border-bottom: 1px solid var(--border);
+}
+.forum-cat {
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--gray);
+  text-decoration: none;
+  padding: 8px 16px;
+  border: 1px solid var(--border);
+  transition: all 0.2s;
+}
+.forum-cat:hover { border-color: var(--red); color: var(--white); }
+.forum-cat.active { background: var(--red); border-color: var(--red); color: #fff; }
+
+.compose-cat-select {
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--white);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12px;
+  letter-spacing: 1px;
+  padding: 8px 10px;
+  cursor: pointer;
+  margin-left: auto;
+  margin-right: 10px;
+}
+
+.forum-cat-badge {
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  font-weight: 600;
+  background: rgba(255,255,255,0.06);
+  color: var(--gray);
+  white-space: nowrap;
+}
+.forum-cat-badge.cat-wtb   { background: rgba(26,125,60,0.2);  color: #2ecc71; }
+.forum-cat-badge.cat-wts   { background: rgba(255,36,0,0.15);  color: var(--red); }
+.forum-cat-badge.cat-legit { background: rgba(255,255,255,0.1); color: #fff; }
+
+@media (max-width: 768px) {
+  .forum-cats { padding: 12px 16px; }
+  .compose-cat-select { margin-left: 0; }
+}

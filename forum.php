@@ -1,6 +1,14 @@
 <?php
 require_once 'config/db.php';
 
+// Kategorie forum
+$CATEGORIES = [
+    'general' => 'Ogólny',
+    'wtb'     => 'WTB',
+    'wts'     => 'WTT / WTS',
+    'legit'   => 'Legit Check',
+];
+
 $post_error = '';
 
 // Cały POST processing PRZED require header
@@ -10,6 +18,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['new_post'])) {
     }
     csrf_verify();
     $content   = trim($_POST['content'] ?? '');
+    $category  = $_POST['category'] ?? 'general';
+    if (!isset($CATEGORIES[$category])) $category = 'general';
     $image_url = null;
 
     if (!$content && empty($_FILES['image']['name'])) {
@@ -26,16 +36,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['new_post'])) {
             }
         }
         if (!$post_error) {
-            $pdo->prepare("INSERT INTO posts (user_id, content, image_url) VALUES (?, ?, ?)")
-                ->execute([$_SESSION['user_id'], $content, $image_url]);
-            header('Location: /grailos/forum.php');
+            try {
+                $pdo->prepare("INSERT INTO posts (user_id, category, content, image_url) VALUES (?, ?, ?, ?)")
+                    ->execute([$_SESSION['user_id'], $category, $content, $image_url]);
+            } catch (Exception $e) {
+                // Fallback gdy migracja kategorii jeszcze nie uruchomiona
+                $pdo->prepare("INSERT INTO posts (user_id, content, image_url) VALUES (?, ?, ?)")
+                    ->execute([$_SESSION['user_id'], $content, $image_url]);
+            }
+            header('Location: /grailos/forum.php' . ($category !== 'general' ? '?cat=' . $category : ''));
             exit;
         }
     }
 }
 
+// Kolumna category może nie istnieć (przed migracją)
+$has_category = true;
+try { $pdo->query("SELECT category FROM posts LIMIT 1"); }
+catch (Exception $e) { $has_category = false; }
+
 $search_user = trim($_GET['user'] ?? '');
 $search_kw   = trim($_GET['kw']   ?? '');
+$cat_filter  = $_GET['cat'] ?? '';
+if (!isset($CATEGORIES[$cat_filter])) $cat_filter = '';
 $where_parts = [];
 $filter_params = [];
 
@@ -46,6 +69,10 @@ if ($search_user !== '') {
 if ($search_kw !== '') {
     $where_parts[]  = "posts.content LIKE ?";
     $filter_params[] = '%' . $search_kw . '%';
+}
+if ($cat_filter !== '' && $has_category) {
+    $where_parts[]  = "posts.category = ?";
+    $filter_params[] = $cat_filter;
 }
 $where = $where_parts ? 'WHERE ' . implode(' AND ', $where_parts) : '';
 
@@ -74,9 +101,19 @@ $story_map = active_stories_map($pdo, array_column($posts, 'user_id'), (int)($_S
   <h1 class="page-title">FORUM</h1>
   <p class="page-sub">Pytaj, odpowiadaj, dziel się.</p>
 </section>
+<!-- KATEGORIE -->
+<div class="forum-cats">
+  <a href="/grailos/forum.php" class="forum-cat <?= $cat_filter === '' ? 'active' : '' ?>">Wszystko</a>
+  <?php foreach ($CATEGORIES as $key => $label): ?>
+    <a href="/grailos/forum.php?cat=<?= $key ?>"
+       class="forum-cat <?= $cat_filter === $key ? 'active' : '' ?>"><?= htmlspecialchars($label) ?></a>
+  <?php endforeach; ?>
+</div>
+
 <!-- WYSZUKIWARKA -->
 <div class="fits-filter-bar">
   <form method="GET" action="/grailos/forum.php" class="fits-filter-form">
+    <input type="hidden" name="cat" value="<?= htmlspecialchars($cat_filter) ?>">
     <input type="text" name="user" placeholder="@użytkownik"
            value="<?= htmlspecialchars($search_user) ?>"
            class="fits-filter-input">
@@ -85,7 +122,7 @@ $story_map = active_stories_map($pdo, array_column($posts, 'user_id'), (int)($_S
            class="fits-filter-input">
     <button type="submit" class="btn">Szukaj</button>
     <?php if ($search_user !== '' || $search_kw !== ''): ?>
-      <a href="/grailos/forum.php" class="btn btn-outline">Resetuj ×</a>
+      <a href="/grailos/forum.php<?= $cat_filter ? '?cat=' . $cat_filter : '' ?>" class="btn btn-outline">Resetuj ×</a>
     <?php endif; ?>
   </form>
 </div>
@@ -136,7 +173,11 @@ $story_map = active_stories_map($pdo, array_column($posts, 'user_id'), (int)($_S
                  accept="image/jpeg,image/png,image/webp"
                  onchange="previewImage(this)" style="display:none">
         </label>
-        <span class="compose-hint">max 1000 znaków</span>
+        <select name="category" class="compose-cat-select">
+          <?php foreach ($CATEGORIES as $key => $label): ?>
+            <option value="<?= $key ?>" <?= $cat_filter === $key ? 'selected' : '' ?>><?= htmlspecialchars($label) ?></option>
+          <?php endforeach; ?>
+        </select>
         <button type="submit" name="new_post" class="btn">Opublikuj →</button>
       </div>
     </form>
@@ -195,6 +236,9 @@ $story_map = active_stories_map($pdo, array_column($posts, 'user_id'), (int)($_S
               @<?= htmlspecialchars($post['username']) ?>
             </a>
             <span class="fpc-time"><?= date('d M Y, H:i', strtotime($post['created_at'])) ?></span>
+            <?php $pcat = $post['category'] ?? 'general'; if (isset($CATEGORIES[$pcat])): ?>
+              <span class="forum-cat-badge cat-<?= $pcat ?>"><?= htmlspecialchars($CATEGORIES[$pcat]) ?></span>
+            <?php endif; ?>
           </div>
           <?php if ($can_delete): ?>
             <form method="POST" action="/grailos/delete_post.php" onclick="event.stopPropagation()">

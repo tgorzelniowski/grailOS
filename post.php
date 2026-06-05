@@ -17,6 +17,8 @@ $stmt->execute([$id]);
 $post = $stmt->fetch();
 if (!$post) { header('Location: /grailos/forum.php'); exit; }
 
+$FORUM_CATS = ['general'=>'Ogólny','wtb'=>'WTB','wts'=>'WTT / WTS','legit'=>'Legit Check'];
+
 $reply_error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reply'])) {
@@ -169,7 +171,13 @@ function renderPostReply($r, $child_replies, $depth = 0) {
         <div>
           <a href="/grailos/profile.php?username=<?= urlencode($post['username']) ?>"
              class="post-user-link">@<?= htmlspecialchars($post['username']) ?></a>
-          <div class="post-date"><?= date('d M Y, H:i', strtotime($post['created_at'])) ?></div>
+          <div class="post-date">
+            <?= date('d M Y, H:i', strtotime($post['created_at'])) ?>
+            <?php $pcat = $post['category'] ?? 'general'; if (isset($FORUM_CATS[$pcat])): ?>
+              <a href="/grailos/forum.php?cat=<?= $pcat ?>" class="forum-cat-badge cat-<?= $pcat ?>"
+                 style="text-decoration:none; margin-left:6px;"><?= htmlspecialchars($FORUM_CATS[$pcat]) ?></a>
+            <?php endif; ?>
+          </div>
         </div>
       </div>
     </div>
