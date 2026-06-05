@@ -4928,6 +4928,20 @@ img {
   letter-spacing: 0.3px;
 }
 
+.comment-del-btn {
+  background: transparent;
+  border: none;
+  color: #444;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 2px 4px;
+  line-height: 1;
+  font-family: 'Barlow Condensed', sans-serif;
+  transition: color 0.15s;
+}
+
+.comment-del-btn:hover { color: var(--red); }
+
 .comment-replies {
   margin-top: 10px;
   padding-left: 14px;

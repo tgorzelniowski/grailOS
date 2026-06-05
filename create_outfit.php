@@ -1,5 +1,5 @@
 <?php
-require_once 'includes/header.php';
+require_once 'config/db.php';
 
 if (!isset($_SESSION['user_id'])) {
     header('Location: /grailos/login.php'); exit;
@@ -7,18 +7,6 @@ if (!isset($_SESSION['user_id'])) {
 
 $error   = '';
 $success = '';
-
-// Pobierz szafę usera
-$wardrobe = $pdo->prepare("
-    SELECT wardrobe_items.id, clothing.name, clothing.brand,
-           clothing.image_url, clothing.category
-    FROM wardrobe_items
-    LEFT JOIN clothing ON wardrobe_items.clothing_id = clothing.id
-    WHERE wardrobe_items.user_id = ?
-    ORDER BY clothing.category, clothing.brand
-");
-$wardrobe->execute([$_SESSION['user_id']]);
-$wardrobe = $wardrobe->fetchAll();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_verify();
@@ -44,6 +32,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 }
+
+// Pobierz szafę usera
+$wardrobe = $pdo->prepare("
+    SELECT wardrobe_items.id, clothing.name, clothing.brand,
+           clothing.image_url, clothing.category
+    FROM wardrobe_items
+    LEFT JOIN clothing ON wardrobe_items.clothing_id = clothing.id
+    WHERE wardrobe_items.user_id = ?
+    ORDER BY clothing.category, clothing.brand
+");
+$wardrobe->execute([$_SESSION['user_id']]);
+$wardrobe = $wardrobe->fetchAll();
+
+require_once 'includes/header.php';
 ?>
 
 <section class="page-header">

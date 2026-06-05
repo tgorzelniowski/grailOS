@@ -118,8 +118,10 @@ $total_comment_count = count($comments) + $total_reply_count;
 $multi = count($all_fit_imgs) > 1;
 
 // Rekurencyjne renderowanie drzewka odpowiedzi
-function renderReplyTree($reply, $comment_id, $child_replies, $depth = 0) {
+function renderReplyTree($reply, $comment_id, $child_replies, $fit_id, $depth = 0) {
     $children = $child_replies[$reply['id']] ?? [];
+    $can_del  = isset($_SESSION['user_id']) &&
+                ($reply['user_id'] == $_SESSION['user_id'] || !empty($_SESSION['is_admin']));
     ?>
     <div class="comment-reply" id="creply-<?= $reply['id'] ?>">
       <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
@@ -140,6 +142,16 @@ function renderReplyTree($reply, $comment_id, $child_replies, $depth = 0) {
           @<?= htmlspecialchars($reply['username']) ?>
         </a>
         <span style="font-size:11px;color:#444;"><?= date('d M, H:i', strtotime($reply['created_at'])) ?></span>
+        <?php if ($can_del): ?>
+          <form method="POST" action="/grailos/delete_fit_comment.php" style="margin-left:auto;">
+            <?= csrf_field() ?>
+            <input type="hidden" name="type" value="reply">
+            <input type="hidden" name="id" value="<?= $reply['id'] ?>">
+            <input type="hidden" name="fit_id" value="<?= $fit_id ?>">
+            <button type="button" class="comment-del-btn"
+                    onclick="grailConfirm('Usunąć odpowiedź?', () => this.closest('form').submit())">✕</button>
+          </form>
+        <?php endif; ?>
       </div>
       <div style="font-size:13px;color:var(--gray);line-height:1.5;">
         <?= htmlspecialchars($reply['content']) ?>
@@ -164,7 +176,7 @@ function renderReplyTree($reply, $comment_id, $child_replies, $depth = 0) {
       <?php endif; ?>
       <?php if ($children): ?>
         <div class="comment-replies">
-          <?php foreach ($children as $child) renderReplyTree($child, $comment_id, $child_replies, $depth + 1); ?>
+          <?php foreach ($children as $child) renderReplyTree($child, $comment_id, $child_replies, $fit_id, $depth + 1); ?>
         </div>
       <?php endif; ?>
     </div>
@@ -287,7 +299,19 @@ require_once 'includes/header.php';
               <a href="/grailos/profile.php?username=<?= urlencode($c['username']) ?>"
                  class="comment-user">@<?= htmlspecialchars($c['username']) ?></a>
             </div>
-            <span class="comment-date"><?= date('d M, H:i', strtotime($c['created_at'])) ?></span>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <span class="comment-date"><?= date('d M, H:i', strtotime($c['created_at'])) ?></span>
+              <?php if (isset($_SESSION['user_id']) && ($c['user_id'] == $_SESSION['user_id'] || !empty($_SESSION['is_admin']))): ?>
+                <form method="POST" action="/grailos/delete_fit_comment.php">
+                  <?= csrf_field() ?>
+                  <input type="hidden" name="type" value="comment">
+                  <input type="hidden" name="id" value="<?= $c['id'] ?>">
+                  <input type="hidden" name="fit_id" value="<?= $fit['id'] ?>">
+                  <button type="button" class="comment-del-btn"
+                          onclick="grailConfirm('Usunąć komentarz?', () => this.closest('form').submit())">✕</button>
+                </form>
+              <?php endif; ?>
+            </div>
           </div>
 
           <div class="comment-content"><?= htmlspecialchars($c['content']) ?></div>
@@ -299,7 +323,7 @@ require_once 'includes/header.php';
 
           <?php if ($c_replies): ?>
             <div class="comment-replies">
-              <?php foreach ($c_replies as $r) renderReplyTree($r, $c['id'], $child_replies); ?>
+              <?php foreach ($c_replies as $r) renderReplyTree($r, $c['id'], $child_replies, $fit['id']); ?>
             </div>
           <?php endif; ?>
 
