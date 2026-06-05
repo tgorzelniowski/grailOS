@@ -5834,3 +5834,52 @@ img {
   padding-top: 12px;
   border-top: 1px solid var(--border);
 }
+
+/* ===========================
+   STORY EDITOR — DODATKI
+=========================== */
+.story-size-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 0 12px;
+  flex-wrap: wrap;
+}
+.story-size-label {
+  font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--gray); margin-right: 4px;
+}
+.story-mini-btn {
+  background: transparent; border: 1px solid var(--border); color: var(--white);
+  font-family: 'Barlow Condensed', sans-serif; font-size: 13px;
+  width: 36px; height: 32px; cursor: pointer; transition: border-color 0.2s;
+}
+.story-mini-btn:hover { border-color: var(--red); }
+.story-mini-del:hover { border-color: var(--red); color: var(--red); }
+
+.story-font-row { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+.story-font-btn {
+  background: transparent; border: 1px solid var(--border); color: var(--gray);
+  font-size: 13px; padding: 6px 14px; cursor: pointer; transition: all 0.2s;
+}
+.story-font-btn:hover { border-color: var(--red); color: var(--white); }
+.story-font-btn.active { border-color: var(--red); color: var(--red); }
+
+.story-badge-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.story-badge-pick {
+  border: none; color: #fff;
+  font-family: 'Bebas Neue', sans-serif; font-size: 14px; letter-spacing: 1px;
+  padding: 7px 14px; cursor: pointer; transition: opacity 0.2s;
+}
+.story-badge-pick:hover { opacity: 0.82; }
+
+/* ===========================
+   ADMIN REPORTS — STATUS
+=========================== */
+.report-status {
+  font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+  padding: 3px 8px; font-weight: 600;
+}
+.report-open      { background: rgba(255,36,0,0.15);  color: var(--red); }
+.report-resolved  { background: rgba(26,125,60,0.2);  color: #2ecc71; }
+.report-dismissed { background: rgba(255,255,255,0.06); color: var(--gray); }

@@ -39,7 +39,7 @@ require_once 'includes/header.php';
   <p class="page-sub">Znika po 24h. Widzą ją tylko Twoi obserwujący.</p>
 </section>
 
-<div class="admin-form-wrap" style="max-width:520px;">
+<div class="admin-form-wrap" style="max-width:540px;">
   <?php if ($error): ?>
     <div class="form-error" style="margin-bottom:20px;"><?= htmlspecialchars($error) ?></div>
   <?php endif; ?>
@@ -59,23 +59,27 @@ require_once 'includes/header.php';
       <canvas id="storyCanvas" width="540" height="960"></canvas>
     </div>
 
+    <!-- ROZMIAR / OBRÓT zaznaczonego -->
+    <div class="story-size-bar">
+      <span class="story-size-label">Zaznaczony:</span>
+      <button type="button" class="story-mini-btn" onclick="scaleSelected(0.85)">A−</button>
+      <button type="button" class="story-mini-btn" onclick="scaleSelected(1.18)">A+</button>
+      <button type="button" class="story-mini-btn" onclick="rotateSelected(-15)">⟲</button>
+      <button type="button" class="story-mini-btn" onclick="rotateSelected(15)">⟳</button>
+      <button type="button" class="story-mini-btn story-mini-del" onclick="deleteSelected()">✕</button>
+    </div>
+
     <!-- ZAKŁADKI NARZĘDZI -->
     <div class="story-edit-tabs">
       <button type="button" class="story-edit-tab active" onclick="storyTab('filters', this)">Filtry</button>
       <button type="button" class="story-edit-tab" onclick="storyTab('text', this)">Tekst</button>
       <button type="button" class="story-edit-tab" onclick="storyTab('stickers', this)">Naklejki</button>
+      <button type="button" class="story-edit-tab" onclick="storyTab('badges', this)">Streetwear</button>
     </div>
 
     <!-- FILTRY -->
     <div class="story-tool" id="tool-filters">
-      <div class="story-filter-row">
-        <button type="button" class="story-filter-btn active" onclick="setStoryFilter('none', this)">Brak</button>
-        <button type="button" class="story-filter-btn" onclick="setStoryFilter('grayscale(1)', this)">B&amp;W</button>
-        <button type="button" class="story-filter-btn" onclick="setStoryFilter('sepia(0.8)', this)">Sepia</button>
-        <button type="button" class="story-filter-btn" onclick="setStoryFilter('saturate(1.8) contrast(1.1)', this)">Vivid</button>
-        <button type="button" class="story-filter-btn" onclick="setStoryFilter('saturate(1.2) hue-rotate(190deg) brightness(1.05)', this)">Chłodny</button>
-        <button type="button" class="story-filter-btn" onclick="setStoryFilter('sepia(0.4) saturate(1.4) brightness(1.05)', this)">Ciepły</button>
-      </div>
+      <div class="story-filter-row" id="filterRow"></div>
     </div>
 
     <!-- TEKST -->
@@ -85,6 +89,7 @@ require_once 'includes/header.php';
         <input type="color" id="storyTextColor" value="#ffffff" class="story-color">
         <button type="button" class="btn" style="font-size:11px;padding:8px 14px;" onclick="addStoryText()">+ Dodaj</button>
       </div>
+      <div class="story-font-row" id="fontRow"></div>
     </div>
 
     <!-- NAKLEJKI -->
@@ -92,14 +97,16 @@ require_once 'includes/header.php';
       <div class="story-sticker-row" id="stickerRow"></div>
     </div>
 
+    <!-- STREETWEAR BADGES -->
+    <div class="story-tool" id="tool-badges" style="display:none;">
+      <div class="story-badge-row" id="badgeRow"></div>
+    </div>
+
     <!-- AKCJE -->
     <div class="story-edit-actions">
-      <button type="button" class="btn btn-outline" style="font-size:11px;padding:8px 14px;"
-              onclick="deleteSelected()">Usuń zaznaczony</button>
-      <div style="margin-left:auto; display:flex; gap:10px;">
-        <button type="button" class="btn btn-outline" onclick="resetStory()">← Zmień zdjęcie</button>
-        <button type="button" class="btn" id="storyPublishBtn" onclick="publishStory()">Opublikuj storkę →</button>
-      </div>
+      <button type="button" class="btn btn-outline" onclick="resetStory()">← Zmień zdjęcie</button>
+      <button type="button" class="btn" id="storyPublishBtn" style="margin-left:auto;"
+              onclick="publishStory()">Opublikuj storkę →</button>
     </div>
     <div id="storyEditError" class="form-error" style="display:none; margin-top:12px;"></div>
   </div>
@@ -110,19 +117,83 @@ const canvas = document.getElementById('storyCanvas');
 const ctx = canvas.getContext('2d');
 let baseImg = null;
 let curFilter = 'none';
-let objects = [];      // {type:'text'|'sticker', text, x, y, size, color}
+let objects = [];   // {type:'text'|'sticker'|'badge', text, x, y, size, color, font, rot}
 let selected = -1;
 let drag = null;
 
-const STICKERS = ['🔥','💯','⭐','😎','👟','🧢','💸','❤️','✨','👑','🤙','😤','🛒','📸','🌀','⚡'];
+// --- Dane narzędzi ---
+const FILTERS = [
+  ['Brak', 'none'],
+  ['B&W', 'grayscale(1)'],
+  ['Sepia', 'sepia(0.8)'],
+  ['Vivid', 'saturate(1.8) contrast(1.1)'],
+  ['Noir', 'grayscale(1) contrast(1.4) brightness(0.9)'],
+  ['Fade', 'contrast(0.85) brightness(1.1) saturate(0.8)'],
+  ['Chłodny', 'saturate(1.2) hue-rotate(190deg) brightness(1.05)'],
+  ['Ciepły', 'sepia(0.4) saturate(1.4) brightness(1.05)'],
+  ['Retro', 'sepia(0.5) contrast(1.2) saturate(1.3) hue-rotate(-10deg)'],
+  ['Crisp', 'contrast(1.25) saturate(1.1) brightness(1.03)'],
+  ['Dream', 'brightness(1.12) saturate(1.25) blur(0.4px)'],
+  ['Invert', 'invert(1)'],
+];
 
-// Wypełnij paletę naklejek
+const STICKERS = ['🔥','💯','⭐','😎','👟','🧢','💸','❤️','✨','👑','🤙','😤','🛒','📸','🌀','⚡',
+                  '🥶','💀','👀','🫶','🧊','🏷️','🩴','🧥','🕶️','🎧','💥','🆒','📍','🚀','🫡','🤑'];
+
+// Streetwearowe „naklejki tekstowe" (badge)
+const BADGES = [
+  ['GRAILOS','#FF2400'], ['OOTD','#0a0a0a'], ['DROP','#FF2400'], ['HEAT 🔥','#FF2400'],
+  ['GRAIL','#0a0a0a'], ['W','#1a7d3c'], ['L','#0a0a0a'], ['STEAL','#FF2400'],
+  ['FIT CHECK','#0a0a0a'], ['ON FEET','#0a0a0a'], ['NEW IN','#FF2400'], ['SOLD OUT','#0a0a0a'],
+  ['HYPE','#FF2400'], ['ARCHIVE','#0a0a0a'], ['1/1','#FF2400'], ['COP','#1a7d3c'],
+];
+
+const FONTS = [
+  ["'Barlow Condensed', sans-serif", 'Barlow'],
+  ["'Bebas Neue', sans-serif", 'Bebas'],
+  ["Impact, sans-serif", 'Impact'],
+  ["Courier New, monospace", 'Mono'],
+];
+let curFont = FONTS[0][0];
+
+// Render palet
+const fr = document.getElementById('filterRow');
+FILTERS.forEach((f, i) => {
+  const b = document.createElement('button');
+  b.type='button'; b.className='story-filter-btn'+(i===0?' active':''); b.textContent=f[0];
+  b.onclick = () => setStoryFilter(f[1], b);
+  fr.appendChild(b);
+});
+
 const sr = document.getElementById('stickerRow');
 STICKERS.forEach(em => {
   const b = document.createElement('button');
-  b.type = 'button'; b.className = 'story-sticker'; b.textContent = em;
+  b.type='button'; b.className='story-sticker'; b.textContent=em;
   b.onclick = () => addSticker(em);
   sr.appendChild(b);
+});
+
+const br = document.getElementById('badgeRow');
+BADGES.forEach(([txt,col]) => {
+  const b = document.createElement('button');
+  b.type='button'; b.className='story-badge-pick'; b.textContent=txt;
+  b.style.background = col;
+  b.onclick = () => addBadge(txt, col);
+  br.appendChild(b);
+});
+
+const fontRow = document.getElementById('fontRow');
+FONTS.forEach((f, i) => {
+  const b = document.createElement('button');
+  b.type='button'; b.className='story-font-btn'+(i===0?' active':''); b.textContent=f[1];
+  b.style.fontFamily = f[0];
+  b.onclick = () => {
+    curFont = f[0];
+    document.querySelectorAll('.story-font-btn').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    if (selected>=0 && objects[selected].type==='text'){ objects[selected].font=f[0]; render(); }
+  };
+  fontRow.appendChild(b);
 });
 
 function loadStoryImage(input) {
@@ -151,35 +222,54 @@ function coverDraw(img) {
   ctx.drawImage(img, x, y, w, h);
 }
 
+function drawObj(o, idx, showSelection) {
+  ctx.save();
+  ctx.translate(o.x, o.y);
+  if (o.rot) ctx.rotate(o.rot * Math.PI / 180);
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+
+  if (o.type === 'text') {
+    ctx.font = `700 ${o.size}px ${o.font}`;
+    const m = ctx.measureText(o.text);
+    o._w = m.width; o._h = o.size;
+    ctx.lineWidth = Math.max(2, o.size / 12);
+    ctx.strokeStyle = 'rgba(0,0,0,0.55)';
+    ctx.strokeText(o.text, 0, 0);
+    ctx.fillStyle = o.color;
+    ctx.fillText(o.text, 0, 0);
+  } else if (o.type === 'badge') {
+    ctx.font = `700 ${o.size}px 'Bebas Neue', sans-serif`;
+    const m = ctx.measureText(o.text);
+    const padX = o.size * 0.45, padY = o.size * 0.28;
+    const w = m.width + padX * 2, h = o.size + padY * 2;
+    o._w = w; o._h = h;
+    ctx.fillStyle = o.color;
+    ctx.fillRect(-w/2, -h/2, w, h);
+    ctx.fillStyle = '#fff';
+    ctx.fillText(o.text, 0, 0);
+  } else { // sticker
+    ctx.font = `${o.size}px serif`;
+    const m = ctx.measureText(o.text);
+    o._w = m.width; o._h = o.size;
+    ctx.fillText(o.text, 0, 0);
+  }
+
+  if (showSelection && idx === selected) {
+    ctx.strokeStyle = '#FF2400';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(-o._w/2 - 8, -o._h/2 - 6, o._w + 16, o._h + 12);
+  }
+  ctx.restore();
+}
+
 function render(showSelection = true) {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   if (!baseImg) return;
   ctx.filter = curFilter;
   coverDraw(baseImg);
   ctx.filter = 'none';
-
-  objects.forEach((o, idx) => {
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    if (o.type === 'text') {
-      ctx.font = `700 ${o.size}px 'Barlow Condensed', sans-serif`;
-      ctx.lineWidth = Math.max(2, o.size / 12);
-      ctx.strokeStyle = 'rgba(0,0,0,0.55)';
-      ctx.strokeText(o.text, o.x, o.y);
-      ctx.fillStyle = o.color;
-      ctx.fillText(o.text, o.x, o.y);
-    } else {
-      ctx.font = `${o.size}px serif`;
-      ctx.fillText(o.text, o.x, o.y);
-    }
-    const m = ctx.measureText(o.text);
-    o._w = m.width; o._h = o.size;
-    if (showSelection && idx === selected) {
-      ctx.strokeStyle = '#FF2400';
-      ctx.lineWidth = 2;
-      ctx.strokeRect(o.x - o._w/2 - 8, o.y - o._h/2 - 6, o._w + 16, o._h + 12);
-    }
-  });
+  objects.forEach((o, idx) => drawObj(o, idx, showSelection));
 }
 
 function evtPos(e) {
@@ -192,8 +282,9 @@ function evtPos(e) {
 function hitTest(x, y) {
   for (let i = objects.length - 1; i >= 0; i--) {
     const o = objects[i];
-    if (x >= o.x - o._w/2 - 8 && x <= o.x + o._w/2 + 8 &&
-        y >= o.y - o._h/2 - 6 && y <= o.y + o._h/2 + 6) return i;
+    // przybliżony hit-test po bounding boxie (bez uwzgl. obrotu)
+    const hw = (o._w || o.size) / 2 + 10, hh = (o._h || o.size) / 2 + 8;
+    if (x >= o.x - hw && x <= o.x + hw && y >= o.y - hh && y <= o.y + hh) return i;
   }
   return -1;
 }
@@ -226,47 +317,51 @@ function addStoryText() {
   const t = document.getElementById('storyTextInput').value.trim();
   if (!t) return;
   objects.push({ type:'text', text:t, x:canvas.width/2, y:canvas.height/2,
-                 size:54, color:document.getElementById('storyTextColor').value });
+                 size:54, color:document.getElementById('storyTextColor').value, font:curFont, rot:0 });
   selected = objects.length - 1;
   document.getElementById('storyTextInput').value = '';
   render();
 }
-
 function addSticker(em) {
-  objects.push({ type:'sticker', text:em, x:canvas.width/2, y:canvas.height/2, size:90, color:'#fff' });
-  selected = objects.length - 1;
+  objects.push({ type:'sticker', text:em, x:canvas.width/2, y:canvas.height/2, size:96, rot:0 });
+  selected = objects.length - 1; render();
+}
+function addBadge(txt, col) {
+  objects.push({ type:'badge', text:txt, x:canvas.width/2, y:canvas.height/2, size:46, color:col, rot:0 });
+  selected = objects.length - 1; render();
+}
+function deleteSelected() { if (selected >= 0) { objects.splice(selected,1); selected=-1; render(); } }
+function scaleSelected(f) {
+  if (selected < 0) return;
+  objects[selected].size = Math.max(14, Math.min(420, objects[selected].size * f));
   render();
 }
-
-function deleteSelected() {
-  if (selected >= 0) { objects.splice(selected, 1); selected = -1; render(); }
+function rotateSelected(deg) {
+  if (selected < 0) return;
+  objects[selected].rot = (objects[selected].rot || 0) + deg;
+  render();
 }
-
 function setStoryFilter(f, btn) {
   curFilter = f;
   document.querySelectorAll('.story-filter-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   render();
 }
-
 function storyTab(name, btn) {
   document.querySelectorAll('.story-tool').forEach(t => t.style.display = 'none');
   document.getElementById('tool-' + name).style.display = 'block';
   document.querySelectorAll('.story-edit-tab').forEach(t => t.classList.remove('active'));
   btn.classList.add('active');
 }
-
 function resetStory() {
   document.getElementById('storyEditor').style.display = 'none';
   document.getElementById('storyPick').style.display = 'block';
   document.getElementById('storyFile').value = '';
   baseImg = null;
 }
-
 function publishStory() {
   if (!baseImg) return;
-  selected = -1;
-  render(false); // bez ramki zaznaczenia
+  selected = -1; render(false);
   const btn = document.getElementById('storyPublishBtn');
   btn.disabled = true; btn.textContent = 'Wysyłanie...';
   canvas.toBlob(async (blob) => {
