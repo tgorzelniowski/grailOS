@@ -5661,3 +5661,63 @@ img {
 .story-nav-prev { left: 0; justify-content: flex-start; padding-left: 12px; }
 .story-nav-next { right: 0; justify-content: flex-end; padding-right: 12px; }
 .story-nav:hover { color: #fff; }
+
+/* ===========================
+   STORY PROGRESS (animowany) + LIKE + PROFILE RING
+=========================== */
+.story-progress-seg {
+  flex: 1;
+  height: 3px;
+  background: #333;
+  position: relative;
+  overflow: hidden;
+}
+
+.story-progress-fill {
+  position: absolute;
+  inset: 0;
+  width: 0;
+  background: var(--red);
+  display: block;
+}
+
+.story-progress-seg.done .story-progress-fill { width: 100%; }
+
+.story-actions {
+  display: flex;
+  justify-content: center;
+  padding: 14px 0 0;
+}
+
+.story-like-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--gray);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 14px;
+  letter-spacing: 2px;
+  padding: 8px 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.story-like-btn .story-heart { font-size: 18px; line-height: 1; }
+.story-like-btn:hover { border-color: var(--red); color: var(--red); }
+.story-like-btn.liked { border-color: var(--red); color: var(--red); background: rgba(255,36,0,0.08); }
+
+/* Ring wokół avatara profilu gdy jest aktywna storka */
+.profile-av-ring {
+  display: inline-block;
+  border-radius: 50%;
+  padding: 3px;
+  background: #333;
+  text-decoration: none;
+}
+.profile-av-ring.unseen { background: var(--red); }
+.profile-av-ring .profile-avatar-img,
+.profile-av-ring .profile-avatar {
+  border: 2px solid var(--black);
+}

@@ -12,6 +12,9 @@ if (!$user) { header('Location: /grailos/'); exit; }
 $is_own    = isset($_SESSION['user_id']) && $_SESSION['user_id'] == $user['id'];
 $viewer_admin = !empty($_SESSION['is_admin']);
 
+require_once __DIR__ . '/includes/stories_lib.php';
+$story_meta = active_story_meta($pdo, (int)$user['id'], (int)($_SESSION['user_id'] ?? 0));
+
 // Widoczność sekcji — właściciel i admin widzą zawsze; inni tylko gdy flaga = 1
 $can_see = function($flag) use ($user, $is_own, $viewer_admin) {
     if ($is_own || $viewer_admin) return true;
@@ -102,7 +105,20 @@ $outfits = $outfits->fetchAll();
 <!-- PROFILE HEADER -->
 <section class="profile-header">
   <div class="profile-avatar-wrap">
-  <?php if ($user['avatar_url']): ?>
+  <?php
+    $story_open = $story_meta['allowed'] && $story_meta['has'];
+    if ($story_open):
+      $ring_cls = $story_meta['unseen'] ? 'profile-av-ring unseen' : 'profile-av-ring seen';
+  ?>
+    <a href="/grailos/story_view.php?user=<?= (int)$user['id'] ?>" class="<?= $ring_cls ?>"
+       title="Zobacz storkę">
+      <?php if ($user['avatar_url']): ?>
+        <img src="<?= htmlspecialchars($user['avatar_url']) ?>" class="profile-avatar-img" alt="">
+      <?php else: ?>
+        <div class="profile-avatar"><?= strtoupper(htmlspecialchars($user['username'][0])) ?></div>
+      <?php endif; ?>
+    </a>
+  <?php elseif ($user['avatar_url']): ?>
     <img src="<?= htmlspecialchars($user['avatar_url']) ?>"
          class="profile-avatar-img" alt="">
   <?php else: ?>

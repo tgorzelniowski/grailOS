@@ -55,6 +55,22 @@ if ($is_owner) {
     $views = (int)$vc->fetchColumn();
 }
 
+// Lajki bieżącej storki
+$likes_count = 0;
+$user_liked  = false;
+try {
+    $lc = $pdo->prepare("SELECT COUNT(*) FROM story_likes WHERE story_id = ?");
+    $lc->execute([$story['id']]);
+    $likes_count = (int)$lc->fetchColumn();
+
+    $ul = $pdo->prepare("SELECT 1 FROM story_likes WHERE story_id = ? AND user_id = ?");
+    $ul->execute([$story['id'], $me]);
+    $user_liked = (bool)$ul->fetchColumn();
+} catch (Exception $e) {}
+
+// Czas trwania jednej storki (sekundy) → auto-przewijanie
+$story_duration = 6;
+
 require_once 'includes/header.php';
 ?>
 
@@ -63,7 +79,9 @@ require_once 'includes/header.php';
   <!-- Progres -->
   <div class="story-progress">
     <?php for ($p = 0; $p < $count; $p++): ?>
-      <div class="story-progress-seg <?= $p <= $i ? 'on' : '' ?>"></div>
+      <div class="story-progress-seg <?= $p < $i ? 'done' : '' ?>">
+        <span class="story-progress-fill <?= $p === $i ? 'active' : '' ?>"></span>
+      </div>
     <?php endfor; ?>
   </div>
 
@@ -108,6 +126,57 @@ require_once 'includes/header.php';
     <?php endif; ?>
   </div>
 
+  <!-- Lajk -->
+  <div class="story-actions">
+    <button class="story-like-btn <?= $user_liked ? 'liked' : '' ?>" id="storyLikeBtn"
+            onclick="toggleStoryLike(<?= $story['id'] ?>)">
+      <span class="story-heart">♥</span>
+      <span class="story-like-count"><?= $likes_count ?></span>
+    </button>
+  </div>
+
 </div>
+
+<?php
+$next_url = $i < $count - 1
+    ? "/grailos/story_view.php?user=$author&i=" . ($i + 1)
+    : "/grailos/";
+?>
+<script>
+const STORY_DURATION = <?= (int)$story_duration ?> * 1000;
+const STORY_NEXT = <?= json_encode($next_url) ?>;
+
+// Auto-przewijanie + animacja paska postępu
+(function () {
+  const fill = document.querySelector('.story-progress-fill.active');
+  if (fill) {
+    fill.style.transition = 'width ' + STORY_DURATION + 'ms linear';
+    requestAnimationFrame(() => { fill.style.width = '100%'; });
+  }
+  let timer = setTimeout(() => { window.location.href = STORY_NEXT; }, STORY_DURATION);
+
+  // Pauza przy przytrzymaniu na zdjęciu
+  const stage = document.querySelector('.story-stage');
+  if (stage) {
+    const pause = () => { clearTimeout(timer); if (fill) fill.style.animationPlayState = 'paused'; };
+    stage.addEventListener('mousedown', pause);
+    stage.addEventListener('touchstart', pause, {passive:true});
+  }
+})();
+
+async function toggleStoryLike(storyId) {
+  const btn = document.getElementById('storyLikeBtn');
+  const res = await fetch('/grailos/story_like.php', {
+    method: 'POST',
+    headers: {'Content-Type':'application/x-www-form-urlencoded'},
+    body: `story_id=${storyId}`
+  });
+  const data = await res.json();
+  if (data.success) {
+    btn.classList.toggle('liked', data.liked);
+    btn.querySelector('.story-like-count').textContent = data.likes;
+  }
+}
+</script>
 
 <?php require_once 'includes/footer.php'; ?>
