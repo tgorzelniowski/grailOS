@@ -4994,6 +4994,20 @@ img {
   border-bottom: 1px solid var(--border);
 }
 
+.fit-page-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.fit-page-actions .vote-btn {
+  font-size: 15px;
+  padding: 8px 20px;
+}
+
 @media (max-width: 900px) {
   .fit-page-v2 { grid-template-columns: 1fr 340px; }
 }

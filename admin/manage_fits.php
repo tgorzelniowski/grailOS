@@ -30,12 +30,14 @@ $where = $where_parts ? 'WHERE ' . implode(' AND ', $where_parts) : '';
 
 $stmt = $pdo->prepare("
     SELECT fits.*, users.username,
-           COUNT(DISTINCT fit_votes.id)    AS votes,
-           COUNT(DISTINCT fit_comments.id) AS comments
+           COUNT(DISTINCT fit_votes.id) AS votes,
+           (SELECT COUNT(*) FROM fit_comments WHERE fit_comments.fit_id = fits.id)
+           + (SELECT COUNT(*) FROM fit_comment_replies fcr
+              INNER JOIN fit_comments fc ON fcr.comment_id = fc.id
+              WHERE fc.fit_id = fits.id) AS comments
     FROM fits
-    LEFT JOIN users        ON fits.user_id = users.id
-    LEFT JOIN fit_votes    ON fits.id = fit_votes.fit_id
-    LEFT JOIN fit_comments ON fits.id = fit_comments.fit_id
+    LEFT JOIN users     ON fits.user_id = users.id
+    LEFT JOIN fit_votes ON fits.id = fit_votes.fit_id
     $where
     GROUP BY fits.id
     ORDER BY fits.created_at DESC

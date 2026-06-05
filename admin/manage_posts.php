@@ -23,12 +23,10 @@ $where = $where_parts ? 'WHERE ' . implode(' AND ', $where_parts) : '';
 
 $stmt = $pdo->prepare("
     SELECT posts.*, users.username,
-           COUNT(DISTINCT post_likes.id)   AS likes,
-           COUNT(DISTINCT post_replies.id) AS replies
+           (SELECT COUNT(*) FROM post_likes   WHERE post_likes.post_id   = posts.id) AS likes,
+           (SELECT COUNT(*) FROM post_replies WHERE post_replies.post_id = posts.id) AS replies
     FROM posts
-    LEFT JOIN users        ON posts.user_id = users.id
-    LEFT JOIN post_likes   ON posts.id = post_likes.post_id
-    LEFT JOIN post_replies ON posts.id = post_replies.post_id
+    LEFT JOIN users ON posts.user_id = users.id
     $where
     GROUP BY posts.id
     ORDER BY posts.created_at DESC

@@ -51,10 +51,12 @@ $fits = $fits->fetchAll();
 
 // Posty
 $posts = $pdo->prepare("
-    SELECT posts.*, COUNT(post_replies.id) AS replies
-    FROM posts LEFT JOIN post_replies ON posts.id = post_replies.post_id
+    SELECT posts.*,
+           (SELECT COUNT(*) FROM post_replies WHERE post_replies.post_id = posts.id) AS replies,
+           (SELECT COUNT(*) FROM post_likes   WHERE post_likes.post_id   = posts.id) AS likes
+    FROM posts
     WHERE posts.user_id = ?
-    GROUP BY posts.id ORDER BY posts.created_at DESC LIMIT 10
+    ORDER BY posts.created_at DESC LIMIT 10
 ");
 $posts->execute([$user['id']]);
 $posts = $posts->fetchAll();
@@ -280,26 +282,50 @@ $outfits = $outfits->fetchAll();
     </button>
   <?php endif; ?>
 </div>
-<div class="forum-feed profile-posts-feed" style="margin-bottom:80px;">
+<div class="forum-center profile-posts-feed" style="margin-bottom:80px; padding-top:16px;">
   <?php if ($posts): ?>
     <?php foreach ($posts as $i => $post): ?>
-      <a href="/grailos/post.php?id=<?= $post['id'] ?>"
-         class="post-card post-card-link profile-post-item <?= $i >= 3 ? 'profile-post-hidden' : '' ?>">
+      <div class="fpc post-card-clickable profile-post-item <?= $i >= 3 ? 'profile-post-hidden' : '' ?>"
+           data-href="/grailos/post.php?id=<?= $post['id'] ?>">
+
+        <!-- HEADER: avatar + username + date -->
+        <div class="fpc-head">
+          <div class="fpc-meta">
+            <a href="/grailos/profile.php?username=<?= urlencode($user['username']) ?>"
+               class="post-av-link" onclick="event.stopPropagation()">
+              <?php if ($user['avatar_url']): ?>
+                <img src="<?= htmlspecialchars($user['avatar_url']) ?>" class="post-av-img" alt="">
+              <?php else: ?>
+                <span class="post-avatar"><?= strtoupper(htmlspecialchars($user['username'][0])) ?></span>
+              <?php endif; ?>
+            </a>
+            <a href="/grailos/profile.php?username=<?= urlencode($user['username']) ?>"
+               class="fpc-username" onclick="event.stopPropagation()">@<?= htmlspecialchars($user['username']) ?></a>
+            <span class="fpc-time"><?= date('d M Y, H:i', strtotime($post['created_at'])) ?></span>
+          </div>
+        </div>
+
+        <!-- BODY: tekst -->
         <?php if ($post['content']): ?>
-        <div class="post-card-content" style="padding-left:0;">
-          <?= htmlspecialchars(mb_substr($post['content'], 0, 200)) ?>
-        </div>
+          <div class="fpc-body"><?= nl2br(htmlspecialchars($post['content'])) ?></div>
         <?php endif; ?>
+
+        <!-- ZDJĘCIE -->
         <?php if ($post['image_url']): ?>
-        <div class="post-img-wrap" style="margin-left:0; max-width:100%;">
-          <img src="<?= htmlspecialchars($post['image_url']) ?>" alt="">
-        </div>
+          <div class="fpc-img">
+            <img src="<?= htmlspecialchars($post['image_url']) ?>" alt="">
+          </div>
         <?php endif; ?>
-        <div class="post-card-footer" style="padding-left:0;">
-          <span class="post-stat"><?= date('d M Y', strtotime($post['created_at'])) ?></span>
-          <span class="post-stat">💬 <?= $post['replies'] ?></span>
+
+        <!-- FOOTER: lajki + komentarze -->
+        <div class="fpc-foot">
+          <span class="fpc-btn">♥ <?= $post['likes'] ?></span>
+          <a href="/grailos/post.php?id=<?= $post['id'] ?>" class="fpc-btn"
+             onclick="event.stopPropagation()">
+            💬 <?= $post['replies'] ?> <?= $post['replies'] == 1 ? 'odpowiedź' : 'odpowiedzi' ?>
+          </a>
         </div>
-      </a>
+      </div>
     <?php endforeach; ?>
   <?php else: ?>
     <div style="padding:40px; text-align:center; color:#444; letter-spacing:3px; text-transform:uppercase; font-size:12px;">Brak postów</div>
@@ -314,6 +340,14 @@ function toggleProfilePosts(btn) {
   btn.setAttribute('data-expanded', expanded ? '0' : '1');
   btn.textContent = expanded ? 'Pokaż więcej ↓' : 'Zwiń ↑';
 }
+
+document.querySelectorAll('.profile-posts-feed .post-card-clickable').forEach(card => {
+  card.addEventListener('click', e => {
+    if (!e.target.closest('a, button, form')) {
+      window.location.href = card.dataset.href;
+    }
+  });
+});
 </script>
 
 <script>

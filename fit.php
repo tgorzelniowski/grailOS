@@ -38,11 +38,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['comment'])) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reply_comment_id'])) {
     if (!isset($_SESSION['user_id'])) { header('Location: /grailos/login.php'); exit; }
     csrf_verify();
-    $comment_id = (int)($_POST['reply_comment_id'] ?? 0);
-    $content    = trim($_POST['reply_content'] ?? '');
+    $comment_id      = (int)($_POST['reply_comment_id'] ?? 0);
+    $parent_reply_id = (int)($_POST['parent_reply_id'] ?? 0) ?: null;
+    $content         = trim($_POST['reply_content'] ?? '');
     if ($content && $comment_id) {
-        $pdo->prepare("INSERT INTO fit_comment_replies (comment_id, user_id, content) VALUES (?, ?, ?)")
-            ->execute([$comment_id, $_SESSION['user_id'], $content]);
+        try {
+            $pdo->prepare("INSERT INTO fit_comment_replies (comment_id, parent_reply_id, user_id, content) VALUES (?, ?, ?, ?)")
+                ->execute([$comment_id, $parent_reply_id, $_SESSION['user_id'], $content]);
+        } catch (Exception $e) {
+            // Fallback gdy migracja parent_reply_id jeszcze nie uruchomiona
+            $pdo->prepare("INSERT INTO fit_comment_replies (comment_id, user_id, content) VALUES (?, ?, ?)")
+                ->execute([$comment_id, $_SESSION['user_id'], $content]);
+        }
     }
     header("Location: /grailos/fit.php?id=$id#comment-$comment_id");
     exit;
@@ -58,21 +65,34 @@ $stmt2 = $pdo->prepare("
 $stmt2->execute([$id]);
 $comments = $stmt2->fetchAll();
 
-$replies_map = [];
+// Odpowiedzi: bezpośrednie pod komentarzem (parent_reply_id = NULL)
+// oraz zagnieżdżone pod inną odpowiedzią (drzewko)
+$direct_replies = [];   // [comment_id] => [reply, ...]   (parent_reply_id NULL)
+$child_replies  = [];   // [parent_reply_id] => [reply, ...]
+$total_reply_count = 0;
 if ($comments) {
     $comment_ids  = array_column($comments, 'id');
     $placeholders = implode(',', array_fill(0, count($comment_ids), '?'));
-    $rstmt = $pdo->prepare("
-        SELECT fit_comment_replies.*, users.username, users.avatar_url
-        FROM fit_comment_replies
-        LEFT JOIN users ON fit_comment_replies.user_id = users.id
-        WHERE fit_comment_replies.comment_id IN ($placeholders)
-        ORDER BY fit_comment_replies.created_at ASC
-    ");
-    $rstmt->execute($comment_ids);
-    foreach ($rstmt->fetchAll() as $reply) {
-        $replies_map[$reply['comment_id']][] = $reply;
-    }
+    try {
+        $rstmt = $pdo->prepare("
+            SELECT fit_comment_replies.*, users.username, users.avatar_url
+            FROM fit_comment_replies
+            LEFT JOIN users ON fit_comment_replies.user_id = users.id
+            WHERE fit_comment_replies.comment_id IN ($placeholders)
+            ORDER BY fit_comment_replies.created_at ASC
+        ");
+        $rstmt->execute($comment_ids);
+        $has_parent_col = true;
+        foreach ($rstmt->fetchAll() as $reply) {
+            $total_reply_count++;
+            $pid = array_key_exists('parent_reply_id', $reply) ? $reply['parent_reply_id'] : null;
+            if ($pid) {
+                $child_replies[$pid][] = $reply;
+            } else {
+                $direct_replies[$reply['comment_id']][] = $reply;
+            }
+        }
+    } catch (Exception $e) {}
 }
 
 $user_voted = false;
@@ -92,13 +112,64 @@ try {
 
 $all_fit_imgs = array_merge([$fit['image_url']], array_column($extra_fit_imgs, 'image_url'));
 
-// Policz wszystkie komentarze + odpowiedzi
-$total_comment_count = count($comments);
-foreach ($replies_map as $rlist) {
-    $total_comment_count += count($rlist);
-}
+// Policz wszystkie komentarze + odpowiedzi (z drzewkiem)
+$total_comment_count = count($comments) + $total_reply_count;
 
 $multi = count($all_fit_imgs) > 1;
+
+// Rekurencyjne renderowanie drzewka odpowiedzi
+function renderReplyTree($reply, $comment_id, $child_replies, $depth = 0) {
+    $children = $child_replies[$reply['id']] ?? [];
+    ?>
+    <div class="comment-reply" id="creply-<?= $reply['id'] ?>">
+      <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+        <a href="/grailos/profile.php?username=<?= urlencode($reply['username']) ?>" class="post-av-link">
+          <?php if ($reply['avatar_url']): ?>
+            <img src="<?= htmlspecialchars($reply['avatar_url']) ?>"
+                 style="width:22px;height:22px;border-radius:50%;object-fit:cover;" alt="">
+          <?php else: ?>
+            <span style="width:22px;height:22px;background:var(--card);border-radius:50%;
+                         display:flex;align-items:center;justify-content:center;
+                         font-family:'Bebas Neue',sans-serif;font-size:12px;color:var(--red);">
+              <?= strtoupper($reply['username'][0]) ?>
+            </span>
+          <?php endif; ?>
+        </a>
+        <a href="/grailos/profile.php?username=<?= urlencode($reply['username']) ?>"
+           style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--red);text-decoration:none;">
+          @<?= htmlspecialchars($reply['username']) ?>
+        </a>
+        <span style="font-size:11px;color:#444;"><?= date('d M, H:i', strtotime($reply['created_at'])) ?></span>
+      </div>
+      <div style="font-size:13px;color:var(--gray);line-height:1.5;">
+        <?= htmlspecialchars($reply['content']) ?>
+      </div>
+      <?php if (isset($_SESSION['user_id'])): ?>
+        <button class="reply-toggle-btn" onclick="toggleReply('rrf-<?= $reply['id'] ?>')">Odpowiedz</button>
+        <form method="POST" class="reply-form" id="rrf-<?= $reply['id'] ?>" style="display:none;">
+          <?= csrf_field() ?>
+          <input type="hidden" name="reply_comment_id" value="<?= $comment_id ?>">
+          <input type="hidden" name="parent_reply_id" value="<?= $reply['id'] ?>">
+          <div class="form-group" style="margin-top:8px;">
+            <textarea name="reply_content" class="form-input form-textarea"
+                      placeholder="Odpowiadasz @<?= htmlspecialchars($reply['username']) ?>..."
+                      rows="2" maxlength="500"></textarea>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <button type="submit" class="btn" style="font-size:11px; padding:6px 14px;">Wyślij →</button>
+            <button type="button" class="btn btn-outline" style="font-size:11px; padding:6px 14px;"
+                    onclick="toggleReply('rrf-<?= $reply['id'] ?>')">Anuluj</button>
+          </div>
+        </form>
+      <?php endif; ?>
+      <?php if ($children): ?>
+        <div class="comment-replies">
+          <?php foreach ($children as $child) renderReplyTree($child, $comment_id, $child_replies, $depth + 1); ?>
+        </div>
+      <?php endif; ?>
+    </div>
+    <?php
+}
 
 require_once 'includes/header.php';
 ?>
@@ -152,25 +223,29 @@ require_once 'includes/header.php';
            class="post-user-link">@<?= htmlspecialchars($fit['username']) ?></a>
         <div class="post-date"><?= date('d M Y, H:i', strtotime($fit['created_at'])) ?></div>
       </div>
-      <div style="margin-left:auto; display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+    </div>
+
+    <!-- AKCJE: like + edit + delete -->
+    <div class="fit-page-actions">
+      <?php if (isset($_SESSION['user_id'])): ?>
+        <button class="vote-btn <?= $user_voted ? 'voted' : '' ?>"
+                onclick="handleVote(<?= $fit['id'] ?>, this)">
+          ♥ <span class="vote-count"><?= $fit['votes'] ?></span>
+        </button>
+      <?php else: ?>
+        <span class="vote-count-static" style="font-size:15px;">♥ <?= $fit['votes'] ?></span>
+      <?php endif; ?>
+
+      <div style="margin-left:auto; display:flex; gap:8px; align-items:center;">
         <?php if (isset($_SESSION['user_id']) && $fit['user_id'] == $_SESSION['user_id']): ?>
           <a href="/grailos/edit_fit.php?id=<?= $fit['id'] ?>"
-             class="btn btn-outline" style="font-size:11px; padding:6px 14px;">Edytuj</a>
-        <?php endif; ?>
-        <?php if (isset($_SESSION['user_id'])): ?>
-          <button class="vote-btn <?= $user_voted ? 'voted' : '' ?>"
-                  style="font-size:15px; padding:8px 20px;"
-                  onclick="handleVote(<?= $fit['id'] ?>, this)">
-            ♥ <span class="vote-count"><?= $fit['votes'] ?></span>
-          </button>
-        <?php else: ?>
-          <span class="vote-count-static" style="font-size:15px;">♥ <?= $fit['votes'] ?></span>
+             class="btn btn-outline" style="font-size:11px; padding:5px 12px;">Edytuj</a>
         <?php endif; ?>
         <?php if (isset($_SESSION['user_id']) && ($fit['user_id'] == $_SESSION['user_id'] || $_SESSION['is_admin'])): ?>
           <form method="POST" action="/grailos/delete_fit.php">
             <?= csrf_field() ?>
             <input type="hidden" name="fit_id" value="<?= $fit['id'] ?>">
-            <button type="button" class="btn-delete"
+            <button type="button" class="btn-delete" style="font-size:11px; padding:5px 12px;"
                     onclick="grailConfirm('Usunąć ten fit?', () => this.closest('form').submit())">Usuń</button>
           </form>
         <?php endif; ?>
@@ -191,7 +266,7 @@ require_once 'includes/header.php';
       <div id="commentsBody" style="display:none;">
 
       <?php foreach ($comments as $c):
-        $c_replies = $replies_map[$c['id']] ?? [];
+        $c_replies = $direct_replies[$c['id']] ?? [];
       ?>
         <div class="comment" id="comment-<?= $c['id'] ?>">
           <div class="comment-header">
@@ -224,54 +299,7 @@ require_once 'includes/header.php';
 
           <?php if ($c_replies): ?>
             <div class="comment-replies">
-              <?php foreach ($c_replies as $r): ?>
-                <div class="comment-reply" id="creply-<?= $r['id'] ?>">
-                  <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
-                    <a href="/grailos/profile.php?username=<?= urlencode($r['username']) ?>"
-                       class="post-av-link">
-                      <?php if ($r['avatar_url']): ?>
-                        <img src="<?= htmlspecialchars($r['avatar_url']) ?>"
-                             style="width:22px;height:22px;border-radius:50%;object-fit:cover;" alt="">
-                      <?php else: ?>
-                        <span style="width:22px;height:22px;background:var(--card);border-radius:50%;
-                                     display:flex;align-items:center;justify-content:center;
-                                     font-family:'Bebas Neue',sans-serif;font-size:12px;color:var(--red);">
-                          <?= strtoupper($r['username'][0]) ?>
-                        </span>
-                      <?php endif; ?>
-                    </a>
-                    <a href="/grailos/profile.php?username=<?= urlencode($r['username']) ?>"
-                       style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--red);text-decoration:none;">
-                      @<?= htmlspecialchars($r['username']) ?>
-                    </a>
-                    <span style="font-size:11px;color:#444;">
-                      <?= date('d M, H:i', strtotime($r['created_at'])) ?>
-                    </span>
-                  </div>
-                  <div style="font-size:13px;color:var(--gray);line-height:1.5;">
-                    <?= htmlspecialchars($r['content']) ?>
-                  </div>
-                  <?php if (isset($_SESSION['user_id'])): ?>
-                    <button class="reply-toggle-btn"
-                            onclick="toggleReply('rrf-<?= $r['id'] ?>')">Odpowiedz</button>
-                    <form method="POST" class="reply-form"
-                          id="rrf-<?= $r['id'] ?>" style="display:none;">
-                      <?= csrf_field() ?>
-                      <input type="hidden" name="reply_comment_id" value="<?= $c['id'] ?>">
-                      <div class="form-group" style="margin-top:8px;">
-                        <textarea name="reply_content" class="form-input form-textarea"
-                                  placeholder="Odpowiadasz @<?= htmlspecialchars($r['username']) ?>..."
-                                  rows="2" maxlength="500"></textarea>
-                      </div>
-                      <div style="display:flex; gap:8px;">
-                        <button type="submit" class="btn" style="font-size:11px; padding:6px 14px;">Wyślij →</button>
-                        <button type="button" class="btn btn-outline" style="font-size:11px; padding:6px 14px;"
-                                onclick="toggleReply('rrf-<?= $r['id'] ?>')">Anuluj</button>
-                      </div>
-                    </form>
-                  <?php endif; ?>
-                </div>
-              <?php endforeach; ?>
+              <?php foreach ($c_replies as $r) renderReplyTree($r, $c['id'], $child_replies); ?>
             </div>
           <?php endif; ?>
 
