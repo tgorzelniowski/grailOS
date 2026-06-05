@@ -85,6 +85,12 @@ try { $openReports = (int)$pdo->query("SELECT COUNT(*) FROM reports WHERE status
       <div class="admin-card-title">Zarządzaj katalogiem</div>
       <div class="admin-card-sub">Edytuj i usuwaj produkty</div>
     </a>
+    <a href="/grailos/admin/import_clothing.php" class="admin-card"
+       data-tags="import csv masowy bulk produkty katalog feed dodaj">
+      <div class="admin-card-icon">⇪</div>
+      <div class="admin-card-title">Import CSV</div>
+      <div class="admin-card-sub">Masowy import z deduplikacją</div>
+    </a>
   </div>
 
   <div class="admin-group-label">Dropy</div>
