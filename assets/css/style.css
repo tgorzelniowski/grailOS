@@ -5398,6 +5398,15 @@ img {
 
 .page-dots { color: #444; padding: 0 4px; }
 
+.page-btn.page-nav {
+  color: var(--red);
+  border-color: var(--red);
+}
+.page-btn.page-nav:hover {
+  background: var(--red);
+  color: var(--white);
+}
+
 .clothing-grid--catalog {
   grid-template-columns: repeat(4, 1fr) !important;
   background: var(--border) !important;
@@ -5652,15 +5661,16 @@ img {
   width: 30%;
   display: flex;
   align-items: center;
-  color: rgba(255,255,255,0.5);
-  font-size: 32px;
+  color: var(--red);
+  font-size: 38px;
   text-decoration: none;
-  transition: color 0.2s;
+  transition: opacity 0.2s;
+  opacity: 0.8;
 }
 
 .story-nav-prev { left: 0; justify-content: flex-start; padding-left: 12px; }
 .story-nav-next { right: 0; justify-content: flex-end; padding-right: 12px; }
-.story-nav:hover { color: #fff; }
+.story-nav:hover { opacity: 1; }
 
 /* ===========================
    STORY PROGRESS (animowany) + LIKE + PROFILE RING
@@ -5720,4 +5730,107 @@ img {
 .profile-av-ring .profile-avatar-img,
 .profile-av-ring .profile-avatar {
   border: 2px solid var(--black);
+}
+
+/* ===========================
+   STORY EDITOR (add_story)
+=========================== */
+.story-edit-stage {
+  background: #0a0a0a;
+  border: 1px solid var(--border);
+  display: flex;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+#storyCanvas {
+  max-width: 100%;
+  max-height: 70vh;
+  touch-action: none;
+  cursor: grab;
+  display: block;
+}
+
+.story-edit-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 12px;
+}
+
+.story-edit-tab {
+  flex: 1;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--gray);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.story-edit-tab:hover { color: var(--white); }
+.story-edit-tab.active { color: var(--red); border-bottom-color: var(--red); }
+
+.story-tool { margin-bottom: 14px; }
+
+.story-filter-row,
+.story-sticker-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.story-filter-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--gray);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.story-filter-btn:hover { border-color: var(--red); color: var(--white); }
+.story-filter-btn.active { background: var(--red); border-color: var(--red); color: #fff; }
+
+.story-text-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.story-text-controls .form-input { flex: 1; }
+
+.story-color {
+  width: 40px;
+  height: 38px;
+  border: 1px solid var(--border);
+  background: transparent;
+  cursor: pointer;
+  padding: 2px;
+}
+
+.story-sticker {
+  background: transparent;
+  border: 1px solid var(--border);
+  font-size: 22px;
+  width: 44px;
+  height: 44px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+  line-height: 1;
+}
+.story-sticker:hover { border-color: var(--red); }
+
+.story-edit-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
 }

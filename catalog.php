@@ -236,7 +236,7 @@ if ($item_ids) {
     <?php if ($total_pages > 1): ?>
       <div class="catalog-pagination">
         <?php if ($page > 1): ?>
-          <a href="<?= $page_link . ($page - 1) ?>" class="page-btn">← Poprzednia</a>
+          <a href="<?= $page_link . ($page - 1) ?>" class="page-btn page-nav">← Poprzednia</a>
         <?php endif; ?>
         <?php
           $start = max(1, $page - 2);
@@ -251,7 +251,7 @@ if ($item_ids) {
           if ($end < $total_pages) echo '<a href="' . $page_link . $total_pages . '" class="page-btn">' . $total_pages . '</a>';
         ?>
         <?php if ($page < $total_pages): ?>
-          <a href="<?= $page_link . ($page + 1) ?>" class="page-btn">Następna →</a>
+          <a href="<?= $page_link . ($page + 1) ?>" class="page-btn page-nav">Następna →</a>
         <?php endif; ?>
       </div>
     <?php endif; ?>
