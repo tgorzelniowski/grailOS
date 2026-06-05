@@ -95,7 +95,7 @@ $totalNewsletter= (int)$pdo->query("SELECT COUNT(*) FROM newsletter_subscribers 
       <div class="admin-card-title">Zarządzaj dropami</div>
       <div class="admin-card-sub">Edytuj i usuwaj dropy</div>
     </a>
-    <a href="/grailos/cron_drop_notifications.php?key=zmien_ten_klucz_na_losowy_ciag"
+    <a href="/grailos/cron_drop_notifications.php?key=a7f3c9e1b54d28760af1e6c3d9b840e2"
        class="admin-card" target="_blank"
        data-tags="drop powiadomienia notify alert email wyślij">
       <div class="admin-card-icon">🔔</div>

@@ -9,7 +9,7 @@
  * Skrypt wysyła emaile na 24 godziny przed dropem (raz).
  */
 
-define('CRON_KEY', 'zmien_ten_klucz_na_losowy_ciag'); // zabezpieczenie przed wywołaniem przez HTTP
+define('CRON_KEY', 'a7f3c9e1b54d28760af1e6c3d9b840e2'); // zabezpieczenie przed wywołaniem przez HTTP — zmień na własny losowy ciąg na produkcji
 
 if (PHP_SAPI !== 'cli') {
     // Dostęp przez HTTP tylko z kluczem

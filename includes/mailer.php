@@ -24,8 +24,12 @@ function _native_send(string $to, string $to_name, string $subject, string $html
 
 function _smtp_send(string $to, string $subject, string $html): bool {
     try {
+        // Port 465 = implicit SSL (ssl://), port 587/inne = STARTTLS (tcp://)
+        $use_ssl   = (int)MAIL_PORT === 465;
+        $transport = $use_ssl ? 'ssl://' : 'tcp://';
+
         $socket = @stream_socket_client(
-            'tcp://' . MAIL_HOST . ':' . MAIL_PORT,
+            $transport . MAIL_HOST . ':' . MAIL_PORT,
             $errno, $errstr, 15
         );
         if (!$socket) {
@@ -38,15 +42,18 @@ function _smtp_send(string $to, string $subject, string $html): bool {
         $write = function(string $cmd) use ($socket): void { fwrite($socket, $cmd . "\r\n"); };
 
         $read(); // greeting
-        $write('EHLO ' . ($_SERVER['SERVER_NAME'] ?? 'localhost'));
-        while (($l = $read()) && $l[3] !== ' ');
+        $ehlo = 'EHLO ' . ($_SERVER['SERVER_NAME'] ?? 'localhost');
+        $write($ehlo);
+        while (($l = $read()) && isset($l[3]) && $l[3] !== ' ');
 
-        $write('STARTTLS');
-        $read();
-        stream_socket_enable_crypto($socket, true, STREAM_CRYPTO_METHOD_TLS_CLIENT);
-
-        $write('EHLO ' . ($_SERVER['SERVER_NAME'] ?? 'localhost'));
-        while (($l = $read()) && $l[3] !== ' ');
+        // STARTTLS tylko gdy nie używamy implicit SSL (465)
+        if (!$use_ssl) {
+            $write('STARTTLS');
+            $read();
+            stream_socket_enable_crypto($socket, true, STREAM_CRYPTO_METHOD_TLS_CLIENT);
+            $write($ehlo);
+            while (($l = $read()) && isset($l[3]) && $l[3] !== ' ');
+        }
 
         $write('AUTH LOGIN');
         $read();
