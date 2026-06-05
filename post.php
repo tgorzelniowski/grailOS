@@ -48,11 +48,12 @@ $all_replies = $pdo->prepare("
 $all_replies->execute([$id]);
 $all_replies = $all_replies->fetchAll();
 
-$top_replies = [];
-$nested      = [];
+// Drzewko: pogrupuj po parent_id (NULL = odpowiedź najwyższego poziomu)
+$top_replies   = [];
+$child_replies = [];   // [parent_id] => [reply, ...]
 foreach ($all_replies as $r) {
     if ($r['parent_id']) {
-        $nested[$r['parent_id']][] = $r;
+        $child_replies[$r['parent_id']][] = $r;
     } else {
         $top_replies[] = $r;
     }
@@ -79,6 +80,55 @@ function renderAvatar($user, $size = 40) {
                           font-family:Bebas Neue,sans-serif;font-size:{$fs}px;color:var(--red);flex-shrink:0;'>
               " . strtoupper(htmlspecialchars($user['username'][0])) . "
             </span>";
+}
+
+// Rekurencyjne drzewko odpowiedzi
+function renderPostReply($r, $child_replies, $depth = 0) {
+    $children = $child_replies[$r['id']] ?? [];
+    $av_size  = $depth === 0 ? 36 : 28;
+    ?>
+    <div class="reply-thread" id="reply-<?= $r['id'] ?>">
+      <div class="post-card reply-card <?= $depth > 0 ? 'nested-reply' : '' ?>">
+        <div class="post-card-header">
+          <div class="post-card-meta">
+            <a href="/grailos/profile.php?username=<?= urlencode($r['username']) ?>" class="post-av-link">
+              <?= renderAvatar($r, $av_size) ?>
+            </a>
+            <div>
+              <a href="/grailos/profile.php?username=<?= urlencode($r['username']) ?>"
+                 class="post-user-link">@<?= htmlspecialchars($r['username']) ?></a>
+              <div class="post-date"><?= date('d M Y, H:i', strtotime($r['created_at'])) ?></div>
+            </div>
+          </div>
+        </div>
+        <div class="post-card-content"><?= nl2br(htmlspecialchars($r['content'])) ?></div>
+        <?php if (isset($_SESSION['user_id'])): ?>
+          <button class="reply-toggle-btn" onclick="toggleReplyForm('rf-<?= $r['id'] ?>')">↩ Odpowiedz</button>
+          <form method="POST" class="nested-reply-form" id="rf-<?= $r['id'] ?>" style="display:none;">
+            <?= csrf_field() ?>
+            <input type="hidden" name="reply" value="1">
+            <input type="hidden" name="parent_id" value="<?= $r['id'] ?>">
+            <div class="nested-reply-input">
+              <textarea name="content" class="compose-textarea"
+                        placeholder="Odpowiadasz @<?= htmlspecialchars($r['username']) ?>..."
+                        rows="2" maxlength="500"></textarea>
+              <div style="display:flex; gap:8px; margin-top:8px;">
+                <button type="submit" class="btn" style="font-size:11px; padding:6px 14px;">Wyślij →</button>
+                <button type="button" class="btn btn-outline" style="font-size:11px; padding:6px 14px;"
+                        onclick="toggleReplyForm('rf-<?= $r['id'] ?>')">Anuluj</button>
+              </div>
+            </div>
+          </form>
+        <?php endif; ?>
+      </div>
+
+      <?php if ($children): ?>
+        <div class="nested-replies">
+          <?php foreach ($children as $child) renderPostReply($child, $child_replies, $depth + 1); ?>
+        </div>
+      <?php endif; ?>
+    </div>
+    <?php
 }
 ?>
 
@@ -135,102 +185,7 @@ function renderAvatar($user, $size = 40) {
     <div class="form-error" style="margin-bottom:16px;"><?= htmlspecialchars($reply_error) ?></div>
   <?php endif; ?>
 
-  <?php foreach ($top_replies as $r): ?>
-    <div class="reply-thread" id="reply-<?= $r['id'] ?>">
-
-      <!-- GŁÓWNA ODPOWIEDŹ -->
-      <div class="post-card reply-card">
-        <div class="post-card-header">
-          <div class="post-card-meta">
-            <a href="/grailos/profile.php?username=<?= urlencode($r['username']) ?>"
-               class="post-av-link">
-              <?= renderAvatar($r, 36) ?>
-            </a>
-            <div>
-              <a href="/grailos/profile.php?username=<?= urlencode($r['username']) ?>"
-                 class="post-user-link">@<?= htmlspecialchars($r['username']) ?></a>
-              <div class="post-date"><?= date('d M Y, H:i', strtotime($r['created_at'])) ?></div>
-            </div>
-          </div>
-        </div>
-        <div class="post-card-content"><?= nl2br(htmlspecialchars($r['content'])) ?></div>
-        <?php if (isset($_SESSION['user_id'])): ?>
-          <button class="reply-toggle-btn"
-                  onclick="toggleReplyForm('rf-<?= $r['id'] ?>')">
-            ↩ Odpowiedz
-          </button>
-        <?php endif; ?>
-      </div>
-
-      <!-- ZAGNIEŻDŻONE ODPOWIEDZI -->
-      <?php if (!empty($nested[$r['id']])): ?>
-        <div class="nested-replies">
-          <?php foreach ($nested[$r['id']] as $nr): ?>
-            <div class="post-card reply-card nested-reply" id="reply-<?= $nr['id'] ?>">
-              <div class="post-card-header">
-                <div class="post-card-meta">
-                  <a href="/grailos/profile.php?username=<?= urlencode($nr['username']) ?>"
-                     class="post-av-link">
-                    <?= renderAvatar($nr, 28) ?>
-                  </a>
-                  <div>
-                    <a href="/grailos/profile.php?username=<?= urlencode($nr['username']) ?>"
-                       class="post-user-link">@<?= htmlspecialchars($nr['username']) ?></a>
-                    <div class="post-date"><?= date('d M, H:i', strtotime($nr['created_at'])) ?></div>
-                  </div>
-                </div>
-              </div>
-              <div class="post-card-content"><?= nl2br(htmlspecialchars($nr['content'])) ?></div>
-              <?php if (isset($_SESSION['user_id'])): ?>
-                <button class="reply-toggle-btn"
-                        onclick="toggleReplyForm('rf-nr-<?= $nr['id'] ?>')">
-                  ↩ Odpowiedz
-                </button>
-                <form method="POST" class="nested-reply-form"
-                      id="rf-nr-<?= $nr['id'] ?>" style="display:none;">
-                  <?= csrf_field() ?>
-                  <input type="hidden" name="reply" value="1">
-                  <input type="hidden" name="parent_id" value="<?= $r['id'] ?>">
-                  <div class="nested-reply-input">
-                    <textarea name="content" class="compose-textarea"
-                              placeholder="Odpowiadasz @<?= htmlspecialchars($nr['username']) ?>..."
-                              rows="2" maxlength="500"></textarea>
-                    <div style="display:flex; gap:8px; margin-top:8px;">
-                      <button type="submit" class="btn"
-                              style="font-size:11px; padding:6px 14px;">Wyślij →</button>
-                      <button type="button" class="btn btn-outline"
-                              style="font-size:11px; padding:6px 14px;"
-                              onclick="toggleReplyForm('rf-nr-<?= $nr['id'] ?>')">Anuluj</button>
-                    </div>
-                  </div>
-                </form>
-              <?php endif; ?>
-            </div>
-          <?php endforeach; ?>
-        </div>
-      <?php endif; ?>
-
-      <!-- FORMULARZ ODPOWIEDZI NA TEN KOMENTARZ -->
-      <?php if (isset($_SESSION['user_id'])): ?>
-        <form method="POST" class="nested-reply-form" id="rf-<?= $r['id'] ?>" style="display:none;">
-          <?= csrf_field() ?>
-          <input type="hidden" name="reply" value="1">
-          <input type="hidden" name="parent_id" value="<?= $r['id'] ?>">
-          <div class="nested-reply-input">
-            <textarea name="content" class="compose-textarea"
-                      placeholder="Odpowiadasz @<?= htmlspecialchars($r['username']) ?>..."
-                      rows="2" maxlength="500"></textarea>
-            <div style="display:flex; gap:8px; margin-top:8px;">
-              <button type="submit" class="btn" style="font-size:11px; padding:6px 14px;">Wyślij →</button>
-              <button type="button" class="btn btn-outline" style="font-size:11px; padding:6px 14px;"
-                      onclick="toggleReplyForm('rf-<?= $r['id'] ?>')">Anuluj</button>
-            </div>
-          </div>
-        </form>
-      <?php endif; ?>
-
-    </div>
-  <?php endforeach; ?>
+  <?php foreach ($top_replies as $r) renderPostReply($r, $child_replies); ?>
 
   <!-- NOWA ODPOWIEDŹ GŁÓWNA -->
   <?php if (isset($_SESSION['user_id'])): ?>

@@ -94,6 +94,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } catch (Exception $e) {
             $error = 'Uruchom migrację privacy_settings_migration.sql w phpMyAdmin.';
         }
+        // Widoczność obserwacji (osobna migracja)
+        $sfo = isset($_POST['show_follows']) ? 1 : 0;
+        try {
+            $pdo->prepare("UPDATE users SET show_follows = ? WHERE id = ?")
+                ->execute([$sfo, $_SESSION['user_id']]);
+        } catch (Exception $e) {
+            $error = 'Uruchom migrację follows_privacy_migration.sql w phpMyAdmin.';
+        }
     }
 }
 
@@ -106,6 +114,7 @@ $priv = [
     'show_outfits'  => $me['show_outfits']  ?? 1,
     'show_posts'    => $me['show_posts']    ?? 1,
     'show_fits'     => $me['show_fits']     ?? 1,
+    'show_follows'  => $me['show_follows']  ?? 1,
 ];
 
 require_once 'includes/header.php';
@@ -206,6 +215,10 @@ require_once 'includes/header.php';
       <label class="privacy-toggle">
         <input type="checkbox" name="show_posts" <?= $priv['show_posts'] ? 'checked' : '' ?>>
         <span>Pokazuj moje posty</span>
+      </label>
+      <label class="privacy-toggle">
+        <input type="checkbox" name="show_follows" <?= $priv['show_follows'] ? 'checked' : '' ?>>
+        <span>Pokazuj obserwujących i obserwowanych</span>
       </label>
       <button type="submit" class="btn" style="margin-top:8px;">Zapisz prywatność →</button>
     </form>

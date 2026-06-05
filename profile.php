@@ -21,6 +21,7 @@ $see_fits     = $can_see('show_fits');
 $see_outfits  = $can_see('show_outfits');
 $see_wardrobe = $can_see('show_wardrobe');
 $see_posts    = $can_see('show_posts');
+$see_follows  = $can_see('show_follows');
 
 // Counts
 $fit_count      = $pdo->prepare("SELECT COUNT(*) FROM fits WHERE user_id = ?");
@@ -164,14 +165,27 @@ $outfits = $outfits->fetchAll();
     <div class="profile-stat-num"><?= $fit_count ?></div>
     <div class="profile-stat-label">Fity</div>
   </div>
-  <div class="profile-stat">
-    <div class="profile-stat-num"><?= $followers_count ?></div>
-    <div class="profile-stat-label">Obserwujących</div>
-  </div>
-  <div class="profile-stat">
-    <div class="profile-stat-num"><?= $following_count ?></div>
-    <div class="profile-stat-label">Obserwuje</div>
-  </div>
+  <?php if ($see_follows): ?>
+    <a class="profile-stat profile-stat-link"
+       href="/grailos/follows_list.php?username=<?= urlencode($user['username']) ?>&type=followers">
+      <div class="profile-stat-num" id="followersCount"><?= $followers_count ?></div>
+      <div class="profile-stat-label">Obserwujących</div>
+    </a>
+    <a class="profile-stat profile-stat-link"
+       href="/grailos/follows_list.php?username=<?= urlencode($user['username']) ?>&type=following">
+      <div class="profile-stat-num"><?= $following_count ?></div>
+      <div class="profile-stat-label">Obserwuje</div>
+    </a>
+  <?php else: ?>
+    <div class="profile-stat">
+      <div class="profile-stat-num" id="followersCount"><?= $followers_count ?></div>
+      <div class="profile-stat-label">Obserwujących</div>
+    </div>
+    <div class="profile-stat">
+      <div class="profile-stat-num"><?= $following_count ?></div>
+      <div class="profile-stat-label">Obserwuje</div>
+    </div>
+  <?php endif; ?>
   <div class="profile-stat">
     <div class="profile-stat-num"><?= $wardrobe_count ?></div>
     <div class="profile-stat-label">Szafa</div>
@@ -180,11 +194,18 @@ $outfits = $outfits->fetchAll();
 
 <!-- FITY -->
 <?php if ($see_fits): ?>
-<div class="section-label">/// Fity</div>
+<div class="section-label" style="display:flex; justify-content:space-between; align-items:center;">
+  <span>/// Fity (<?= count($fits) ?>)</span>
+  <?php if (count($fits) > 4): ?>
+    <button class="btn btn-outline" style="margin-right:40px; font-size:11px; padding:6px 14px;"
+            onclick="toggleCollapse(this, '.fit-collapse-item')">Pokaż więcej ↓</button>
+  <?php endif; ?>
+</div>
 <div class="fits-grid">
   <?php if ($fits): ?>
-    <?php foreach ($fits as $fit): ?>
-      <a href="/grailos/fit.php?id=<?= $fit['id'] ?>" class="fit-card">
+    <?php foreach ($fits as $fidx => $fit): ?>
+      <a href="/grailos/fit.php?id=<?= $fit['id'] ?>"
+         class="fit-card <?= $fidx >= 4 ? 'fit-collapse-item' : '' ?>">
         <div class="fit-img-wrap">
           <img src="<?= htmlspecialchars($fit['image_url']) ?>" alt="Fit">
         </div>
@@ -401,7 +422,8 @@ async function toggleFollow(userId) {
   if (data.success) {
     btn.textContent  = data.following ? 'Obserwujesz' : '+ Obserwuj';
     btn.className    = 'follow-btn' + (data.following ? ' following' : '');
-    document.querySelector('.profile-stat-num').textContent = data.followers;
+    const fc = document.getElementById('followersCount');
+    if (fc) fc.textContent = data.followers;
   }
 }
 </script>
