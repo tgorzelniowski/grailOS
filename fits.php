@@ -81,7 +81,7 @@ $fits = $stmt->fetchAll();
       $can_delete = $uid && ($fit['user_id'] == $uid || $_SESSION['is_admin']);
     ?>
       <div class="fit-card-wrap">
-        <a href="/grailos/fit.php?id=<?= $fit['id'] ?>" class="fit-card">
+        <div class="fit-card fit-card-clickable" data-href="/grailos/fit.php?id=<?= $fit['id'] ?>">
           <div class="fit-img-wrap">
             <img src="<?= htmlspecialchars($fit['image_url']) ?>" alt="Fit">
             <?php if ($fit['is_followed']): ?>
@@ -89,7 +89,8 @@ $fits = $stmt->fetchAll();
             <?php endif; ?>
           </div>
           <div class="fit-info">
-            <div class="fit-user-row">
+            <a href="/grailos/profile.php?username=<?= urlencode($fit['username']) ?>"
+               class="fit-user-row" onclick="event.stopPropagation()" style="text-decoration:none;">
               <?php if ($fit['avatar_url']): ?>
                 <img src="<?= htmlspecialchars($fit['avatar_url']) ?>"
                      class="fit-mini-avatar" alt="">
@@ -99,7 +100,7 @@ $fits = $stmt->fetchAll();
                 </span>
               <?php endif; ?>
               <span class="fit-user">@<?= htmlspecialchars($fit['username']) ?></span>
-            </div>
+            </a>
             <?php if ($fit['description']): ?>
               <div class="fit-desc"><?= htmlspecialchars(mb_substr($fit['description'],0,80)) ?>...</div>
             <?php endif; ?>
@@ -108,7 +109,7 @@ $fits = $stmt->fetchAll();
               <span class="vote-count-static">♥ <?= $fit['votes'] ?> &nbsp;💬 <?= $fit['comments'] ?></span>
             </div>
           </div>
-        </a>
+        </div>
         <?php if ($can_delete): ?>
           <form method="POST" action="/grailos/delete_fit.php"
                 class="inline-delete-form">
@@ -126,5 +127,15 @@ $fits = $stmt->fetchAll();
     </div>
   <?php endif; ?>
 </div>
+
+<script>
+document.querySelectorAll('.fit-card-clickable').forEach(card => {
+  card.addEventListener('click', e => {
+    if (!e.target.closest('a, button, form')) {
+      window.location.href = card.dataset.href;
+    }
+  });
+});
+</script>
 
 <?php require_once 'includes/footer.php'; ?>

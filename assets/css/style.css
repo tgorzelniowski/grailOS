@@ -771,6 +771,8 @@ img {
 }
 
 .fit-card:hover { background: var(--card); }
+.fit-card-clickable { cursor: pointer; }
+.fit-user-row:hover .fit-user { color: var(--white); }
 
 .fit-img-wrap {
   width: 100%;
