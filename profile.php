@@ -10,6 +10,17 @@ $user = $stmt->fetch();
 if (!$user) { header('Location: /grailos/'); exit; }
 
 $is_own    = isset($_SESSION['user_id']) && $_SESSION['user_id'] == $user['id'];
+$viewer_admin = !empty($_SESSION['is_admin']);
+
+// Widoczność sekcji — właściciel i admin widzą zawsze; inni tylko gdy flaga = 1
+$can_see = function($flag) use ($user, $is_own, $viewer_admin) {
+    if ($is_own || $viewer_admin) return true;
+    return (int)($user[$flag] ?? 1) === 1;
+};
+$see_fits     = $can_see('show_fits');
+$see_outfits  = $can_see('show_outfits');
+$see_wardrobe = $can_see('show_wardrobe');
+$see_posts    = $can_see('show_posts');
 
 // Counts
 $fit_count      = $pdo->prepare("SELECT COUNT(*) FROM fits WHERE user_id = ?");
@@ -168,6 +179,7 @@ $outfits = $outfits->fetchAll();
 </div>
 
 <!-- FITY -->
+<?php if ($see_fits): ?>
 <div class="section-label">/// Fity</div>
 <div class="fits-grid">
   <?php if ($fits): ?>
@@ -188,17 +200,25 @@ $outfits = $outfits->fetchAll();
     <div style="grid-column:span 3; padding:40px; text-align:center; color:#444; letter-spacing:3px; text-transform:uppercase; font-size:12px;">Brak fitów</div>
   <?php endif; ?>
 </div>
+<?php endif; ?>
 
 <!-- OUTFITY -->
+<?php if ($see_outfits): ?>
 <div class="section-label" style="display:flex; justify-content:space-between; align-items:center;">
   <span>/// Outfity (<?= count($outfits) ?>)</span>
-  <?php if ($is_own): ?>
-    <a href="/grailos/create_outfit.php" class="btn" style="margin-right:40px; font-size:11px; padding:6px 16px;">+ Nowy outfit</a>
-  <?php endif; ?>
+  <div style="display:flex; gap:10px; align-items:center; margin-right:40px;">
+    <?php if (count($outfits) > 4): ?>
+      <button class="btn btn-outline" style="font-size:11px; padding:6px 14px;"
+              onclick="toggleCollapse(this, '.outfit-collapse-item')">Pokaż więcej ↓</button>
+    <?php endif; ?>
+    <?php if ($is_own): ?>
+      <a href="/grailos/create_outfit.php" class="btn" style="font-size:11px; padding:6px 16px;">+ Nowy outfit</a>
+    <?php endif; ?>
+  </div>
 </div>
 <div class="outfits-grid outfits-grid--profile">
   <?php if ($outfits): ?>
-    <?php foreach ($outfits as $outfit):
+    <?php foreach ($outfits as $oidx => $outfit):
       $outfit_imgs = $pdo->prepare("
           SELECT clothing.image_url FROM outfit_items
           LEFT JOIN wardrobe_items ON outfit_items.wardrobe_item_id = wardrobe_items.id
@@ -208,7 +228,7 @@ $outfits = $outfits->fetchAll();
       $outfit_imgs->execute([$outfit['id']]);
       $imgs = $outfit_imgs->fetchAll(PDO::FETCH_COLUMN);
     ?>
-      <div class="outfit-card" style="position:relative;">
+      <div class="outfit-card <?= $oidx >= 4 ? 'outfit-collapse-item' : '' ?>" style="position:relative;">
         <?php if ($is_own): ?>
           <form method="POST" action="/grailos/delete_outfit.php" class="outfit-delete-form">
             <?= csrf_field() ?>
@@ -239,13 +259,21 @@ $outfits = $outfits->fetchAll();
     </div>
   <?php endif; ?>
 </div>
+<?php endif; ?>
 
 <!-- SZAFA -->
-<div class="section-label">/// Szafa (<?= $wardrobe_count ?> itemów)</div>
+<?php if ($see_wardrobe): ?>
+<div class="section-label" style="display:flex; justify-content:space-between; align-items:center;">
+  <span>/// Szafa (<?= $wardrobe_count ?> itemów)</span>
+  <?php if ($wardrobe_count > 6): ?>
+    <button class="btn btn-outline" style="margin-right:40px; font-size:11px; padding:6px 14px;"
+            onclick="toggleCollapse(this, '.wardrobe-collapse-item')">Pokaż więcej ↓</button>
+  <?php endif; ?>
+</div>
 <div class="clothing-grid clothing-grid--profile">
   <?php if ($wardrobe): ?>
-    <?php foreach ($wardrobe as $item): ?>
-  <div class="clothing-card" style="position:relative;">
+    <?php foreach ($wardrobe as $widx => $item): ?>
+  <div class="clothing-card <?= $widx >= 6 ? 'wardrobe-collapse-item' : '' ?>" style="position:relative;">
     <div class="clothing-card-img">
       <?php if ($item['image_url']): ?>
         <img src="<?= htmlspecialchars($item['image_url']) ?>" alt="">
@@ -270,8 +298,10 @@ $outfits = $outfits->fetchAll();
     <div style="grid-column:1/-1; padding:40px; text-align:center; color:#444; letter-spacing:3px; text-transform:uppercase; font-size:12px;">Szafa pusta</div>
   <?php endif; ?>
 </div>
+<?php endif; ?>
 
 <!-- POSTY -->
+<?php if ($see_posts): ?>
 <div class="section-label" style="display:flex; justify-content:space-between; align-items:center;">
   <span>/// Ostatnie posty (<?= count($posts) ?>)</span>
   <?php if (count($posts) > 3): ?>
@@ -331,10 +361,19 @@ $outfits = $outfits->fetchAll();
     <div style="padding:40px; text-align:center; color:#444; letter-spacing:3px; text-transform:uppercase; font-size:12px;">Brak postów</div>
   <?php endif; ?>
 </div>
+<?php endif; ?>
 
 <script>
 function toggleProfilePosts(btn) {
   const hidden = document.querySelectorAll('.profile-post-hidden');
+  const expanded = btn.getAttribute('data-expanded') === '1';
+  hidden.forEach(el => el.style.display = expanded ? 'none' : 'block');
+  btn.setAttribute('data-expanded', expanded ? '0' : '1');
+  btn.textContent = expanded ? 'Pokaż więcej ↓' : 'Zwiń ↑';
+}
+
+function toggleCollapse(btn, selector) {
+  const hidden = document.querySelectorAll(selector);
   const expanded = btn.getAttribute('data-expanded') === '1';
   hidden.forEach(el => el.style.display = expanded ? 'none' : 'block');
   btn.setAttribute('data-expanded', expanded ? '0' : '1');

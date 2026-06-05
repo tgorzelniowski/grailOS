@@ -80,7 +80,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $success = 'Hasło zmienione!';
         }
     }
+
+    // === PRYWATNOŚĆ ===
+    if ($section === 'privacy') {
+        $sw = isset($_POST['show_wardrobe']) ? 1 : 0;
+        $so = isset($_POST['show_outfits'])  ? 1 : 0;
+        $sp = isset($_POST['show_posts'])    ? 1 : 0;
+        $sf = isset($_POST['show_fits'])     ? 1 : 0;
+        try {
+            $pdo->prepare("UPDATE users SET show_wardrobe = ?, show_outfits = ?, show_posts = ?, show_fits = ? WHERE id = ?")
+                ->execute([$sw, $so, $sp, $sf, $_SESSION['user_id']]);
+            $success = 'Ustawienia prywatności zapisane!';
+        } catch (Exception $e) {
+            $error = 'Uruchom migrację privacy_settings_migration.sql w phpMyAdmin.';
+        }
+    }
 }
+
+// Aktualne ustawienia prywatności
+$me = $pdo->prepare("SELECT * FROM users WHERE id = ?");
+$me->execute([$_SESSION['user_id']]);
+$me = $me->fetch();
+$priv = [
+    'show_wardrobe' => $me['show_wardrobe'] ?? 1,
+    'show_outfits'  => $me['show_outfits']  ?? 1,
+    'show_posts'    => $me['show_posts']    ?? 1,
+    'show_fits'     => $me['show_fits']     ?? 1,
+];
 
 require_once 'includes/header.php';
 ?>
@@ -155,6 +181,33 @@ require_once 'includes/header.php';
         <input type="password" name="confirm_password" class="form-input">
       </div>
       <button type="submit" class="btn">Zmień hasło →</button>
+    </form>
+  </div>
+
+  <!-- PRYWATNOŚĆ -->
+  <div class="settings-section">
+    <div class="settings-section-title">/// Prywatność</div>
+    <div class="settings-section-desc">Wybierz co inni widzą na Twoim profilu. Odznaczone sekcje są ukryte dla innych użytkowników.</div>
+    <form method="POST" class="settings-form">
+      <?= csrf_field() ?>
+      <input type="hidden" name="section" value="privacy">
+      <label class="privacy-toggle">
+        <input type="checkbox" name="show_fits" <?= $priv['show_fits'] ? 'checked' : '' ?>>
+        <span>Pokazuj moje fity</span>
+      </label>
+      <label class="privacy-toggle">
+        <input type="checkbox" name="show_outfits" <?= $priv['show_outfits'] ? 'checked' : '' ?>>
+        <span>Pokazuj moje outfity</span>
+      </label>
+      <label class="privacy-toggle">
+        <input type="checkbox" name="show_wardrobe" <?= $priv['show_wardrobe'] ? 'checked' : '' ?>>
+        <span>Pokazuj moją szafę</span>
+      </label>
+      <label class="privacy-toggle">
+        <input type="checkbox" name="show_posts" <?= $priv['show_posts'] ? 'checked' : '' ?>>
+        <span>Pokazuj moje posty</span>
+      </label>
+      <button type="submit" class="btn" style="margin-top:8px;">Zapisz prywatność →</button>
     </form>
   </div>
 

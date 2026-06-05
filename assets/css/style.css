@@ -5093,6 +5093,36 @@ img {
   display: none;
 }
 
+.outfit-collapse-item,
+.wardrobe-collapse-item {
+  display: none;
+}
+
+/* ===========================
+   PRIVACY TOGGLES (settings)
+=========================== */
+.privacy-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  letter-spacing: 1px;
+  color: var(--gray);
+  text-transform: uppercase;
+  cursor: pointer;
+  padding: 4px 0;
+}
+
+.privacy-toggle input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--red);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.privacy-toggle:hover { color: var(--white); }
+
 /* ===========================
    FORUM — KLIKALNY POST
 =========================== */
