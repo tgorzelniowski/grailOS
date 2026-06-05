@@ -5098,28 +5098,28 @@ img {
    PROFILE — MNIEJSZA SZAFA
 =========================== */
 .clothing-grid--profile {
-  grid-template-columns: repeat(4, minmax(0, 200px)) !important;
+  grid-template-columns: repeat(4, minmax(0, 250px)) !important;
   justify-content: center !important;
-  gap: 10px !important;
+  gap: 12px !important;
   background: transparent !important;
 }
 
 .clothing-grid--profile .clothing-card {
-  padding: 8px !important;
+  padding: 12px !important;
   border: 1px solid var(--border) !important;
 }
 
 .clothing-grid--profile .clothing-card-img {
   aspect-ratio: 1/1 !important;
-  margin-bottom: 6px !important;
+  margin-bottom: 8px !important;
 }
 
 .clothing-grid--profile .clothing-card-name {
-  font-size: 10px !important;
+  font-size: 12px !important;
 }
 
 .clothing-grid--profile .clothing-card-brand {
-  font-size: 9px !important;
+  font-size: 10px !important;
 }
 
 @media (max-width: 768px) {
@@ -5130,7 +5130,10 @@ img {
    PROFILE — MNIEJSZE OUTFITY
 =========================== */
 .outfits-grid--profile {
-  grid-template-columns: repeat(4, 1fr) !important;
+  grid-template-columns: repeat(3, minmax(0, 240px)) !important;
+  justify-content: center !important;
+  gap: 12px !important;
+  background: transparent !important;
 }
 
 @media (max-width: 768px) {
