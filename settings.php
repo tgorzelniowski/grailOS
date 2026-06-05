@@ -134,94 +134,113 @@ require_once 'includes/header.php';
     <div class="form-error" style="margin-bottom:24px;"><?= htmlspecialchars($error) ?></div>
   <?php endif; ?>
 
-  <!-- ZMIANA USERNAME -->
-  <div class="settings-section">
-    <div class="settings-section-title">/// Nazwa użytkownika</div>
-    <div class="settings-section-desc">Aktualna: @<?= htmlspecialchars($_SESSION['username']) ?></div>
-    <form method="POST" class="settings-form">
-      <?= csrf_field() ?>
-      <input type="hidden" name="section" value="username">
-      <div class="form-group">
-        <label class="form-label">Nowa nazwa (3-20 znaków)</label>
-        <input type="text" name="username" class="form-input"
-               maxlength="20" placeholder="nowy_nick"
-               value="<?= $section === 'username' ? htmlspecialchars($_POST['username'] ?? '') : '' ?>">
-      </div>
-      <button type="submit" class="btn">Zmień nazwę →</button>
-    </form>
+  <!-- ZAKŁADKI KATEGORII -->
+  <div class="settings-tabs">
+    <button class="settings-tab active" onclick="showSettingsTab('account', this)">Konto</button>
+    <button class="settings-tab" onclick="showSettingsTab('security', this)">Bezpieczeństwo</button>
+    <button class="settings-tab" onclick="showSettingsTab('privacy', this)">Prywatność</button>
   </div>
 
-  <!-- ZMIANA EMAIL -->
-  <div class="settings-section">
-    <div class="settings-section-title">/// Email</div>
-    <form method="POST" class="settings-form">
-      <?= csrf_field() ?>
-      <input type="hidden" name="section" value="email">
-      <div class="form-group">
-        <label class="form-label">Nowy email</label>
-        <input type="email" name="email" class="form-input"
-               placeholder="nowy@email.com"
-               value="<?= $section === 'email' ? htmlspecialchars($_POST['email'] ?? '') : '' ?>">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Aktualne hasło (weryfikacja)</label>
-        <input type="password" name="password" class="form-input">
-      </div>
-      <button type="submit" class="btn">Zmień email →</button>
-    </form>
+  <!-- KATEGORIA: KONTO -->
+  <div class="settings-cat" id="cat-account">
+    <div class="settings-section">
+      <div class="settings-section-title">/// Nazwa użytkownika</div>
+      <div class="settings-section-desc">Aktualna: @<?= htmlspecialchars($_SESSION['username']) ?></div>
+      <form method="POST" class="settings-form">
+        <?= csrf_field() ?>
+        <input type="hidden" name="section" value="username">
+        <div class="form-group">
+          <label class="form-label">Nowa nazwa (3-20 znaków)</label>
+          <input type="text" name="username" class="form-input"
+                 maxlength="20" placeholder="nowy_nick"
+                 value="<?= $section === 'username' ? htmlspecialchars($_POST['username'] ?? '') : '' ?>">
+        </div>
+        <button type="submit" class="btn">Zmień nazwę →</button>
+      </form>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-section-title">/// Email</div>
+      <form method="POST" class="settings-form">
+        <?= csrf_field() ?>
+        <input type="hidden" name="section" value="email">
+        <div class="form-group">
+          <label class="form-label">Nowy email</label>
+          <input type="email" name="email" class="form-input"
+                 placeholder="nowy@email.com"
+                 value="<?= $section === 'email' ? htmlspecialchars($_POST['email'] ?? '') : '' ?>">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Aktualne hasło (weryfikacja)</label>
+          <input type="password" name="password" class="form-input">
+        </div>
+        <button type="submit" class="btn">Zmień email →</button>
+      </form>
+    </div>
   </div>
 
-  <!-- ZMIANA HASŁA -->
-  <div class="settings-section">
-    <div class="settings-section-title">/// Hasło</div>
-    <form method="POST" class="settings-form">
-      <?= csrf_field() ?>
-      <input type="hidden" name="section" value="password">
-      <div class="form-group">
-        <label class="form-label">Aktualne hasło</label>
-        <input type="password" name="current_password" class="form-input">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Nowe hasło (min. 8 znaków)</label>
-        <input type="password" name="new_password" class="form-input">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Potwierdź nowe hasło</label>
-        <input type="password" name="confirm_password" class="form-input">
-      </div>
-      <button type="submit" class="btn">Zmień hasło →</button>
-    </form>
+  <!-- KATEGORIA: BEZPIECZEŃSTWO -->
+  <div class="settings-cat" id="cat-security" style="display:none;">
+    <div class="settings-section">
+      <div class="settings-section-title">/// Zmiana hasła</div>
+      <div class="settings-section-desc">Zalecamy używanie unikalnego, mocnego hasła.</div>
+      <form method="POST" class="settings-form">
+        <?= csrf_field() ?>
+        <input type="hidden" name="section" value="password">
+        <div class="form-group">
+          <label class="form-label">Aktualne hasło</label>
+          <input type="password" name="current_password" class="form-input">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Nowe hasło (min. 8 znaków)</label>
+          <input type="password" name="new_password" class="form-input">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Potwierdź nowe hasło</label>
+          <input type="password" name="confirm_password" class="form-input">
+        </div>
+        <button type="submit" class="btn">Zmień hasło →</button>
+      </form>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-section-title">/// Sesja</div>
+      <div class="settings-section-desc">Wyloguj się z tego urządzenia.</div>
+      <a href="/grailos/logout.php" class="btn btn-outline">Wyloguj się →</a>
+    </div>
   </div>
 
-  <!-- PRYWATNOŚĆ -->
-  <div class="settings-section">
-    <div class="settings-section-title">/// Prywatność</div>
-    <div class="settings-section-desc">Wybierz co inni widzą na Twoim profilu. Odznaczone sekcje są ukryte dla innych użytkowników.</div>
-    <form method="POST" class="settings-form">
-      <?= csrf_field() ?>
-      <input type="hidden" name="section" value="privacy">
-      <label class="privacy-toggle">
-        <input type="checkbox" name="show_fits" <?= $priv['show_fits'] ? 'checked' : '' ?>>
-        <span>Pokazuj moje fity</span>
-      </label>
-      <label class="privacy-toggle">
-        <input type="checkbox" name="show_outfits" <?= $priv['show_outfits'] ? 'checked' : '' ?>>
-        <span>Pokazuj moje outfity</span>
-      </label>
-      <label class="privacy-toggle">
-        <input type="checkbox" name="show_wardrobe" <?= $priv['show_wardrobe'] ? 'checked' : '' ?>>
-        <span>Pokazuj moją szafę</span>
-      </label>
-      <label class="privacy-toggle">
-        <input type="checkbox" name="show_posts" <?= $priv['show_posts'] ? 'checked' : '' ?>>
-        <span>Pokazuj moje posty</span>
-      </label>
-      <label class="privacy-toggle">
-        <input type="checkbox" name="show_follows" <?= $priv['show_follows'] ? 'checked' : '' ?>>
-        <span>Pokazuj obserwujących i obserwowanych</span>
-      </label>
-      <button type="submit" class="btn" style="margin-top:8px;">Zapisz prywatność →</button>
-    </form>
+  <!-- KATEGORIA: PRYWATNOŚĆ -->
+  <div class="settings-cat" id="cat-privacy" style="display:none;">
+    <div class="settings-section">
+      <div class="settings-section-title">/// Widoczność profilu</div>
+      <div class="settings-section-desc">Wybierz co inni widzą na Twoim profilu. Odznaczone sekcje są ukryte dla innych użytkowników.</div>
+      <form method="POST" class="settings-form">
+        <?= csrf_field() ?>
+        <input type="hidden" name="section" value="privacy">
+        <label class="privacy-toggle">
+          <input type="checkbox" name="show_fits" <?= $priv['show_fits'] ? 'checked' : '' ?>>
+          <span>Pokazuj moje fity</span>
+        </label>
+        <label class="privacy-toggle">
+          <input type="checkbox" name="show_outfits" <?= $priv['show_outfits'] ? 'checked' : '' ?>>
+          <span>Pokazuj moje outfity</span>
+        </label>
+        <label class="privacy-toggle">
+          <input type="checkbox" name="show_wardrobe" <?= $priv['show_wardrobe'] ? 'checked' : '' ?>>
+          <span>Pokazuj moją szafę</span>
+        </label>
+        <label class="privacy-toggle">
+          <input type="checkbox" name="show_posts" <?= $priv['show_posts'] ? 'checked' : '' ?>>
+          <span>Pokazuj moje posty</span>
+        </label>
+        <label class="privacy-toggle">
+          <input type="checkbox" name="show_follows" <?= $priv['show_follows'] ? 'checked' : '' ?>>
+          <span>Pokazuj obserwujących i obserwowanych</span>
+        </label>
+        <button type="submit" class="btn" style="margin-top:8px;">Zapisz prywatność →</button>
+      </form>
+    </div>
   </div>
 
   <div style="margin-top:40px; padding-top:32px; border-top:1px solid var(--border);">
@@ -230,5 +249,21 @@ require_once 'includes/header.php';
   </div>
 
 </div>
+
+<script>
+function showSettingsTab(cat, btn) {
+  document.querySelectorAll('.settings-cat').forEach(c => c.style.display = 'none');
+  document.getElementById('cat-' + cat).style.display = 'block';
+  document.querySelectorAll('.settings-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// Jeśli był błąd/sukces przy prywatności lub haśle, otwórz właściwą zakładkę
+<?php if ($section === 'password'): ?>
+  showSettingsTab('security', document.querySelectorAll('.settings-tab')[1]);
+<?php elseif ($section === 'privacy'): ?>
+  showSettingsTab('privacy', document.querySelectorAll('.settings-tab')[2]);
+<?php endif; ?>
+</script>
 
 <?php require_once 'includes/footer.php'; ?>

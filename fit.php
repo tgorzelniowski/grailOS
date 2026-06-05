@@ -273,9 +273,9 @@ require_once 'includes/header.php';
     <div class="comments-section" id="comments">
       <button class="comments-toggle-btn" onclick="toggleComments()">
         <span>/// <?= $total_comment_count ?> <?= $total_comment_count == 1 ? 'komentarz' : 'komentarzy' ?></span>
-        <span id="commentsArrow">▶</span>
+        <span id="commentsArrow">▼</span>
       </button>
-      <div id="commentsBody" style="display:none;">
+      <div id="commentsBody">
 
       <?php foreach ($comments as $c):
         $c_replies = $direct_replies[$c['id']] ?? [];

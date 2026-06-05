@@ -33,4 +33,37 @@
     <p class="legal-text">
       Publikując treści na GrailOS użytkownik udziela serwisowi niewyłącznej licencji do wyświetlania ich w ramach platformy. Wszelkie prawa do treści pozostają przy autorze.
     </p>
-  </div
+  </div>
+
+  <div class="legal-section">
+    <div class="legal-title">/// 5. Moderacja</div>
+    <p class="legal-text">
+      GrailOS zastrzega sobie prawo do moderowania, edytowania lub usuwania treści naruszających regulamin bez uprzedniego powiadomienia. Nieodpowiednie treści można zgłaszać przez stronę kontaktu.
+    </p>
+  </div>
+
+  <div class="legal-section">
+    <div class="legal-title">/// 6. Odpowiedzialność</div>
+    <p class="legal-text">
+      Serwis udostępniany jest w formie „takiej jaką jest". GrailOS nie gwarantuje nieprzerwanej dostępności ani bezbłędnego działania. Ceny i informacje o dropach mają charakter informacyjny i mogą różnić się od rzeczywistych ofert sklepów.
+    </p>
+  </div>
+
+  <div class="legal-section">
+    <div class="legal-title">/// 7. Zmiany regulaminu</div>
+    <p class="legal-text">
+      GrailOS może aktualizować niniejszy regulamin. O istotnych zmianach użytkownicy zostaną poinformowani w serwisie. Dalsze korzystanie z platformy oznacza akceptację zmian.
+    </p>
+  </div>
+
+  <div class="legal-section">
+    <div class="legal-title">/// 8. Kontakt</div>
+    <p class="legal-text">
+      Pytania dotyczące regulaminu kieruj przez stronę
+      <a href="/grailos/contact.php" style="color:var(--red)">Contact</a>.
+    </p>
+  </div>
+
+</div>
+
+<?php require_once 'includes/footer.php'; ?>

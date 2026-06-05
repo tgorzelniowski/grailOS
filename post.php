@@ -86,6 +86,8 @@ function renderAvatar($user, $size = 40) {
 function renderPostReply($r, $child_replies, $depth = 0) {
     $children = $child_replies[$r['id']] ?? [];
     $av_size  = $depth === 0 ? 36 : 28;
+    $can_del  = isset($_SESSION['user_id']) &&
+                ($r['user_id'] == $_SESSION['user_id'] || !empty($_SESSION['is_admin']));
     ?>
     <div class="reply-thread" id="reply-<?= $r['id'] ?>">
       <div class="post-card reply-card <?= $depth > 0 ? 'nested-reply' : '' ?>">
@@ -100,6 +102,15 @@ function renderPostReply($r, $child_replies, $depth = 0) {
               <div class="post-date"><?= date('d M Y, H:i', strtotime($r['created_at'])) ?></div>
             </div>
           </div>
+          <?php if ($can_del): ?>
+            <form method="POST" action="/grailos/delete_post_reply.php">
+              <?= csrf_field() ?>
+              <input type="hidden" name="reply_id" value="<?= $r['id'] ?>">
+              <input type="hidden" name="post_id" value="<?= $r['post_id'] ?>">
+              <button type="button" class="post-delete-btn"
+                      onclick="grailConfirm('Usunąć odpowiedź?', () => this.closest('form').submit())">✕</button>
+            </form>
+          <?php endif; ?>
         </div>
         <div class="post-card-content"><?= nl2br(htmlspecialchars($r['content'])) ?></div>
         <?php if (isset($_SESSION['user_id'])): ?>

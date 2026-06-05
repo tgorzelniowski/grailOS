@@ -41,9 +41,25 @@ $sort  = match($_GET['sort'] ?? 'newest') {
     default      => 'ORDER BY created_at DESC',
 };
 
-$stmt = $pdo->prepare("SELECT * FROM clothing $where $sort");
+// Paginacja
+$per_page = 96;
+$page     = max(1, (int)($_GET['page'] ?? 1));
+
+$count_stmt = $pdo->prepare("SELECT COUNT(*) FROM clothing $where");
+$count_stmt->execute($params);
+$total_items = (int)$count_stmt->fetchColumn();
+$total_pages = max(1, (int)ceil($total_items / $per_page));
+if ($page > $total_pages) $page = $total_pages;
+$offset = ($page - 1) * $per_page;
+
+$stmt = $pdo->prepare("SELECT * FROM clothing $where $sort LIMIT $per_page OFFSET $offset");
 $stmt->execute($params);
 $items = $stmt->fetchAll();
+
+// Link bazowy paginacji (zachowaj filtry)
+$qs = $_GET; unset($qs['page']);
+$base_qs   = http_build_query($qs);
+$page_link = '/grailos/catalog.php?' . ($base_qs ? $base_qs . '&' : '') . 'page=';
 
 $item_ids  = array_column($items, 'id');
 $hover_map = [];
@@ -160,7 +176,7 @@ if ($item_ids) {
   <div class="catalog-content">
 
     <div class="catalog-toolbar">
-      <span class="catalog-count">/// <?= count($items) ?> produktów</span>
+      <span class="catalog-count">/// <?= $total_items ?> produktów<?= $total_pages > 1 ? ' · strona ' . $page . '/' . $total_pages : '' ?></span>
     </div>
 
     <div class="clothing-grid clothing-grid--catalog">
@@ -216,6 +232,29 @@ if ($item_ids) {
         </div>
       <?php endif; ?>
     </div>
+
+    <?php if ($total_pages > 1): ?>
+      <div class="catalog-pagination">
+        <?php if ($page > 1): ?>
+          <a href="<?= $page_link . ($page - 1) ?>" class="page-btn">← Poprzednia</a>
+        <?php endif; ?>
+        <?php
+          $start = max(1, $page - 2);
+          $end   = min($total_pages, $page + 2);
+          if ($start > 1) echo '<a href="' . $page_link . '1" class="page-btn">1</a>';
+          if ($start > 2) echo '<span class="page-dots">…</span>';
+          for ($p = $start; $p <= $end; $p++):
+        ?>
+          <a href="<?= $page_link . $p ?>" class="page-btn <?= $p === $page ? 'active' : '' ?>"><?= $p ?></a>
+        <?php endfor;
+          if ($end < $total_pages - 1) echo '<span class="page-dots">…</span>';
+          if ($end < $total_pages) echo '<a href="' . $page_link . $total_pages . '" class="page-btn">' . $total_pages . '</a>';
+        ?>
+        <?php if ($page < $total_pages): ?>
+          <a href="<?= $page_link . ($page + 1) ?>" class="page-btn">Następna →</a>
+        <?php endif; ?>
+      </div>
+    <?php endif; ?>
 
   </div>
 

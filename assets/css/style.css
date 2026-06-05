@@ -572,6 +572,7 @@ img {
 
 .admin-form-wrap {
   max-width: 800px;
+  margin: 0 auto;
   padding: 48px 40px;
 }
 
@@ -1090,6 +1091,7 @@ img {
 =========================== */
 .about-wrap {
   max-width: 900px;
+  margin: 0 auto;
   padding: 0 40px;
 }
 
@@ -2705,7 +2707,40 @@ img {
 =========================== */
 .settings-wrap {
   max-width: 600px;
+  margin: 0 auto;
   padding: 48px 40px 80px;
+}
+
+/* ===========================
+   SETTINGS TABS
+=========================== */
+.settings-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 8px;
+}
+
+.settings-tab {
+  flex: 1;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--gray);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  padding: 14px 8px;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.settings-tab:hover { color: var(--white); }
+
+.settings-tab.active {
+  color: var(--red);
+  border-bottom-color: var(--red);
 }
 
 .settings-section {
@@ -3608,6 +3643,7 @@ img {
 =========================== */
 .legal-wrap {
   max-width: 720px;
+  margin: 0 auto;
   padding: 0 40px 80px;
 }
 
@@ -5324,6 +5360,41 @@ img {
   text-transform: uppercase;
   color: var(--gray);
 }
+
+/* ===========================
+   CATALOG PAGINATION
+=========================== */
+.catalog-pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 32px 24px 48px;
+}
+
+.page-btn {
+  min-width: 38px;
+  text-align: center;
+  padding: 8px 12px;
+  font-size: 12px;
+  letter-spacing: 2px;
+  color: var(--gray);
+  border: 1px solid var(--border);
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: all 0.2s;
+}
+
+.page-btn:hover { border-color: var(--red); color: var(--white); }
+
+.page-btn.active {
+  background: var(--red);
+  border-color: var(--red);
+  color: var(--white);
+}
+
+.page-dots { color: #444; padding: 0 4px; }
 
 .clothing-grid--catalog {
   grid-template-columns: repeat(4, 1fr) !important;
