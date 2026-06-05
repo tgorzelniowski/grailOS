@@ -5883,3 +5883,69 @@ img {
 .report-open      { background: rgba(255,36,0,0.15);  color: var(--red); }
 .report-resolved  { background: rgba(26,125,60,0.2);  color: #2ecc71; }
 .report-dismissed { background: rgba(255,255,255,0.06); color: var(--gray); }
+
+/* ===========================
+   AVATAR STORY RING (feedy)
+=========================== */
+.av-story-ring {
+  display: inline-flex;
+  padding: 2px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.av-story-ring.unseen { background: var(--red); }
+.av-story-ring.seen   { background: #444; }
+.av-story-ring .post-av-img,
+.av-story-ring .post-avatar,
+.av-story-ring .fit-mini-avatar {
+  border: 2px solid var(--black) !important;
+}
+
+/* Edytor: pasek tła tekstu */
+.story-text-extra {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+.story-bg-toggle {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12px; letter-spacing: 1px; text-transform: uppercase; color: var(--gray);
+  cursor: pointer;
+}
+.story-bg-toggle input { accent-color: var(--red); cursor: pointer; }
+
+/* ===========================
+   RESPONSYWNOŚĆ — STORKI / EDYTOR / RAPORTY
+=========================== */
+@media (max-width: 768px) {
+  /* Pasek storek */
+  .story-item { width: 64px; }
+  .story-ring { width: 56px; height: 56px; }
+
+  /* Edytor storek */
+  .admin-form-wrap { padding: 20px 16px; }
+  #storyCanvas { max-height: 60vh; }
+  .story-edit-tabs { flex-wrap: wrap; }
+  .story-edit-tab { flex: 1 0 40%; }
+  .story-edit-actions { flex-wrap: wrap; }
+  .story-edit-actions .btn { flex: 1; text-align: center; }
+
+  /* Viewer storek */
+  .story-viewer { padding: 8px 10px 32px; }
+  .story-stage { max-height: 68vh; }
+
+  /* Filtry zgłoszeń / tabele admina */
+  .manage-table { font-size: 11px; }
+  .manage-table th, .manage-table td { padding: 8px 10px; }
+
+  /* Modal zgłoszeń */
+  #grailReportBox { padding: 22px 20px; }
+}
+
+@media (max-width: 480px) {
+  .story-item { width: 58px; }
+  .story-ring { width: 50px; height: 50px; }
+  .story-filter-btn, .story-badge-pick { font-size: 11px; padding: 6px 10px; }
+  .story-sticker { width: 40px; height: 40px; font-size: 19px; }
+}

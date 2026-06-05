@@ -73,6 +73,9 @@ $stmt = $pdo->prepare("
 ");
 $stmt->execute(array_merge([$uid, $uid], $filter_params));
 $fits = $stmt->fetchAll();
+
+require_once __DIR__ . '/includes/stories_lib.php';
+$story_map = active_stories_map($pdo, array_column($fits, 'user_id'), $uid);
 ?>
 
 <div class="fits-grid">
@@ -89,8 +92,12 @@ $fits = $stmt->fetchAll();
             <?php endif; ?>
           </div>
           <div class="fit-info">
-            <a href="/grailos/profile.php?username=<?= urlencode($fit['username']) ?>"
+            <?php $ring = story_ring_class($story_map, (int)$fit['user_id']);
+                  $row_href = $ring ? '/grailos/story_view.php?user=' . (int)$fit['user_id']
+                                    : '/grailos/profile.php?username=' . urlencode($fit['username']); ?>
+            <a href="<?= $row_href ?>"
                class="fit-user-row" onclick="event.stopPropagation()" style="text-decoration:none;">
+              <span class="<?= $ring ?>" style="display:inline-flex;border-radius:50%;">
               <?php if ($fit['avatar_url']): ?>
                 <img src="<?= htmlspecialchars($fit['avatar_url']) ?>"
                      class="fit-mini-avatar" alt="">
@@ -99,6 +106,7 @@ $fits = $stmt->fetchAll();
                   <?= strtoupper($fit['username'][0]) ?>
                 </span>
               <?php endif; ?>
+              </span>
               <span class="fit-user">@<?= htmlspecialchars($fit['username']) ?></span>
             </a>
             <?php if ($fit['description']): ?>

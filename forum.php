@@ -65,6 +65,8 @@ $stmt->execute($filter_params);
 $posts = $stmt->fetchAll();
 
 require_once 'includes/header.php';
+require_once __DIR__ . '/includes/stories_lib.php';
+$story_map = active_stories_map($pdo, array_column($posts, 'user_id'), (int)($_SESSION['user_id'] ?? 0));
 ?>
 
 <section class="page-header">
@@ -174,8 +176,11 @@ require_once 'includes/header.php';
         <!-- HEADER: user + date -->
         <div class="fpc-head">
           <div class="fpc-meta">
-            <a href="/grailos/profile.php?username=<?= urlencode($post['username']) ?>"
-               class="post-av-link" onclick="event.stopPropagation()">
+            <?php $ring = story_ring_class($story_map, (int)$post['user_id']);
+                  $av_href = $ring ? '/grailos/story_view.php?user=' . (int)$post['user_id']
+                                   : '/grailos/profile.php?username=' . urlencode($post['username']); ?>
+            <a href="<?= $av_href ?>"
+               class="post-av-link <?= $ring ?>" onclick="event.stopPropagation()">
               <?php if ($post['avatar_url']): ?>
                 <img src="<?= htmlspecialchars($post['avatar_url']) ?>"
                      class="post-av-img" alt="">

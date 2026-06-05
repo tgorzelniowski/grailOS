@@ -86,8 +86,13 @@ require_once 'includes/header.php';
     <div class="story-tool" id="tool-text" style="display:none;">
       <div class="story-text-controls">
         <input type="text" id="storyTextInput" class="form-input" placeholder="Wpisz tekst..." maxlength="60">
-        <input type="color" id="storyTextColor" value="#ffffff" class="story-color">
+        <input type="color" id="storyTextColor" value="#ffffff" class="story-color" title="Kolor tekstu">
         <button type="button" class="btn" style="font-size:11px;padding:8px 14px;" onclick="addStoryText()">+ Dodaj</button>
+      </div>
+      <div class="story-text-extra">
+        <label class="story-bg-toggle"><input type="checkbox" id="storyTextBg"> Tło</label>
+        <input type="color" id="storyTextBgColor" value="#FF2400" class="story-color" title="Kolor tła">
+        <span class="story-size-label">Czcionka:</span>
       </div>
       <div class="story-font-row" id="fontRow"></div>
     </div>
@@ -135,17 +140,32 @@ const FILTERS = [
   ['Crisp', 'contrast(1.25) saturate(1.1) brightness(1.03)'],
   ['Dream', 'brightness(1.12) saturate(1.25) blur(0.4px)'],
   ['Invert', 'invert(1)'],
+  ['Mglisty', 'blur(1.2px) brightness(1.05)'],
+  ['Wyblakły', 'grayscale(0.4) brightness(1.1) contrast(0.9)'],
+  ['Kontrast', 'contrast(1.55)'],
+  ['Ciemny', 'brightness(0.72) contrast(1.12)'],
+  ['Jasny', 'brightness(1.28)'],
+  ['Cyber', 'saturate(2) hue-rotate(280deg) contrast(1.2)'],
+  ['Mint', 'hue-rotate(90deg) saturate(1.3)'],
+  ['Gold', 'sepia(0.8) saturate(2) hue-rotate(-20deg) contrast(1.1)'],
+  ['Lomo', 'saturate(1.6) contrast(1.3) brightness(0.95)'],
+  ['Frost', 'brightness(1.15) saturate(0.7) hue-rotate(170deg)'],
 ];
 
 const STICKERS = ['🔥','💯','⭐','😎','👟','🧢','💸','❤️','✨','👑','🤙','😤','🛒','📸','🌀','⚡',
-                  '🥶','💀','👀','🫶','🧊','🏷️','🩴','🧥','🕶️','🎧','💥','🆒','📍','🚀','🫡','🤑'];
+                  '🥶','💀','👀','🫶','🧊','🏷️','🩴','🧥','🕶️','🎧','💥','🆒','📍','🚀','🫡','🤑',
+                  '🧤','👜','💼','🪙','🧾','🤩','😮‍💨','🙌','✅','❌','⛓️','🩷','💚','🟥','⬛','⬜'];
 
-// Streetwearowe „naklejki tekstowe" (badge)
+// Streetwearowe / resellerskie „naklejki tekstowe" (badge)
 const BADGES = [
   ['GRAILOS','#FF2400'], ['OOTD','#0a0a0a'], ['DROP','#FF2400'], ['HEAT 🔥','#FF2400'],
   ['GRAIL','#0a0a0a'], ['W','#1a7d3c'], ['L','#0a0a0a'], ['STEAL','#FF2400'],
   ['FIT CHECK','#0a0a0a'], ['ON FEET','#0a0a0a'], ['NEW IN','#FF2400'], ['SOLD OUT','#0a0a0a'],
   ['HYPE','#FF2400'], ['ARCHIVE','#0a0a0a'], ['1/1','#FF2400'], ['COP','#1a7d3c'],
+  ['WTT','#0a0a0a'], ['WTB','#1a7d3c'], ['WTS','#FF2400'], ['WTT/WTS','#0a0a0a'],
+  ['CMDNN','#FF2400'], ['ISO','#0a0a0a'], ['NFS','#0a0a0a'], ['OBO','#1a7d3c'],
+  ['LEGIT CHECK','#0a0a0a'], ['PROOF','#1a7d3c'], ['BNIB','#0a0a0a'], ['DS','#FF2400'],
+  ['VNDS','#0a0a0a'], ['GIVEAWAY','#FF2400'], ['SZN','#0a0a0a'], ['NO CAP','#FF2400'],
 ];
 
 const FONTS = [
@@ -153,6 +173,10 @@ const FONTS = [
   ["'Bebas Neue', sans-serif", 'Bebas'],
   ["Impact, sans-serif", 'Impact'],
   ["Courier New, monospace", 'Mono'],
+  ["Georgia, serif", 'Serif'],
+  ["'Arial Black', sans-serif", 'Heavy'],
+  ["'Trebuchet MS', sans-serif", 'Trebu'],
+  ["'Comic Sans MS', cursive", 'Comic'],
 ];
 let curFont = FONTS[0][0];
 
@@ -233,11 +257,19 @@ function drawObj(o, idx, showSelection) {
     ctx.font = `700 ${o.size}px ${o.font}`;
     const m = ctx.measureText(o.text);
     o._w = m.width; o._h = o.size;
-    ctx.lineWidth = Math.max(2, o.size / 12);
-    ctx.strokeStyle = 'rgba(0,0,0,0.55)';
-    ctx.strokeText(o.text, 0, 0);
-    ctx.fillStyle = o.color;
-    ctx.fillText(o.text, 0, 0);
+    if (o.bg) {
+      const padX = o.size * 0.32, padY = o.size * 0.2;
+      ctx.fillStyle = o.bg;
+      ctx.fillRect(-o._w/2 - padX, -o._h/2 - padY, o._w + padX*2, o._h + padY*2);
+      ctx.fillStyle = o.color;
+      ctx.fillText(o.text, 0, 0);
+    } else {
+      ctx.lineWidth = Math.max(2, o.size / 12);
+      ctx.strokeStyle = 'rgba(0,0,0,0.55)';
+      ctx.strokeText(o.text, 0, 0);
+      ctx.fillStyle = o.color;
+      ctx.fillText(o.text, 0, 0);
+    }
   } else if (o.type === 'badge') {
     ctx.font = `700 ${o.size}px 'Bebas Neue', sans-serif`;
     const m = ctx.measureText(o.text);
@@ -316,8 +348,10 @@ window.addEventListener('touchend', pointerUp);
 function addStoryText() {
   const t = document.getElementById('storyTextInput').value.trim();
   if (!t) return;
+  const bg = document.getElementById('storyTextBg').checked
+           ? document.getElementById('storyTextBgColor').value : null;
   objects.push({ type:'text', text:t, x:canvas.width/2, y:canvas.height/2,
-                 size:54, color:document.getElementById('storyTextColor').value, font:curFont, rot:0 });
+                 size:54, color:document.getElementById('storyTextColor').value, font:curFont, rot:0, bg });
   selected = objects.length - 1;
   document.getElementById('storyTextInput').value = '';
   render();

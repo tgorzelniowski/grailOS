@@ -67,6 +67,19 @@ if (isset($_SESSION['user_id'])) {
 }
 
 require_once 'includes/header.php';
+require_once __DIR__ . '/includes/stories_lib.php';
+$story_author_ids = array_merge([$post['user_id']], array_column($all_replies, 'user_id'));
+$story_map = active_stories_map($pdo, $story_author_ids, (int)($_SESSION['user_id'] ?? 0));
+
+// Avatar opakowany w link: storka jeśli aktywna, inaczej profil
+function story_avatar_link(int $uid, array $u, int $size): string {
+    global $story_map;
+    $ring = story_ring_class($story_map, $uid);
+    $href = $ring ? '/grailos/story_view.php?user=' . $uid
+                  : '/grailos/profile.php?username=' . urlencode($u['username']);
+    return "<a href='" . $href . "' class='post-av-link " . $ring . "' onclick='event.stopPropagation()'>"
+         . renderAvatar($u, $size) . "</a>";
+}
 
 function renderAvatar($user, $size = 40) {
     $s = (int)$size;
@@ -93,9 +106,7 @@ function renderPostReply($r, $child_replies, $depth = 0) {
       <div class="post-card reply-card <?= $depth > 0 ? 'nested-reply' : '' ?>">
         <div class="post-card-header">
           <div class="post-card-meta">
-            <a href="/grailos/profile.php?username=<?= urlencode($r['username']) ?>" class="post-av-link">
-              <?= renderAvatar($r, $av_size) ?>
-            </a>
+            <?= story_avatar_link((int)$r['user_id'], $r, $av_size) ?>
             <div>
               <a href="/grailos/profile.php?username=<?= urlencode($r['username']) ?>"
                  class="post-user-link">@<?= htmlspecialchars($r['username']) ?></a>
@@ -154,10 +165,7 @@ function renderPostReply($r, $child_replies, $depth = 0) {
   <div class="post-card post-single">
     <div class="post-card-header">
       <div class="post-card-meta">
-        <a href="/grailos/profile.php?username=<?= urlencode($post['username']) ?>"
-           class="post-av-link">
-          <?= renderAvatar($post, 48) ?>
-        </a>
+        <?= story_avatar_link((int)$post['user_id'], $post, 48) ?>
         <div>
           <a href="/grailos/profile.php?username=<?= urlencode($post['username']) ?>"
              class="post-user-link">@<?= htmlspecialchars($post['username']) ?></a>
