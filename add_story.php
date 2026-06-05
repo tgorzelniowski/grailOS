@@ -71,14 +71,31 @@ require_once 'includes/header.php';
 
     <!-- ZAKŁADKI NARZĘDZI -->
     <div class="story-edit-tabs">
-      <button type="button" class="story-edit-tab active" onclick="storyTab('filters', this)">Filtry</button>
+      <button type="button" class="story-edit-tab active" onclick="storyTab('image', this)">Zdjęcie</button>
+      <button type="button" class="story-edit-tab" onclick="storyTab('filters', this)">Filtry</button>
       <button type="button" class="story-edit-tab" onclick="storyTab('text', this)">Tekst</button>
-      <button type="button" class="story-edit-tab" onclick="storyTab('stickers', this)">Naklejki</button>
-      <button type="button" class="story-edit-tab" onclick="storyTab('badges', this)">Streetwear</button>
+      <button type="button" class="story-edit-tab" onclick="storyTab('badges', this)">Naklejki</button>
+    </div>
+
+    <!-- ZDJĘCIE: skalowanie / dopasowanie -->
+    <div class="story-tool" id="tool-image">
+      <div class="story-filter-row">
+        <button type="button" class="story-filter-btn active" id="modeCover" onclick="setBgMode('cover', this)">Wypełnij</button>
+        <button type="button" class="story-filter-btn" id="modeContain" onclick="setBgMode('contain', this)">Dopasuj (całe)</button>
+        <button type="button" class="story-filter-btn" onclick="resetBg()">Reset</button>
+      </div>
+      <div class="story-text-extra">
+        <span class="story-size-label">Zoom:</span>
+        <input type="range" id="bgZoom" min="0.4" max="3" step="0.05" value="1"
+               oninput="setBgZoom(this.value)" style="flex:1;">
+      </div>
+      <div class="story-size-label" style="margin-top:8px; text-transform:none; letter-spacing:0.5px;">
+        Tryb „Dopasuj" pokaże całe zdjęcie bez ucinania. Przeciągnij zdjęcie po kanwie, aby je przesunąć.
+      </div>
     </div>
 
     <!-- FILTRY -->
-    <div class="story-tool" id="tool-filters">
+    <div class="story-tool" id="tool-filters" style="display:none;">
       <div class="story-filter-row" id="filterRow"></div>
     </div>
 
@@ -98,11 +115,6 @@ require_once 'includes/header.php';
     </div>
 
     <!-- NAKLEJKI -->
-    <div class="story-tool" id="tool-stickers" style="display:none;">
-      <div class="story-sticker-row" id="stickerRow"></div>
-    </div>
-
-    <!-- STREETWEAR BADGES -->
     <div class="story-tool" id="tool-badges" style="display:none;">
       <div class="story-badge-row" id="badgeRow"></div>
     </div>
@@ -122,61 +134,55 @@ const canvas = document.getElementById('storyCanvas');
 const ctx = canvas.getContext('2d');
 let baseImg = null;
 let curFilter = 'none';
-let objects = [];   // {type:'text'|'sticker'|'badge', text, x, y, size, color, font, rot}
+let objects = [];   // {type:'text'|'badge', text, x, y, size, color, font, rot, bg}
 let selected = -1;
-let drag = null;
+let drag = null;     // przeciąganie obiektu
+let bgDrag = null;   // przeciąganie tła
 
-// --- Dane narzędzi ---
+// Skala/pozycja zdjęcia bazowego
+let bgMode = 'cover';   // 'cover' | 'contain'
+let bgScale = 1;
+let bgOffsetX = 0, bgOffsetY = 0;
+
+// --- Filtry ---
 const FILTERS = [
-  ['Brak', 'none'],
-  ['B&W', 'grayscale(1)'],
-  ['Sepia', 'sepia(0.8)'],
-  ['Vivid', 'saturate(1.8) contrast(1.1)'],
-  ['Noir', 'grayscale(1) contrast(1.4) brightness(0.9)'],
-  ['Fade', 'contrast(0.85) brightness(1.1) saturate(0.8)'],
-  ['Chłodny', 'saturate(1.2) hue-rotate(190deg) brightness(1.05)'],
-  ['Ciepły', 'sepia(0.4) saturate(1.4) brightness(1.05)'],
-  ['Retro', 'sepia(0.5) contrast(1.2) saturate(1.3) hue-rotate(-10deg)'],
-  ['Crisp', 'contrast(1.25) saturate(1.1) brightness(1.03)'],
-  ['Dream', 'brightness(1.12) saturate(1.25) blur(0.4px)'],
-  ['Invert', 'invert(1)'],
-  ['Mglisty', 'blur(1.2px) brightness(1.05)'],
-  ['Wyblakły', 'grayscale(0.4) brightness(1.1) contrast(0.9)'],
-  ['Kontrast', 'contrast(1.55)'],
-  ['Ciemny', 'brightness(0.72) contrast(1.12)'],
-  ['Jasny', 'brightness(1.28)'],
-  ['Cyber', 'saturate(2) hue-rotate(280deg) contrast(1.2)'],
-  ['Mint', 'hue-rotate(90deg) saturate(1.3)'],
-  ['Gold', 'sepia(0.8) saturate(2) hue-rotate(-20deg) contrast(1.1)'],
-  ['Lomo', 'saturate(1.6) contrast(1.3) brightness(0.95)'],
-  ['Frost', 'brightness(1.15) saturate(0.7) hue-rotate(170deg)'],
+  ['Brak','none'],['B&W','grayscale(1)'],['Sepia','sepia(0.8)'],
+  ['Vivid','saturate(1.8) contrast(1.1)'],['Noir','grayscale(1) contrast(1.4) brightness(0.9)'],
+  ['Fade','contrast(0.85) brightness(1.1) saturate(0.8)'],
+  ['Chłodny','saturate(1.2) hue-rotate(190deg) brightness(1.05)'],
+  ['Ciepły','sepia(0.4) saturate(1.4) brightness(1.05)'],
+  ['Retro','sepia(0.5) contrast(1.2) saturate(1.3) hue-rotate(-10deg)'],
+  ['Crisp','contrast(1.25) saturate(1.1) brightness(1.03)'],
+  ['Dream','brightness(1.12) saturate(1.25) blur(0.4px)'],['Invert','invert(1)'],
+  ['Mglisty','blur(1.2px) brightness(1.05)'],['Wyblakły','grayscale(0.4) brightness(1.1) contrast(0.9)'],
+  ['Kontrast','contrast(1.55)'],['Ciemny','brightness(0.72) contrast(1.12)'],['Jasny','brightness(1.28)'],
+  ['Cyber','saturate(2) hue-rotate(280deg) contrast(1.2)'],['Mint','hue-rotate(90deg) saturate(1.3)'],
+  ['Gold','sepia(0.8) saturate(2) hue-rotate(-20deg) contrast(1.1)'],
+  ['Lomo','saturate(1.6) contrast(1.3) brightness(0.95)'],['Frost','brightness(1.15) saturate(0.7) hue-rotate(170deg)'],
 ];
 
-const STICKERS = ['🔥','💯','⭐','😎','👟','🧢','💸','❤️','✨','👑','🤙','😤','🛒','📸','🌀','⚡',
-                  '🥶','💀','👀','🫶','🧊','🏷️','🩴','🧥','🕶️','🎧','💥','🆒','📍','🚀','🫡','🤑',
-                  '🧤','👜','💼','🪙','🧾','🤩','😮‍💨','🙌','✅','❌','⛓️','🩷','💚','🟥','⬛','⬜'];
-
-// Streetwearowe / resellerskie „naklejki tekstowe" (badge)
+// --- Naklejki tekstowe (resellerskie / streetwear) ---
+const RED='#FF2400', GREEN='#1a7d3c', BLACK='#0a0a0a';
 const BADGES = [
-  ['GRAILOS','#FF2400'], ['OOTD','#0a0a0a'], ['DROP','#FF2400'], ['HEAT 🔥','#FF2400'],
-  ['GRAIL','#0a0a0a'], ['W','#1a7d3c'], ['L','#0a0a0a'], ['STEAL','#FF2400'],
-  ['FIT CHECK','#0a0a0a'], ['ON FEET','#0a0a0a'], ['NEW IN','#FF2400'], ['SOLD OUT','#0a0a0a'],
-  ['HYPE','#FF2400'], ['ARCHIVE','#0a0a0a'], ['1/1','#FF2400'], ['COP','#1a7d3c'],
-  ['WTT','#0a0a0a'], ['WTB','#1a7d3c'], ['WTS','#FF2400'], ['WTT/WTS','#0a0a0a'],
-  ['CMDNN','#FF2400'], ['ISO','#0a0a0a'], ['NFS','#0a0a0a'], ['OBO','#1a7d3c'],
-  ['LEGIT CHECK','#0a0a0a'], ['PROOF','#1a7d3c'], ['BNIB','#0a0a0a'], ['DS','#FF2400'],
-  ['VNDS','#0a0a0a'], ['GIVEAWAY','#FF2400'], ['SZN','#0a0a0a'], ['NO CAP','#FF2400'],
+  ['ASAP',BLACK],['BID',GREEN],['BIN',GREEN],['BUMP',BLACK],['CW',BLACK],['COP OR DROP?',RED],
+  ['CMNDS',BLACK],['CMDNN',RED],['DS',RED],['DROP',RED],['FAKE',RED],['FIT',BLACK],['FLEX',RED],
+  ['GRAIL',RED],['GRAILOS',RED],['GOAT',RED],['HEAT',RED],['HO',BLACK],['HMU',GREEN],['HYPE',RED],
+  ['ID',BLACK],['KMWTW',BLACK],['LC',BLACK],['L',BLACK],['LPU',GREEN],['OG',BLACK],['PC',GREEN],
+  ['PFA',GREEN],['PROXY',BLACK],['RESTOCK',GREEN],['RESELL',RED],['RETAIL',BLACK],['SCAM',RED],
+  ['SCAMMER',RED],['SELL',RED],['STEAL',RED],['TTS',BLACK],['VNDS',BLACK],['W2C',GREEN],
+  ['WTT',RED],['WTB',GREEN],['WTS',RED],
 ];
 
+// --- Czcionki ---
 const FONTS = [
-  ["'Barlow Condensed', sans-serif", 'Barlow'],
-  ["'Bebas Neue', sans-serif", 'Bebas'],
-  ["Impact, sans-serif", 'Impact'],
-  ["Courier New, monospace", 'Mono'],
-  ["Georgia, serif", 'Serif'],
-  ["'Arial Black', sans-serif", 'Heavy'],
-  ["'Trebuchet MS', sans-serif", 'Trebu'],
-  ["'Comic Sans MS', cursive", 'Comic'],
+  ["'Barlow Condensed', sans-serif",'Barlow'], ["'Bebas Neue', sans-serif",'Bebas'],
+  ["Impact, sans-serif",'Impact'], ["'Arial Black', sans-serif",'Heavy'],
+  ["Arial, sans-serif",'Arial'], ["Verdana, sans-serif",'Verdana'],
+  ["Tahoma, sans-serif",'Tahoma'], ["'Trebuchet MS', sans-serif",'Trebu'],
+  ["Georgia, serif",'Georgia'], ["'Times New Roman', serif",'Times'],
+  ["'Palatino Linotype', serif",'Palatino'], ["Garamond, serif",'Garamond'],
+  ["'Courier New', monospace",'Courier'], ["'Lucida Console', monospace",'Lucida'],
+  ["'Comic Sans MS', cursive",'Comic'], ["'Brush Script MT', cursive",'Script'],
 ];
 let curFont = FONTS[0][0];
 
@@ -187,14 +193,6 @@ FILTERS.forEach((f, i) => {
   b.type='button'; b.className='story-filter-btn'+(i===0?' active':''); b.textContent=f[0];
   b.onclick = () => setStoryFilter(f[1], b);
   fr.appendChild(b);
-});
-
-const sr = document.getElementById('stickerRow');
-STICKERS.forEach(em => {
-  const b = document.createElement('button');
-  b.type='button'; b.className='story-sticker'; b.textContent=em;
-  b.onclick = () => addSticker(em);
-  sr.appendChild(b);
 });
 
 const br = document.getElementById('badgeRow');
@@ -228,6 +226,8 @@ function loadStoryImage(input) {
     im.onload = () => {
       baseImg = im;
       objects = []; selected = -1; curFilter = 'none';
+      bgMode = 'cover'; bgScale = 1; bgOffsetX = 0; bgOffsetY = 0;
+      document.getElementById('bgZoom').value = 1;
       document.getElementById('storyPick').style.display = 'none';
       document.getElementById('storyEditor').style.display = 'block';
       render();
@@ -237,13 +237,20 @@ function loadStoryImage(input) {
   r.readAsDataURL(input.files[0]);
 }
 
-function coverDraw(img) {
+function drawBase() {
   const cw = canvas.width, ch = canvas.height;
-  const ir = img.width / img.height, cr = cw / ch;
-  let w, h, x, y;
-  if (ir > cr) { h = ch; w = ch * ir; x = (cw - w) / 2; y = 0; }
-  else { w = cw; h = cw / ir; x = 0; y = (ch - h) / 2; }
-  ctx.drawImage(img, x, y, w, h);
+  const ir = baseImg.width / baseImg.height, cr = cw / ch;
+  let w, h;
+  if (bgMode === 'cover') {
+    if (ir > cr) { h = ch; w = ch * ir; } else { w = cw; h = cw / ir; }
+  } else { // contain — całe zdjęcie
+    if (ir > cr) { w = cw; h = cw / ir; } else { h = ch; w = ch * ir; }
+  }
+  w *= bgScale; h *= bgScale;
+  const x = (cw - w) / 2 + bgOffsetX, y = (ch - h) / 2 + bgOffsetY;
+  ctx.fillStyle = '#0a0a0a';
+  ctx.fillRect(0, 0, cw, ch);
+  ctx.drawImage(baseImg, x, y, w, h);
 }
 
 function drawObj(o, idx, showSelection) {
@@ -270,7 +277,7 @@ function drawObj(o, idx, showSelection) {
       ctx.fillStyle = o.color;
       ctx.fillText(o.text, 0, 0);
     }
-  } else if (o.type === 'badge') {
+  } else { // badge
     ctx.font = `700 ${o.size}px 'Bebas Neue', sans-serif`;
     const m = ctx.measureText(o.text);
     const padX = o.size * 0.45, padY = o.size * 0.28;
@@ -279,11 +286,6 @@ function drawObj(o, idx, showSelection) {
     ctx.fillStyle = o.color;
     ctx.fillRect(-w/2, -h/2, w, h);
     ctx.fillStyle = '#fff';
-    ctx.fillText(o.text, 0, 0);
-  } else { // sticker
-    ctx.font = `${o.size}px serif`;
-    const m = ctx.measureText(o.text);
-    o._w = m.width; o._h = o.size;
     ctx.fillText(o.text, 0, 0);
   }
 
@@ -299,7 +301,7 @@ function render(showSelection = true) {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   if (!baseImg) return;
   ctx.filter = curFilter;
-  coverDraw(baseImg);
+  drawBase();
   ctx.filter = 'none';
   objects.forEach((o, idx) => drawObj(o, idx, showSelection));
 }
@@ -314,7 +316,6 @@ function evtPos(e) {
 function hitTest(x, y) {
   for (let i = objects.length - 1; i >= 0; i--) {
     const o = objects[i];
-    // przybliżony hit-test po bounding boxie (bez uwzgl. obrotu)
     const hw = (o._w || o.size) / 2 + 10, hh = (o._h || o.size) / 2 + 8;
     if (x >= o.x - hw && x <= o.x + hw && y >= o.y - hh && y <= o.y + hh) return i;
   }
@@ -325,18 +326,28 @@ function pointerDown(e) {
   const p = evtPos(e);
   const hit = hitTest(p.x, p.y);
   selected = hit;
-  if (hit >= 0) { drag = { dx: objects[hit].x - p.x, dy: objects[hit].y - p.y }; e.preventDefault(); }
-  render();
-}
-function pointerMove(e) {
-  if (drag === null || selected < 0) return;
-  const p = evtPos(e);
-  objects[selected].x = p.x + drag.dx;
-  objects[selected].y = p.y + drag.dy;
+  if (hit >= 0) {
+    drag = { dx: objects[hit].x - p.x, dy: objects[hit].y - p.y };
+  } else {
+    bgDrag = { px: p.x, py: p.y, ox: bgOffsetX, oy: bgOffsetY };
+  }
   e.preventDefault();
   render();
 }
-function pointerUp() { drag = null; }
+function pointerMove(e) {
+  if (drag !== null && selected >= 0) {
+    const p = evtPos(e);
+    objects[selected].x = p.x + drag.dx;
+    objects[selected].y = p.y + drag.dy;
+    e.preventDefault(); render();
+  } else if (bgDrag !== null) {
+    const p = evtPos(e);
+    bgOffsetX = bgDrag.ox + (p.x - bgDrag.px);
+    bgOffsetY = bgDrag.oy + (p.y - bgDrag.py);
+    e.preventDefault(); render();
+  }
+}
+function pointerUp() { drag = null; bgDrag = null; }
 
 canvas.addEventListener('mousedown', pointerDown);
 canvas.addEventListener('mousemove', pointerMove);
@@ -344,6 +355,20 @@ window.addEventListener('mouseup', pointerUp);
 canvas.addEventListener('touchstart', pointerDown, {passive:false});
 canvas.addEventListener('touchmove', pointerMove, {passive:false});
 window.addEventListener('touchend', pointerUp);
+
+// --- Zdjęcie: tryb / zoom / reset ---
+function setBgMode(mode, btn) {
+  bgMode = mode;
+  document.getElementById('modeCover').classList.toggle('active', mode==='cover');
+  document.getElementById('modeContain').classList.toggle('active', mode==='contain');
+  render();
+}
+function setBgZoom(v) { bgScale = parseFloat(v); render(); }
+function resetBg() {
+  bgScale = 1; bgOffsetX = 0; bgOffsetY = 0;
+  document.getElementById('bgZoom').value = 1;
+  render();
+}
 
 function addStoryText() {
   const t = document.getElementById('storyTextInput').value.trim();
@@ -355,10 +380,6 @@ function addStoryText() {
   selected = objects.length - 1;
   document.getElementById('storyTextInput').value = '';
   render();
-}
-function addSticker(em) {
-  objects.push({ type:'sticker', text:em, x:canvas.width/2, y:canvas.height/2, size:96, rot:0 });
-  selected = objects.length - 1; render();
 }
 function addBadge(txt, col) {
   objects.push({ type:'badge', text:txt, x:canvas.width/2, y:canvas.height/2, size:46, color:col, rot:0 });
@@ -372,8 +393,7 @@ function scaleSelected(f) {
 }
 function rotateSelected(deg) {
   if (selected < 0) return;
-  objects[selected].rot = (objects[selected].rot || 0) + deg;
-  render();
+  objects[selected].rot = (objects[selected].rot || 0) + deg; render();
 }
 function setStoryFilter(f, btn) {
   curFilter = f;
