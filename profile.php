@@ -248,7 +248,7 @@ $outfits = $outfits->fetchAll();
 <div class="section-label" style="display:flex; justify-content:space-between; align-items:center;">
   <span>/// Outfity (<?= count($outfits) ?>)</span>
   <div style="display:flex; gap:10px; align-items:center; margin-right:40px;">
-    <?php if (count($outfits) > 3): ?>
+    <?php if (count($outfits) > 4): ?>
       <button class="btn btn-outline" style="font-size:11px; padding:6px 14px;"
               onclick="toggleCollapse(this, '.outfit-collapse-item')">Pokaż więcej ↓</button>
     <?php endif; ?>
@@ -269,7 +269,7 @@ $outfits = $outfits->fetchAll();
       $outfit_imgs->execute([$outfit['id']]);
       $imgs = $outfit_imgs->fetchAll(PDO::FETCH_COLUMN);
     ?>
-      <div class="outfit-card <?= $oidx >= 3 ? 'outfit-collapse-item' : '' ?>" style="position:relative;">
+      <div class="outfit-card <?= $oidx >= 4 ? 'outfit-collapse-item' : '' ?>" style="position:relative;">
         <?php if ($is_own): ?>
           <form method="POST" action="/grailos/delete_outfit.php" class="outfit-delete-form">
             <?= csrf_field() ?>

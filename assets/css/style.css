@@ -5130,7 +5130,7 @@ img {
    PROFILE — MNIEJSZE OUTFITY
 =========================== */
 .outfits-grid--profile {
-  grid-template-columns: repeat(3, minmax(0, 240px)) !important;
+  grid-template-columns: repeat(4, minmax(0, 240px)) !important;
   justify-content: center !important;
   gap: 12px !important;
   background: transparent !important;
