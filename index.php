@@ -9,6 +9,9 @@
   <span>Catalog. Drops. Fits. Rankings.</span>
 </div>
 
+<!-- STORIES -->
+<?php require_once 'includes/stories_bar.php'; ?>
+
 <!-- HERO -->
 <section class="hero">
   <div class="hero-tag">The operating system for your wardrobe</div>

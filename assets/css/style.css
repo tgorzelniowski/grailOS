@@ -5455,3 +5455,209 @@ img {
   object-fit: fill !important;
   display: block !important;
 }
+/* ===========================
+   STORIES BAR
+=========================== */
+.stories-bar {
+  display: flex;
+  gap: 16px;
+  padding: 18px 40px;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--border);
+  background: var(--black);
+}
+
+.stories-bar::-webkit-scrollbar { height: 0; }
+
+.story-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+  flex-shrink: 0;
+  width: 72px;
+}
+
+.story-ring {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  padding: 3px;
+  background: var(--border);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.story-ring.unseen { background: var(--red); }
+.story-ring.seen   { background: #333; }
+
+.story-ring img,
+.story-ring .story-init {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--black);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--card);
+  color: var(--red);
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 24px;
+}
+
+.story-add-ring { background: #333; }
+
+.story-add-plus {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 22px;
+  height: 22px;
+  background: var(--red);
+  color: #fff;
+  border: 2px solid var(--black);
+  border-radius: 50%;
+  font-size: 14px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.story-name {
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--gray);
+  max-width: 72px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .stories-bar { padding: 14px 20px; gap: 12px; }
+}
+
+/* ===========================
+   STORY VIEWER
+=========================== */
+.story-viewer {
+  max-width: 460px;
+  margin: 0 auto;
+  padding: 12px 16px 40px;
+  display: flex;
+  flex-direction: column;
+}
+
+.story-progress {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.story-progress-seg {
+  flex: 1;
+  height: 3px;
+  background: #333;
+}
+
+.story-progress-seg.on { background: var(--red); }
+
+.story-viewer-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.story-viewer-user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  color: var(--white);
+  font-size: 13px;
+  letter-spacing: 1px;
+}
+
+.story-viewer-user img,
+.story-viewer-user .story-init {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  font-size: 16px;
+}
+
+.story-viewer-time { font-size: 11px; color: var(--gray); letter-spacing: 1px; }
+
+.story-views {
+  font-size: 12px;
+  letter-spacing: 1px;
+  color: var(--gray);
+}
+
+.story-del-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--gray);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 5px 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.story-del-btn:hover { border-color: var(--red); color: var(--red); }
+
+.story-close {
+  color: var(--white);
+  font-size: 20px;
+  text-decoration: none;
+  line-height: 1;
+  padding: 4px;
+}
+
+.story-stage {
+  position: relative;
+  background: #0a0a0a;
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 9/16;
+  max-height: 75vh;
+  overflow: hidden;
+}
+
+.story-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.story-nav {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 30%;
+  display: flex;
+  align-items: center;
+  color: rgba(255,255,255,0.5);
+  font-size: 32px;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.story-nav-prev { left: 0; justify-content: flex-start; padding-left: 12px; }
+.story-nav-next { right: 0; justify-content: flex-end; padding-right: 12px; }
+.story-nav:hover { color: #fff; }
