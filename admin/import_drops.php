@@ -10,13 +10,23 @@ $result = null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['csv'])) {
     csrf_verify();
-    $delim = $_POST['delim'] ?? ',';
-    $delim = ['comma'=>',', 'semicolon'=>';', 'tab'=>"\t"][$delim] ?? ',';
+    $delim_choice = $_POST['delim'] ?? 'auto';
 
     if ($_FILES['csv']['error'] !== UPLOAD_ERR_OK) {
         $result = ['error' => 'Błąd przesyłania pliku.'];
     } else {
         $fh = fopen($_FILES['csv']['tmp_name'], 'r');
+
+        if ($delim_choice === 'auto') {
+            $first = fgets($fh);
+            rewind($fh);
+            $counts = [',' => substr_count($first, ','), ';' => substr_count($first, ';'), "\t" => substr_count($first, "\t")];
+            arsort($counts);
+            $delim = array_key_first($counts) ?: ',';
+        } else {
+            $delim = ['comma'=>',', 'semicolon'=>';', 'tab'=>"\t"][$delim_choice] ?? ',';
+        }
+
         $header = fgetcsv($fh, 0, $delim);
         if (!$header) {
             $result = ['error' => 'Pusty plik lub zły format.'];
@@ -158,6 +168,7 @@ require_once __DIR__ . '/../includes/header.php';
     <div class="form-group">
       <label class="form-label">Separator kolumn</label>
       <select name="delim" class="form-input">
+        <option value="auto">Auto (wykryj sam)</option>
         <option value="comma">Przecinek ( , )</option>
         <option value="semicolon">Średnik ( ; )</option>
         <option value="tab">Tabulator</option>
