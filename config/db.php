@@ -37,10 +37,10 @@ validate_session();
 // POŁĄCZENIE Z BAZĄ DANYCH
 // Na hostingu ustaw zmienne środowiskowe DB_* lub podmień wartości poniżej.
 // ============================================
-$host     = getenv('sql196.lh.pl') ?: 'localhost';
-$dbname   = getenv('serwer452079_grailos') ?: 'grailos';
-$username = getenv('serwer452079') ?: 'root';
-$password = getenv('gosPSQu08*IH5Q%3') ?: '';
+$host     = getenv('DB_HOST') ?: 'sql196.lh.pl';
+$dbname   = getenv('DB_NAME') ?: 'serwer452079_grailos';
+$username = getenv('DB_USER') ?: 'serwer452079';
+$password = getenv('DB_PASS') ?: 'gosPSQu08*IH5Q%3';
 
 try {
     $pdo = new PDO(
