@@ -40,6 +40,10 @@ def get_page_data(page, url: str) -> dict:
     """Zwraca {jsonld:[str...], meta:{prop:content}, title, url}."""
     page.goto(url, wait_until='domcontentloaded', timeout=45000)
     try:
+        page.wait_for_load_state('networkidle', timeout=8000)
+    except Exception:
+        pass
+    try:
         page.wait_for_timeout(1500)  # daj JS chwilę na dorenderowanie
     except Exception:
         pass
@@ -51,7 +55,10 @@ def get_page_data(page, url: str) -> dict:
             const k = m.getAttribute('property') || m.getAttribute('name');
             if (k && !(k in meta)) meta[k] = m.getAttribute('content') || '';
         });
-        return { jsonld: ld, meta, title: document.title, url: location.href };
+        // wszystkie og:image (galeria), nie tylko pierwszy
+        const ogImages = Array.from(document.querySelectorAll('meta[property="og:image"]'))
+                              .map(m => m.content).filter(Boolean);
+        return { jsonld: ld, meta, ogImages, title: document.title, url: location.href };
     }""")
 
 
@@ -97,24 +104,64 @@ def extract_from_jsonld(jsonld_list: list) -> dict:
             imgs = [i for i in imgs if i]
             if imgs:
                 out.setdefault('images', imgs)
+            # kategoria
+            if p.get('category'):
+                cat = p['category']
+                if isinstance(cat, list):
+                    cat = cat[-1]
+                out.setdefault('category', _clean(cat).split('/')[-1].split('>')[-1].strip())
             # offers / price
             offers = p.get('offers')
             if offers:
                 of = offers[0] if isinstance(offers, list) else offers
                 if isinstance(of, dict):
-                    pr = of.get('price') or of.get('lowPrice')
+                    pr = of.get('price') or of.get('lowPrice') \
+                         or (of.get('priceSpecification', {}) or {}).get('price')
                     if pr:
                         out.setdefault('price', _price(pr))
-            if out.get('name'):
+            if out.get('name') and out.get('price'):
                 return out
     return out
 
 
-def extract_from_meta(meta: dict, title: str) -> dict:
+def extract_breadcrumb_category(jsonld_list: list) -> str:
+    """Kategoria z BreadcrumbList (ostatni element przed produktem)."""
+    for raw in jsonld_list:
+        try:
+            data = json.loads(raw)
+        except Exception:
+            continue
+        stack = data if isinstance(data, list) else [data]
+        for node in stack:
+            if not isinstance(node, dict):
+                continue
+            items = None
+            if str(node.get('@type', '')).lower() == 'breadcrumblist':
+                items = node.get('itemListElement')
+            elif isinstance(node.get('@graph'), list):
+                for g in node['@graph']:
+                    if isinstance(g, dict) and str(g.get('@type','')).lower() == 'breadcrumblist':
+                        items = g.get('itemListElement'); break
+            if items and isinstance(items, list) and len(items) >= 2:
+                names = []
+                for it in items:
+                    nm = it.get('name') if isinstance(it, dict) else None
+                    if not nm and isinstance(it.get('item'), dict):
+                        nm = it['item'].get('name')
+                    if nm:
+                        names.append(_clean(nm))
+                if len(names) >= 2:
+                    return names[-2]  # przedostatni = kategoria (ostatni to produkt)
+    return ''
+
+
+def extract_from_meta(meta: dict, og_images: list, title: str) -> dict:
     out = {}
     if meta.get('og:title') or title:
         out['name'] = _clean(meta.get('og:title') or title)
-    if meta.get('og:image'):
+    if og_images:
+        out['images'] = list(dict.fromkeys(og_images))   # dedup, zachowaj kolejność
+    elif meta.get('og:image'):
         out['images'] = [meta['og:image']]
     if meta.get('og:description'):
         out['description'] = _clean(meta.get('og:description'))
@@ -143,10 +190,16 @@ def _brand_from_domain(url: str) -> str:
 
 def extract_product(page_data: dict, url: str, brand_override='', category_override='') -> dict:
     """Łączy JSON-LD + meta w jeden rekord produktu (CSV importera)."""
-    d = extract_from_jsonld(page_data.get('jsonld', []))
-    m = extract_from_meta(page_data.get('meta', {}), page_data.get('title', ''))
+    jsonld = page_data.get('jsonld', [])
+    d = extract_from_jsonld(jsonld)
+    m = extract_from_meta(page_data.get('meta', {}), page_data.get('ogImages', []), page_data.get('title', ''))
+    # JSON-LD ma pierwszeństwo; meta uzupełnia braki
     for k, v in m.items():
-        d.setdefault(k, v)
+        if not d.get(k):
+            d[k] = v
+    # kategoria z breadcrumbów jako fallback
+    if not d.get('category'):
+        d['category'] = extract_breadcrumb_category(jsonld)
 
     name  = d.get('name', '')
     brand = brand_override or d.get('brand', '') or _brand_from_domain(url)
@@ -160,7 +213,7 @@ def extract_product(page_data: dict, url: str, brand_override='', category_overr
         'sku': d.get('sku', ''),
         'name': name,
         'brand': brand,
-        'category': category_override or '',
+        'category': category_override or d.get('category', ''),
         'price': price,
         'image_url': main_img,
         'description': d.get('description', ''),
