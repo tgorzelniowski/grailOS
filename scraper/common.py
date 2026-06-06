@@ -125,6 +125,22 @@ def extract_from_meta(meta: dict, title: str) -> dict:
     return out
 
 
+# Domeny sklepów markowych: domena -> marka (gdy strona nie podaje marki).
+# Dla wielomarkowych retailerów (END., Zalando, StockX...) NIE zgadujemy marki.
+BRAND_DOMAINS = {
+    'nike': 'Nike', 'adidas': 'adidas', 'supreme': 'Supreme', 'bape': 'A BATHING APE',
+    'palace': 'Palace', 'corteiz': 'Corteiz', 'chromehearts': 'Chrome Hearts',
+    'cactusplantfleamarket': 'Cactus Plant Flea Market', 'denimtears': 'Denim Tears',
+    'fearofgod': 'Fear of God', 'gallerydept': 'Gallery Dept', 'jordan': 'Air Jordan',
+    'newbalance': 'New Balance', 'stussy': 'Stussy', 'carhartt': 'Carhartt',
+}
+
+def _brand_from_domain(url: str) -> str:
+    host = urlparse(url).netloc.lower().replace('www.', '')
+    base = host.split('.')[0] if host else ''
+    return BRAND_DOMAINS.get(base, '')
+
+
 def extract_product(page_data: dict, url: str, brand_override='', category_override='') -> dict:
     """Łączy JSON-LD + meta w jeden rekord produktu (CSV importera)."""
     d = extract_from_jsonld(page_data.get('jsonld', []))
@@ -133,7 +149,7 @@ def extract_product(page_data: dict, url: str, brand_override='', category_overr
         d.setdefault(k, v)
 
     name  = d.get('name', '')
-    brand = brand_override or d.get('brand', '')
+    brand = brand_override or d.get('brand', '') or _brand_from_domain(url)
     price = d.get('price', '')
     images = d.get('images', []) or []
     main_img = images[0] if images else ''

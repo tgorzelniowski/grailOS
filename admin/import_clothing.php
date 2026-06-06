@@ -50,8 +50,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['csv'])) {
             $col = [];
             foreach ($header as $i => $h) $col[strtolower(trim($h))] = $i;
 
-            if (!isset($col['name']) || !isset($col['brand'])) {
-                $result = ['error' => 'CSV musi mieć przynajmniej kolumny: name, brand.'];
+            if (!isset($col['name'])) {
+                $result = ['error' => 'CSV musi mieć przynajmniej kolumnę: name.'];
             } else {
                 // Preload istniejących produktów → ID (dedup + merge)
                 $sku2id = [];   // lower(sku) => id
@@ -110,7 +110,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['csv'])) {
                     $rownum++;
                     $name  = $get($row, 'name');
                     $brand = $get($row, 'brand');
-                    if ($name === '' || $brand === '') { $errors++; continue; }
+                    if ($name === '') { $errors++; continue; }  // marka opcjonalna
 
                     $sku = $get($row, 'sku');
                     $bn  = strtolower(trim($brand.'|'.$name));
