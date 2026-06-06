@@ -107,6 +107,12 @@ try { $openReports = (int)$pdo->query("SELECT COUNT(*) FROM reports WHERE status
       <div class="admin-card-title">Zarządzaj dropami</div>
       <div class="admin-card-sub">Edytuj i usuwaj dropy</div>
     </a>
+    <a href="/grailos/admin/import_drops.php" class="admin-card"
+       data-tags="import csv dropy masowy bulk feed scraper">
+      <div class="admin-card-icon">⇪</div>
+      <div class="admin-card-title">Import dropów CSV</div>
+      <div class="admin-card-sub">Masowy import dropów z deduplikacją</div>
+    </a>
     <a href="/grailos/cron_drop_notifications.php?key=a7f3c9e1b54d28760af1e6c3d9b840e2"
        class="admin-card" target="_blank"
        data-tags="drop powiadomienia notify alert email wyślij">
