@@ -1,6 +1,14 @@
 <?php
 
 // ============================================
+// TRYB BŁĘDÓW (produkcja vs localhost)
+// ============================================
+$is_local = in_array($_SERVER['SERVER_NAME'] ?? '', ['localhost', '127.0.0.1', '::1'], true);
+error_reporting(E_ALL);
+ini_set('log_errors', '1');
+ini_set('display_errors', $is_local ? '1' : '0');  // na produkcji błędy tylko do logu
+
+// ============================================
 // BEZPIECZNA KONFIGURACJA SESJI
 // ============================================
 $is_https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
@@ -27,11 +35,12 @@ validate_session();
 
 // ============================================
 // POŁĄCZENIE Z BAZĄ DANYCH
+// Na hostingu ustaw zmienne środowiskowe DB_* lub podmień wartości poniżej.
 // ============================================
-$host     = 'localhost';
-$dbname   = 'grailos';
-$username = 'root';
-$password = '';
+$host     = getenv('DB_HOST') ?: 'localhost';
+$dbname   = getenv('DB_NAME') ?: 'grailos';
+$username = getenv('DB_USER') ?: 'root';
+$password = getenv('DB_PASS') ?: '';
 
 try {
     $pdo = new PDO(

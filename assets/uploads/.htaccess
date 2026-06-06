@@ -1,0 +1,11 @@
+# Uploady: pozwól serwować obrazy, ale NIGDY nie wykonuj skryptów
+Options -Indexes
+
+<FilesMatch "\.(php|phtml|php3|php4|php5|php7|phar|pl|py|cgi|sh|asp|aspx)$">
+    Require all denied
+</FilesMatch>
+
+# Wyłącz silnik PHP w tym katalogu (jeśli host wspiera)
+<IfModule mod_php.c>
+    php_admin_flag engine off
+</IfModule>
