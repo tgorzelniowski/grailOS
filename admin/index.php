@@ -91,6 +91,12 @@ try { $openReports = (int)$pdo->query("SELECT COUNT(*) FROM reports WHERE status
       <div class="admin-card-title">Import CSV</div>
       <div class="admin-card-sub">Masowy import z deduplikacją</div>
     </a>
+    <a href="/grailos/admin/import_feed.php" class="admin-card"
+       data-tags="import feed afiliacja awin impact rakuten xml produkty katalog deeplink">
+      <div class="admin-card-icon">⥮</div>
+      <div class="admin-card-title">Import z feedu</div>
+      <div class="admin-card-sub">Feedy afiliacyjne (XML/CSV) + mapowanie</div>
+    </a>
   </div>
 
   <div class="admin-group-label">Dropy</div>
