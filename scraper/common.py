@@ -170,9 +170,10 @@ def read_urls(path: str) -> list:
     return urls
 
 
-def write_csv(path: str, cols: list, rows: list):
-    with open(path, 'w', newline='', encoding='utf-8') as f:
-        w = csv.DictWriter(f, fieldnames=cols)
+def write_csv(path: str, cols: list, rows: list, delimiter: str = ';'):
+    # newline='' + utf-8-sig (BOM) — żeby Excel poprawnie otworzył polskie znaki
+    with open(path, 'w', newline='', encoding='utf-8-sig') as f:
+        w = csv.DictWriter(f, fieldnames=cols, delimiter=delimiter)
         w.writeheader()
         for r in rows:
             w.writerow({c: r.get(c, '') for c in cols})

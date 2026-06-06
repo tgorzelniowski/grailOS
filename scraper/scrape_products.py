@@ -20,8 +20,12 @@ def main():
     ap.add_argument('--out', dest='outfile', default='products.csv')
     ap.add_argument('--brand',    default='', help='Wymuś markę dla wszystkich URL-i')
     ap.add_argument('--category', default='', help='Wymuś kategorię (sneakers/hoodie/...)')
+    ap.add_argument('--delim', default='semicolon',
+                    choices=['semicolon', 'comma', 'tab'],
+                    help='Separator kolumn CSV (domyślnie średnik)')
     ap.add_argument('--limit', type=int, default=0)
     args = ap.parse_args()
+    delim = {'semicolon': ';', 'comma': ',', 'tab': '\t'}[args.delim]
 
     urls = read_urls(args.infile)
     if args.limit:
@@ -43,8 +47,8 @@ def main():
                 print(f"[{i}/{len(urls)}] BŁĄD: {url} -> {e}")
 
     run_browser(handler)
-    write_csv(args.outfile, PRODUCT_COLS, rows)
-    print(f"\nZapisano {len(rows)} produktów → {args.outfile}")
+    write_csv(args.outfile, PRODUCT_COLS, rows, delim)
+    print(f"\nZapisano {len(rows)} produktów → {args.outfile}  (separator: {args.delim})")
 
 
 if __name__ == '__main__':

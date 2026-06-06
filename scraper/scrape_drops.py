@@ -19,8 +19,12 @@ def main():
     ap.add_argument('--in',  dest='infile',  default='drop_urls.txt')
     ap.add_argument('--out', dest='outfile', default='drops.csv')
     ap.add_argument('--brand', default='', help='Wymuś markę dla wszystkich URL-i')
+    ap.add_argument('--delim', default='semicolon',
+                    choices=['semicolon', 'comma', 'tab'],
+                    help='Separator kolumn CSV (domyślnie średnik)')
     ap.add_argument('--limit', type=int, default=0)
     args = ap.parse_args()
+    delim = {'semicolon': ';', 'comma': ',', 'tab': '\t'}[args.delim]
 
     urls = read_urls(args.infile)
     if args.limit:
@@ -51,8 +55,8 @@ def main():
                 print(f"[{i}/{len(urls)}] BŁĄD: {url} -> {e}")
 
     run_browser(handler)
-    write_csv(args.outfile, DROP_COLS, rows)
-    print(f"\nZapisano {len(rows)} dropów → {args.outfile}")
+    write_csv(args.outfile, DROP_COLS, rows, delim)
+    print(f"\nZapisano {len(rows)} dropów → {args.outfile}  (separator: {args.delim})")
     print("Pamiętaj uzupełnić kolumnę drop_date przed importem!")
 
 
