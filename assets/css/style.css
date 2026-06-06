@@ -4244,13 +4244,30 @@ img {
 =========================== */
 .footer {
   display: grid;
-  grid-template-columns: auto 1fr auto auto;
+  grid-template-columns: auto 1fr auto auto auto;
   gap: 40px;
   align-items: start;
   padding: 48px 40px;
   border-top: 1px solid var(--border);
   margin-top: 80px;
 }
+
+.footer-socials {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.footer-social {
+  font-size: 12px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--gray);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.footer-social:hover { color: var(--red); }
 
 .footer-newsletter-label {
   font-size: 10px;
@@ -4385,6 +4402,7 @@ img {
   justify-content: center !important;
   gap: 8px !important;
   background: transparent !important;
+  padding-top: 24px !important;
 }
 
 .clothing-grid--home .clothing-card {
@@ -6042,3 +6060,29 @@ img {
   .forum-cat { padding: 7px 12px; font-size: 10px; letter-spacing: 1px; flex: 1 1 auto; text-align: center; }
   .compose-cat-select { margin-left: 0; flex: 1; }
 }
+
+/* ===========================
+   CONTACT — SOCIALE
+=========================== */
+.contact-socials {
+  margin-top: 36px;
+  padding-top: 28px;
+  border-top: 1px solid var(--border);
+}
+.contact-socials-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 14px;
+}
+.contact-social {
+  border: 1px solid var(--border);
+  color: var(--white);
+  font-size: 12px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  text-decoration: none;
+  padding: 10px 22px;
+  transition: all 0.2s;
+}
+.contact-social:hover { border-color: var(--red); color: var(--red); }

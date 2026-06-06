@@ -58,6 +58,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
     <button type="submit" class="btn">Wyślij →</button>
   </form>
+
+  <div class="contact-socials">
+    <div class="form-section-title">/// Znajdź nas</div>
+    <div class="contact-socials-row">
+      <a href="https://instagram.com/" target="_blank" rel="noopener" class="contact-social">Instagram</a>
+      <a href="https://tiktok.com/" target="_blank" rel="noopener" class="contact-social">TikTok</a>
+      <a href="https://discord.com/" target="_blank" rel="noopener" class="contact-social">Discord</a>
+    </div>
+  </div>
 </div>
 
 <?php require_once 'includes/footer.php'; ?>

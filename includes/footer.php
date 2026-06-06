@@ -26,6 +26,13 @@
     <a href="/grailos/privacy.php">Polityka prywatności</a>
     <a href="/grailos/terms.php">Regulamin</a>
   </div>
+
+  <div class="footer-socials">
+    <a href="https://instagram.com/" target="_blank" rel="noopener" class="footer-social" title="Instagram">Instagram</a>
+    <a href="https://tiktok.com/" target="_blank" rel="noopener" class="footer-social" title="TikTok">TikTok</a>
+    <a href="https://discord.com/" target="_blank" rel="noopener" class="footer-social" title="Discord">Discord</a>
+  </div>
+
   <p class="footer-copy">© 2026 GrailOS. All rights reserved.</p>
 </footer>
 
