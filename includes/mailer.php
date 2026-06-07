@@ -22,73 +22,108 @@ function _native_send(string $to, string $to_name, string $subject, string $html
     return @mail("\"$to_name\" <$to>", $enc_subject, $html, $headers);
 }
 
+// Ostatni błąd SMTP (do diagnostyki / strony testowej)
+function mail_last_error(?string $set = null): string {
+    static $err = '';
+    if ($set !== null) $err = $set;
+    return $err;
+}
+
 function _smtp_send(string $to, string $subject, string $html): bool {
+    mail_last_error('');
+    $socket = null;
     try {
-        // Port 465 = implicit SSL (ssl://), port 587/inne = STARTTLS (tcp://)
         $use_ssl   = (int)MAIL_PORT === 465;
         $transport = $use_ssl ? 'ssl://' : 'tcp://';
 
+        $ctx = stream_context_create(['ssl' => [
+            'verify_peer'      => true,
+            'verify_peer_name' => true,
+            'SNI_enabled'      => true,
+        ]]);
+
         $socket = @stream_socket_client(
             $transport . MAIL_HOST . ':' . MAIL_PORT,
-            $errno, $errstr, 15
+            $errno, $errstr, 20, STREAM_CLIENT_CONNECT, $ctx
         );
         if (!$socket) {
-            error_log("SMTP connect failed: $errstr ($errno)");
+            mail_last_error("Połączenie nieudane: $errstr ($errno) — host/port/SSL?");
+            error_log('SMTP: ' . mail_last_error());
             return false;
         }
-        stream_set_timeout($socket, 15);
+        stream_set_timeout($socket, 20);
 
-        $read = fn() => fgets($socket, 512);
-        $write = function(string $cmd) use ($socket): void { fwrite($socket, $cmd . "\r\n"); };
+        // Czyta pełną (wielolinijkową) odpowiedź serwera
+        $readResp = function () use ($socket): string {
+            $data = '';
+            while (($line = fgets($socket, 515)) !== false) {
+                $data .= $line;
+                // ostatnia linia odpowiedzi ma spację na 4. pozycji ("250 OK"),
+                // linie pośrednie myślnik ("250-...")
+                if (strlen($line) < 4 || $line[3] === ' ') break;
+            }
+            return $data;
+        };
+        $cmd = fn(string $c) => fwrite($socket, $c . "\r\n");
 
-        $read(); // greeting
-        $ehlo = 'EHLO ' . ($_SERVER['SERVER_NAME'] ?? 'localhost');
-        $write($ehlo);
-        while (($l = $read()) && isset($l[3]) && $l[3] !== ' ');
+        // Sprawdza kod odpowiedzi; przy błędzie zapisuje treść i rzuca wyjątek
+        $expect = function ($want) use ($readResp): void {
+            $r = $readResp();
+            $code = (int)substr($r, 0, 3);
+            if (!in_array($code, (array)$want, true)) {
+                mail_last_error(trim($r) ?: 'brak odpowiedzi serwera');
+                throw new \RuntimeException(mail_last_error());
+            }
+        };
 
-        // STARTTLS tylko gdy nie używamy implicit SSL (465)
-        if (!$use_ssl) {
-            $write('STARTTLS');
-            $read();
-            stream_socket_enable_crypto($socket, true, STREAM_CRYPTO_METHOD_TLS_CLIENT);
-            $write($ehlo);
-            while (($l = $read()) && isset($l[3]) && $l[3] !== ' ');
+        // nazwa HELO z domeny nadawcy
+        $helo = substr(strrchr(MAIL_FROM, '@') ?: '@localhost', 1);
+
+        $expect(220);                         // powitanie
+        $cmd('EHLO ' . $helo); $expect(250);
+
+        if (!$use_ssl) {                      // STARTTLS dla 587
+            $cmd('STARTTLS'); $expect(220);
+            if (!stream_socket_enable_crypto($socket, true, STREAM_CRYPTO_METHOD_TLS_CLIENT)) {
+                mail_last_error('STARTTLS — nie udało się nawiązać szyfrowania');
+                throw new \RuntimeException(mail_last_error());
+            }
+            $cmd('EHLO ' . $helo); $expect(250);
         }
 
-        $write('AUTH LOGIN');
-        $read();
-        $write(base64_encode(MAIL_USER));
-        $read();
-        $write(base64_encode(MAIL_PASS));
-        $r = $read();
-        if (substr($r, 0, 3) !== '235') {
-            error_log('SMTP auth failed: ' . trim($r));
-            fclose($socket);
-            return false;
-        }
+        $cmd('AUTH LOGIN');               $expect(334);
+        $cmd(base64_encode(MAIL_USER));   $expect(334);
+        $cmd(base64_encode(MAIL_PASS));   $expect(235);   // 235 = autoryzacja OK
 
-        $write('MAIL FROM: <' . MAIL_FROM . '>');
-        $read();
-        $write("RCPT TO: <$to>");
-        $read();
-        $write('DATA');
-        $read();
+        $cmd('MAIL FROM:<' . MAIL_FROM . '>'); $expect(250);
+        $cmd('RCPT TO:<' . $to . '>');         $expect([250, 251]);
+        $cmd('DATA');                          $expect(354);
 
-        $msg  = "To: $to\r\n";
+        $msg  = 'Date: ' . date('r') . "\r\n";
+        $msg .= 'From: =?UTF-8?B?' . base64_encode(MAIL_FROM_NAME) . '?= <' . MAIL_FROM . ">\r\n";
+        $msg .= "To: <$to>\r\n";
         $msg .= 'Subject: =?UTF-8?B?' . base64_encode($subject) . "?=\r\n";
         $msg .= "MIME-Version: 1.0\r\n";
         $msg .= "Content-Type: text/html; charset=UTF-8\r\n";
-        $msg .= 'From: =?UTF-8?B?' . base64_encode(MAIL_FROM_NAME) . '?= <' . MAIL_FROM . ">\r\n";
-        $msg .= "\r\n" . $html . "\r\n.";
-        $write($msg);
-        $read();
+        $msg .= "\r\n" . $html;
 
-        $write('QUIT');
+        // KLUCZOWE dla qmail (LH): wszystkie końce linii muszą być CRLF,
+        // inaczej serwer odrzuca z błędem 451 (bare line feed / smtplf).
+        $msg = preg_replace('/\r\n|\r|\n/', "\r\n", $msg);
+        // dot-stuffing: linie zaczynające się od kropki podwajamy
+        $msg = str_replace("\r\n.", "\r\n..", $msg);
+
+        fwrite($socket, $msg . "\r\n.\r\n");
+        $expect(250);                          // serwer przyjął wiadomość
+
+        $cmd('QUIT');
         fclose($socket);
         return true;
 
     } catch (\Throwable $e) {
-        error_log('SMTP error: ' . $e->getMessage());
+        if (mail_last_error() === '') mail_last_error($e->getMessage());
+        error_log('SMTP: ' . mail_last_error());
+        if (is_resource($socket)) @fclose($socket);
         return false;
     }
 }

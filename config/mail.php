@@ -17,4 +17,4 @@ define('MAIL_SMTP',      true);
 define('MAIL_HOST',      'mail-serwer452079.lh.pl');
 define('MAIL_PORT',      465);
 define('MAIL_USER',      'no-reply@grailos.pl');
-define('MAIL_PASS',      'nmNGMJ6&Xg%2<#nC'); 
+define('MAIL_PASS',      'nmNbMJ6&Xg%2<#nC'); 
