@@ -14,6 +14,8 @@ $drops = $pdo->prepare("
 $drops->execute([$uid]);
 $drops = $drops->fetchAll();
 
+$meta_title = 'Dropy — kalendarz premier';
+$meta_desc  = 'Kalendarz dropów i premier sneakerów oraz streetwearu. Ustaw przypomnienie i nie przegap dropu na GrailOS.';
 require_once 'includes/header.php';
 ?>
 

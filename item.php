@@ -48,6 +48,26 @@ if ($rv_ids) {
     $rv_items = $fetched;
 }
 
+// ---- SEO ----
+$meta_title = trim(($item['brand'] ? $item['brand'] . ' ' : '') . $item['name']);
+$meta_desc  = $item['description']
+    ? $item['description']
+    : ($meta_title . ' — sprawdź ceny i sklepy. Streetwear i sneakery na GrailOS.');
+$meta_image = $item['image_url'] ?: '';
+$meta_type  = 'product';
+$_low = $links ? (float)$links[0]['price'] : (float)($item['price'] ?? 0);
+$_jp  = [
+    '@context' => 'https://schema.org', '@type' => 'Product',
+    'name' => $item['name'], 'image' => array_values($all_imgs),
+    'description' => mb_substr((string)$item['description'], 0, 300),
+];
+if ($item['brand'])           $_jp['brand'] = ['@type' => 'Brand', 'name' => $item['brand']];
+if (!empty($item['sku']))     $_jp['sku'] = $item['sku'];
+if (!empty($item['ean']))     $_jp['gtin13'] = $item['ean'];
+if ($_low > 0) $_jp['offers'] = ['@type' => 'Offer', 'price' => number_format($_low, 2, '.', ''),
+    'priceCurrency' => 'PLN', 'availability' => 'https://schema.org/InStock'];
+$seo_jsonld = '<script type="application/ld+json">' . json_encode($_jp, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . '</script>';
+
 require_once 'includes/header.php';
 ?>
 

@@ -1,4 +1,8 @@
-<?php require_once 'includes/header.php'; ?>
+<?php
+$meta_title = 'Katalog — ubrania i buty';
+$meta_desc  = 'Przeglądaj katalog streetwearu i sneakerów na GrailOS — porównaj ceny w sklepach i dodaj do szafy.';
+require_once 'includes/header.php';
+?>
 
 <section class="page-header">
   <div class="page-header-tag">/// Browse</div>

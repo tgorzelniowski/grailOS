@@ -2,13 +2,59 @@
 require_once __DIR__ . '/../config/db.php';
 require_once __DIR__ . '/notifications.php';
 $navUnread = isset($_SESSION['user_id']) ? notif_unread_count($pdo, (int)$_SESSION['user_id']) : 0;
+
+// ---------- SEO / meta (strony mogą ustawić $meta_* przed include) ----------
+$SITE_NAME = 'GrailOS';
+$scheme    = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || ($_SERVER['SERVER_PORT'] ?? 80) == 443 ? 'https' : 'http';
+$host      = $_SERVER['HTTP_HOST'] ?? 'grailos.pl';
+$base      = $scheme . '://' . $host;
+
+$_t = trim($meta_title ?? '');
+$seo_title = $_t !== '' ? ($_t . ' — ' . $SITE_NAME)
+           : 'GrailOS — polska społeczność sneakerów i streetwearu';
+$seo_desc  = trim($meta_desc ?? '');
+if ($seo_desc === '') {
+    $seo_desc = 'GrailOS — katalog ubrań i butów z porównaniem sklepów, dropy, fity i forum dla fanów streetwearu i sneakerów w Polsce.';
+}
+$seo_desc  = mb_substr(preg_replace('/\s+/', ' ', $seo_desc), 0, 160);
+
+// canonical: bieżący URL bez fragmentu (#...)
+$seo_canonical = $base . strtok($_SERVER['REQUEST_URI'] ?? '/', '#');
+if (!empty($meta_canonical)) {
+    $seo_canonical = (strpos($meta_canonical, 'http') === 0) ? $meta_canonical : $base . $meta_canonical;
+}
+
+// obrazek OG (absolutny)
+$seo_image = $meta_image ?? '/favicon.svg';
+if (strpos($seo_image, 'http') !== 0) $seo_image = $base . $seo_image;
+
+$seo_type   = $meta_type   ?? 'website';
+$seo_robots = $meta_robots ?? 'index, follow';
 ?>
 <!DOCTYPE html>
 <html lang="pl">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GrailOS</title>
+  <title><?= htmlspecialchars($seo_title) ?></title>
+  <meta name="description" content="<?= htmlspecialchars($seo_desc) ?>">
+  <meta name="robots" content="<?= htmlspecialchars($seo_robots) ?>">
+  <link rel="canonical" href="<?= htmlspecialchars($seo_canonical) ?>">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="<?= htmlspecialchars($seo_type) ?>">
+  <meta property="og:site_name" content="<?= $SITE_NAME ?>">
+  <meta property="og:locale" content="pl_PL">
+  <meta property="og:title" content="<?= htmlspecialchars($seo_title) ?>">
+  <meta property="og:description" content="<?= htmlspecialchars($seo_desc) ?>">
+  <meta property="og:url" content="<?= htmlspecialchars($seo_canonical) ?>">
+  <meta property="og:image" content="<?= htmlspecialchars($seo_image) ?>">
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="<?= htmlspecialchars($seo_title) ?>">
+  <meta name="twitter:description" content="<?= htmlspecialchars($seo_desc) ?>">
+  <meta name="twitter:image" content="<?= htmlspecialchars($seo_image) ?>">
+
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="apple-touch-icon" href="/favicon.svg">
@@ -16,6 +62,7 @@ $navUnread = isset($_SESSION['user_id']) ? notif_unread_count($pdo, (int)$_SESSI
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/assets/css/style.css">
+  <?= $seo_jsonld ?? '' ?>
 </head>
 <body>
 

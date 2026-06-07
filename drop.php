@@ -35,6 +35,15 @@ if ($uid) {
     $is_notified = (bool)$nstmt->fetch();
 }
 
+// ---- SEO ----
+$meta_title = trim(($drop['brand'] ? $drop['brand'] . ' ' : '') . $drop['name']) . ' — drop';
+$meta_desc  = $drop['description']
+    ? $drop['description']
+    : ('Data dropu: ' . date('d.m.Y H:i', strtotime($drop['drop_date'])) . '. Premiera ' .
+       trim(($drop['brand'] ? $drop['brand'] . ' ' : '') . $drop['name']) . ' na GrailOS — ustaw przypomnienie.');
+$meta_image = $drop['image_url'] ?: '';
+$meta_type  = 'product';
+
 require_once 'includes/header.php';
 ?>
 

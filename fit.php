@@ -202,6 +202,14 @@ function renderReplyTree($reply, $comment_id, $child_replies, $fit_id, $depth = 
     <?php
 }
 
+// ---- SEO ----
+$meta_title = 'Fit @' . $fit['username'];
+$meta_desc  = $fit['description']
+    ? $fit['description']
+    : ('Outfit od @' . $fit['username'] . ' — zobacz fit i zagłosuj na GrailOS.');
+$meta_image = $fit['image_url'] ?: '';
+$meta_type  = 'article';
+
 require_once 'includes/header.php';
 ?>
 

@@ -1,5 +1,5 @@
 <?php
-require_once 'includes/header.php';
+require_once 'config/db.php';
 
 $username = trim($_GET['username'] ?? '');
 if (!$username) { header('Location: /'); exit; }
@@ -8,6 +8,15 @@ $stmt = $pdo->prepare("SELECT * FROM users WHERE username = ? AND is_banned = 0"
 $stmt->execute([$username]);
 $user = $stmt->fetch();
 if (!$user) { header('Location: /'); exit; }
+
+// ---- SEO ----
+$meta_title = '@' . $user['username'];
+$meta_desc  = !empty($user['bio']) ? $user['bio']
+            : ('Profil @' . $user['username'] . ' na GrailOS — fity, szafa i kolekcja streetwear.');
+$meta_image = $user['avatar_url'] ?: '';
+$meta_type  = 'profile';
+
+require_once 'includes/header.php';
 
 $is_own    = isset($_SESSION['user_id']) && $_SESSION['user_id'] == $user['id'];
 $viewer_admin = !empty($_SESSION['is_admin']);

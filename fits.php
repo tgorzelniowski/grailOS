@@ -1,4 +1,8 @@
-<?php require_once 'includes/header.php'; ?>
+<?php
+$meta_title = 'Fity — outfity społeczności';
+$meta_desc  = 'Zobacz fity i outfity społeczności GrailOS, głosuj na najlepsze stylizacje streetwear i pokaż swój fit.';
+require_once 'includes/header.php';
+?>
 
 <section class="page-header">
   <div class="page-header-tag">/// Community</div>

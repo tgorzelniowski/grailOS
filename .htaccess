@@ -20,6 +20,8 @@ Options -Indexes
     RewriteEngine On
     RewriteRule ^config/ - [F,L]
     RewriteRule ^includes/ - [F,L]
+    # Mapa strony pod ładnym adresem /sitemap.xml
+    RewriteRule ^sitemap\.xml$ sitemap.php [L]
 </IfModule>
 
 # Nagłówki bezpieczeństwa (jeśli mod_headers aktywny)

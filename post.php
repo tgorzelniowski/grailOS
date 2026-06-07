@@ -70,6 +70,13 @@ if (isset($_SESSION['user_id'])) {
     $liked = (bool)$l->fetch();
 }
 
+// ---- SEO ----
+$_pt = trim(preg_replace('/\s+/', ' ', strip_tags($post['content'])));
+$meta_title = ($FORUM_CATS[$post['category']] ?? 'Forum') . ': ' . mb_substr($_pt, 0, 60);
+$meta_desc  = $_pt !== '' ? $_pt : 'Dyskusja na forum GrailOS — streetwear, sneakery, legit check.';
+$meta_image = $post['image_url'] ?: '';
+$meta_type  = 'article';
+
 require_once 'includes/header.php';
 require_once __DIR__ . '/includes/stories_lib.php';
 require_once __DIR__ . '/includes/comment_likes.php';

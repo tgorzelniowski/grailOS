@@ -91,6 +91,8 @@ $stmt = $pdo->prepare("
 $stmt->execute($filter_params);
 $posts = $stmt->fetchAll();
 
+$meta_title = 'Forum — streetwear, sneakery, legit check';
+$meta_desc  = 'Forum społeczności GrailOS: dyskusje o streetwearze, sneakerach, WTB/WTS i legit check. Dołącz do rozmowy.';
 require_once 'includes/header.php';
 require_once __DIR__ . '/includes/stories_lib.php';
 $story_map = active_stories_map($pdo, array_column($posts, 'user_id'), (int)($_SESSION['user_id'] ?? 0));

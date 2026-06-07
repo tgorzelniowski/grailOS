@@ -1,0 +1,17 @@
+User-agent: *
+Allow: /
+
+# Sekcje prywatne / nieindeksowalne
+Disallow: /admin/
+Disallow: /settings.php
+Disallow: /notifications.php
+Disallow: /login.php
+Disallow: /register.php
+Disallow: /logout.php
+Disallow: /forgot_password.php
+Disallow: /reset_password.php
+Disallow: /search.php
+Disallow: /search_suggest.php
+Disallow: /report_submit.php
+
+Sitemap: https://grailos.pl/sitemap.xml
