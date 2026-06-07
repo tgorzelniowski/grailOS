@@ -247,7 +247,8 @@ async function likeComment(type, id, btn) {
   const data = await res.json();
   if (data.success) {
     btn.classList.toggle('liked', data.liked);
-    const c = btn.querySelector('.clike-count');
+    const wrap = btn.closest('.clike-wrap');
+    const c = wrap ? wrap.querySelector('.clike-count') : null;
     if (c) c.textContent = data.likes;
   }
 }

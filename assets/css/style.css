@@ -6286,3 +6286,17 @@ img {
   box-shadow: 0 0 0 1px #000, 0 8px 30px rgba(0,0,0,0.6);
   background: #000;
 }
+
+/* Lajk komentarza: serce (toggle) + osobna klikalna liczba → lista */
+.clike-wrap { display: inline-flex; align-items: center; gap: 7px; }
+.clike-count-link {
+  text-decoration: none;
+  color: var(--gray);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+.clike-count-link:hover { color: var(--red); text-decoration: underline; }
+.clike-wrap .clike-btn { padding: 4px 11px; }

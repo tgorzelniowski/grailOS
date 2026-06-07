@@ -25,11 +25,13 @@ if (!function_exists('clike_meta')) {
 
 if (!function_exists('clike_button')) {
     function clike_button(string $type, int $id, array $meta, bool $logged): string {
-        $cls = 'clike-btn' . ($meta['liked'] ? ' liked' : '');
-        if ($logged) {
-            return "<button class='$cls' onclick=\"likeComment('$type',$id,this)\">"
-                 . "♥ <span class='clike-count'>{$meta['count']}</span></button>";
-        }
-        return "<span class='clike-btn'>♥ <span class='clike-count'>{$meta['count']}</span></span>";
+        $cls   = 'clike-btn' . ($meta['liked'] ? ' liked' : '');
+        $heart = $logged
+            ? "<button class='$cls' onclick=\"likeComment('$type',$id,this)\" title='Polub'>♥</button>"
+            : "<span class='$cls'>♥</span>";
+        // Liczba zawsze klikalna → lista osób, które polubiły
+        $count = "<a href='/likers.php?type=$type&id=$id' class='clike-count-link' title='Zobacz kto polubił'>"
+               . "<span class='clike-count'>{$meta['count']}</span></a>";
+        return "<span class='clike-wrap'>$heart$count</span>";
     }
 }
