@@ -26,6 +26,8 @@ if ($check->fetch()) {
     $pdo->prepare("INSERT INTO follows (follower_id, following_id) VALUES (?, ?)")
         ->execute([$user_id, $target_id]);
     $following = true;
+    require_once __DIR__ . '/includes/notifications.php';
+    notify($pdo, (int)$target_id, (int)$user_id, 'follow', (int)$user_id);
 }
 
 $count = $pdo->prepare("SELECT COUNT(*) FROM follows WHERE following_id = ?");

@@ -34,6 +34,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reply'])) {
     } else {
         $pdo->prepare("INSERT INTO post_replies (post_id, user_id, content, parent_id) VALUES (?, ?, ?, ?)")
             ->execute([$id, $_SESSION['user_id'], $content, $parent_id]);
+        require_once __DIR__ . '/includes/notifications.php';
+        notify($pdo, (int)$post['user_id'], (int)$_SESSION['user_id'], 'post_reply', $id);
         header("Location: /post.php?id=$id");
         exit;
     }
@@ -70,6 +72,8 @@ if (isset($_SESSION['user_id'])) {
 
 require_once 'includes/header.php';
 require_once __DIR__ . '/includes/stories_lib.php';
+require_once __DIR__ . '/includes/comment_likes.php';
+$VIEWER_ID = (int)($_SESSION['user_id'] ?? 0);
 $story_author_ids = array_merge([$post['user_id']], array_column($all_replies, 'user_id'));
 $story_map = active_stories_map($pdo, $story_author_ids, (int)($_SESSION['user_id'] ?? 0));
 
@@ -99,6 +103,7 @@ function renderAvatar($user, $size = 40) {
 
 // Rekurencyjne drzewko odpowiedzi
 function renderPostReply($r, $child_replies, $depth = 0) {
+    global $pdo, $VIEWER_ID;
     $children = $child_replies[$r['id']] ?? [];
     $av_size  = $depth === 0 ? 36 : 28;
     $can_del  = isset($_SESSION['user_id']) &&
@@ -131,8 +136,13 @@ function renderPostReply($r, $child_replies, $depth = 0) {
           </div>
         </div>
         <div class="post-card-content"><?= nl2br(htmlspecialchars($r['content'])) ?></div>
+        <div class="comment-actions">
+          <?= clike_button('post_reply', (int)$r['id'], clike_meta($pdo, 'post_reply', (int)$r['id'], $VIEWER_ID), isset($_SESSION['user_id'])) ?>
+          <?php if (isset($_SESSION['user_id'])): ?>
+            <button class="reply-toggle-btn" onclick="toggleReplyForm('rf-<?= $r['id'] ?>')">↩ Odpowiedz</button>
+          <?php endif; ?>
+        </div>
         <?php if (isset($_SESSION['user_id'])): ?>
-          <button class="reply-toggle-btn" onclick="toggleReplyForm('rf-<?= $r['id'] ?>')">↩ Odpowiedz</button>
           <form method="POST" class="nested-reply-form" id="rf-<?= $r['id'] ?>" style="display:none;">
             <?= csrf_field() ?>
             <input type="hidden" name="reply" value="1">
@@ -203,6 +213,9 @@ function renderPostReply($r, $child_replies, $depth = 0) {
         </button>
       <?php else: ?>
         <span class="post-stat">♥ <?= $post['likes'] ?></span>
+      <?php endif; ?>
+      <?php if ($post['likes'] > 0): ?>
+        <a href="/likers.php?type=post&id=<?= $post['id'] ?>" class="post-stat">kto polubił?</a>
       <?php endif; ?>
       <a href="/forum.php" class="post-stat">← Forum</a>
       <?php if (isset($_SESSION['user_id']) && $post['user_id'] != $_SESSION['user_id']): ?>

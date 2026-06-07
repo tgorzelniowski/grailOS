@@ -39,7 +39,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $hash = password_hash($password, PASSWORD_BCRYPT, ['cost' => 12]);
             $pdo->prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)")
                 ->execute([$username, $email, $hash]);
-            $success = 'Konto utworzone! Możesz się teraz zalogować.';
+            header('Location: /login.php?registered=1');
+            exit;
         }
     }
 }

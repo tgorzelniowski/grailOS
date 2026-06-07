@@ -22,6 +22,10 @@ if ($stmt->fetch()) {
 } else {
     $pdo->prepare("INSERT INTO post_likes (post_id, user_id) VALUES (?, ?)")->execute([$post_id, $user_id]);
     $liked = true;
+    require_once __DIR__ . '/includes/notifications.php';
+    $o = $pdo->prepare("SELECT user_id FROM posts WHERE id = ?");
+    $o->execute([$post_id]);
+    notify($pdo, (int)$o->fetchColumn(), (int)$user_id, 'post_like', $post_id);
 }
 
 $count = $pdo->prepare("SELECT COUNT(*) FROM post_likes WHERE post_id = ?");

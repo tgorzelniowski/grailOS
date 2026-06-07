@@ -237,6 +237,23 @@ document.addEventListener('DOMContentLoaded', () => {
 <?php endif; ?>
 
 <script>
+// Lajkowanie komentarzy/odpowiedzi (fit_comment / fit_reply / post_reply)
+async function likeComment(type, id, btn) {
+  const res = await fetch('/comment_like.php', {
+    method: 'POST',
+    headers: {'Content-Type':'application/x-www-form-urlencoded'},
+    body: `type=${encodeURIComponent(type)}&id=${id}`
+  });
+  const data = await res.json();
+  if (data.success) {
+    btn.classList.toggle('liked', data.liked);
+    const c = btn.querySelector('.clike-count');
+    if (c) c.textContent = data.likes;
+  }
+}
+</script>
+
+<script>
 async function newsletterSubmit(e) {
   e.preventDefault();
   const form  = e.target;

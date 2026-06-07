@@ -1,4 +1,8 @@
-<?php require_once __DIR__ . '/../config/db.php'; ?>
+<?php
+require_once __DIR__ . '/../config/db.php';
+require_once __DIR__ . '/notifications.php';
+$navUnread = isset($_SESSION['user_id']) ? notif_unread_count($pdo, (int)$_SESSION['user_id']) : 0;
+?>
 <!DOCTYPE html>
 <html lang="pl">
 <head>
@@ -38,6 +42,7 @@
         <a href="/profile.php?username=<?= urlencode($_SESSION['username']) ?>">
           @<?= htmlspecialchars($_SESSION['username']) ?>
         </a>
+        <a href="/notifications.php">Powiadomienia<?= $navUnread > 0 ? ' ('.$navUnread.')' : '' ?></a>
         <a href="/settings.php">Ustawienia</a>
         <?php if ($_SESSION['is_admin']): ?>
           <a href="/admin/">Panel admina</a>
@@ -79,6 +84,13 @@
         <?php if ($_SESSION['is_admin']): ?>
           <a href="/admin/" class="nav-sm">Admin</a>
         <?php endif; ?>
+        <a href="/notifications.php" class="nav-bell" title="Powiadomienia" aria-label="Powiadomienia">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+          </svg>
+          <?php if ($navUnread > 0): ?><span class="nav-bell-badge"><?= $navUnread > 9 ? '9+' : $navUnread ?></span><?php endif; ?>
+        </a>
         <a href="/profile.php?username=<?= urlencode($_SESSION['username']) ?>"
            class="nav-avatar-link">
           <?php if (!empty($_SESSION['avatar_url'])): ?>

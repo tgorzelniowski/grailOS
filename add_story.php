@@ -349,12 +349,46 @@ function pointerMove(e) {
 }
 function pointerUp() { drag = null; bgDrag = null; }
 
+// --- Gesty wielodotykowe: pinch-zoom + obrót ---
+let gesture = null;
+const tDist  = t => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
+const tAngle = t => Math.atan2(t[1].clientY - t[0].clientY, t[1].clientX - t[0].clientX) * 180 / Math.PI;
+
+function onTouchStart(e) {
+  if (e.touches.length === 2) {
+    drag = null; bgDrag = null;
+    gesture = { dist: tDist(e.touches), angle: tAngle(e.touches) };
+    e.preventDefault();
+  } else {
+    pointerDown(e);
+  }
+}
+function onTouchMove(e) {
+  if (e.touches.length === 2 && gesture) {
+    const d = tDist(e.touches), a = tAngle(e.touches);
+    const ratio = gesture.dist ? d / gesture.dist : 1;
+    const da = a - gesture.angle;
+    if (selected >= 0) {
+      objects[selected].size = Math.max(14, Math.min(420, objects[selected].size * ratio));
+      objects[selected].rot  = (objects[selected].rot || 0) + da;
+    } else {
+      bgScale = Math.max(0.3, Math.min(5, bgScale * ratio));
+      document.getElementById('bgZoom').value = Math.min(3, bgScale);
+    }
+    gesture.dist = d; gesture.angle = a;
+    e.preventDefault(); render();
+  } else if (e.touches.length === 1) {
+    pointerMove(e);
+  }
+}
+function onTouchEnd(e) { if (e.touches.length < 2) gesture = null; pointerUp(); }
+
 canvas.addEventListener('mousedown', pointerDown);
 canvas.addEventListener('mousemove', pointerMove);
 window.addEventListener('mouseup', pointerUp);
-canvas.addEventListener('touchstart', pointerDown, {passive:false});
-canvas.addEventListener('touchmove', pointerMove, {passive:false});
-window.addEventListener('touchend', pointerUp);
+canvas.addEventListener('touchstart', onTouchStart, {passive:false});
+canvas.addEventListener('touchmove', onTouchMove, {passive:false});
+window.addEventListener('touchend', onTouchEnd);
 
 // --- Zdjęcie: tryb / zoom / reset ---
 function setBgMode(mode, btn) {

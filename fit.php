@@ -1,5 +1,7 @@
 <?php
 require_once 'config/db.php';
+require_once __DIR__ . '/includes/comment_likes.php';
+$VIEWER_ID = (int)($_SESSION['user_id'] ?? 0);
 
 $id = (int)($_GET['id'] ?? 0);
 if (!$id) { header('Location: /fits.php'); exit; }
@@ -30,6 +32,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['comment'])) {
     } else {
         $pdo->prepare("INSERT INTO fit_comments (fit_id, user_id, content) VALUES (?, ?, ?)")
             ->execute([$id, $_SESSION['user_id'], $content]);
+        require_once __DIR__ . '/includes/notifications.php';
+        notify($pdo, (int)$fit['user_id'], (int)$_SESSION['user_id'], 'fit_comment', $id);
         header("Location: /fit.php?id=$id#comments");
         exit;
     }
@@ -50,6 +54,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reply_comment_id'])) 
             $pdo->prepare("INSERT INTO fit_comment_replies (comment_id, user_id, content) VALUES (?, ?, ?)")
                 ->execute([$comment_id, $_SESSION['user_id'], $content]);
         }
+        // Powiadom autora komentarza, do którego dodano odpowiedź
+        require_once __DIR__ . '/includes/notifications.php';
+        $ca = $pdo->prepare("SELECT user_id FROM fit_comments WHERE id = ?");
+        $ca->execute([$comment_id]);
+        notify($pdo, (int)$ca->fetchColumn(), (int)$_SESSION['user_id'], 'fit_comment', $id);
     }
     header("Location: /fit.php?id=$id#comment-$comment_id");
     exit;
@@ -119,6 +128,7 @@ $multi = count($all_fit_imgs) > 1;
 
 // Rekurencyjne renderowanie drzewka odpowiedzi
 function renderReplyTree($reply, $comment_id, $child_replies, $fit_id, $depth = 0) {
+    global $pdo, $VIEWER_ID;
     $children = $child_replies[$reply['id']] ?? [];
     $can_del  = isset($_SESSION['user_id']) &&
                 ($reply['user_id'] == $_SESSION['user_id'] || !empty($_SESSION['is_admin']));
@@ -160,8 +170,13 @@ function renderReplyTree($reply, $comment_id, $child_replies, $fit_id, $depth = 
       <div style="font-size:13px;color:var(--gray);line-height:1.5;">
         <?= htmlspecialchars($reply['content']) ?>
       </div>
+      <div class="comment-actions">
+        <?= clike_button('fit_reply', (int)$reply['id'], clike_meta($pdo, 'fit_reply', (int)$reply['id'], $VIEWER_ID), isset($_SESSION['user_id'])) ?>
+        <?php if (isset($_SESSION['user_id'])): ?>
+          <button class="reply-toggle-btn" onclick="toggleReply('rrf-<?= $reply['id'] ?>')">Odpowiedz</button>
+        <?php endif; ?>
+      </div>
       <?php if (isset($_SESSION['user_id'])): ?>
-        <button class="reply-toggle-btn" onclick="toggleReply('rrf-<?= $reply['id'] ?>')">Odpowiedz</button>
         <form method="POST" class="reply-form" id="rrf-<?= $reply['id'] ?>" style="display:none;">
           <?= csrf_field() ?>
           <input type="hidden" name="reply_comment_id" value="<?= $comment_id ?>">
@@ -251,6 +266,9 @@ require_once 'includes/header.php';
       <?php else: ?>
         <span class="vote-count-static" style="font-size:15px;">♥ <?= $fit['votes'] ?></span>
       <?php endif; ?>
+      <?php if ($fit['votes'] > 0): ?>
+        <a href="/likers.php?type=fit&id=<?= $fit['id'] ?>" class="report-btn" style="color:var(--gray);">kto polubił?</a>
+      <?php endif; ?>
 
       <div style="margin-left:auto; display:flex; gap:8px; align-items:center;">
         <?php if (isset($_SESSION['user_id']) && $fit['user_id'] != $_SESSION['user_id']): ?>
@@ -327,10 +345,13 @@ require_once 'includes/header.php';
 
           <div class="comment-content"><?= htmlspecialchars($c['content']) ?></div>
 
-          <?php if (isset($_SESSION['user_id'])): ?>
-            <button class="reply-toggle-btn"
-                    onclick="toggleReply('reply-form-<?= $c['id'] ?>')">Odpowiedz</button>
-          <?php endif; ?>
+          <div class="comment-actions">
+            <?= clike_button('fit_comment', (int)$c['id'], clike_meta($pdo, 'fit_comment', (int)$c['id'], $VIEWER_ID), isset($_SESSION['user_id'])) ?>
+            <?php if (isset($_SESSION['user_id'])): ?>
+              <button class="reply-toggle-btn"
+                      onclick="toggleReply('reply-form-<?= $c['id'] ?>')">Odpowiedz</button>
+            <?php endif; ?>
+          </div>
 
           <?php if ($c_replies): ?>
             <div class="comment-replies">

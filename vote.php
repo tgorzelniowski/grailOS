@@ -28,6 +28,10 @@ if ($existing) {
     // Dodaj głos
     $pdo->prepare("INSERT INTO fit_votes (fit_id, user_id) VALUES (?, ?)")->execute([$fit_id, $user_id]);
     $voted = true;
+    require_once __DIR__ . '/includes/notifications.php';
+    $o = $pdo->prepare("SELECT user_id FROM fits WHERE id = ?");
+    $o->execute([$fit_id]);
+    notify($pdo, (int)$o->fetchColumn(), (int)$user_id, 'fit_vote', $fit_id);
 }
 
 $votes = $pdo->prepare("SELECT COUNT(*) FROM fit_votes WHERE fit_id = ?");

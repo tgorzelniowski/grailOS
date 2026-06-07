@@ -159,6 +159,10 @@ $outfits = $outfits->fetchAll();
   </div>
   <div class="profile-joined">Dołączył <?= date('F Y', strtotime($user['created_at'])) ?></div>
 
+  <?php if (!empty($user['bio'])): ?>
+    <p class="profile-bio"><?= nl2br(htmlspecialchars($user['bio'])) ?></p>
+  <?php endif; ?>
+
   <?php if ($is_own): ?>
     <a href="/settings.php" class="btn btn-outline"
        style="margin-top:16px; font-size:11px; padding:6px 16px;">⚙ Ustawienia konta</a>

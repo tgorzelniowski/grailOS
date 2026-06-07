@@ -1,7 +1,12 @@
 <?php
 require_once 'config/db.php';
 
-$error = '';
+$error   = '';
+$success = '';
+
+if (!empty($_GET['registered'])) {
+    $success = 'Konto utworzone! Możesz się teraz zalogować.';
+}
 
 // Komunikaty z walidacji sesji
 if (!empty($_GET['expired'])) {
@@ -60,6 +65,9 @@ require_once 'includes/header.php';
     <div class="auth-tag">/// Welcome back</div>
     <h1 class="auth-title">LOGIN</h1>
 
+    <?php if ($success): ?>
+      <div class="form-success"><?= htmlspecialchars($success) ?></div>
+    <?php endif; ?>
     <?php if ($error): ?>
       <div class="form-error"><?= htmlspecialchars($error) ?></div>
     <?php endif; ?>

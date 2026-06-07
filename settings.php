@@ -81,6 +81,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
+    // === OPIS (BIO) ===
+    if ($section === 'bio') {
+        $bio = trim($_POST['bio'] ?? '');
+        if (mb_strlen($bio) > 300) $bio = mb_substr($bio, 0, 300);
+        try {
+            $pdo->prepare("UPDATE users SET bio = ? WHERE id = ?")
+                ->execute([$bio !== '' ? $bio : null, $_SESSION['user_id']]);
+            $success = 'Opis zapisany!';
+        } catch (Exception $e) {
+            $error = 'Uruchom migrację features_batch_migration.sql w phpMyAdmin.';
+        }
+    }
+
     // === PRYWATNOŚĆ ===
     if ($section === 'privacy') {
         $sw = isset($_POST['show_wardrobe']) ? 1 : 0;
@@ -143,6 +156,20 @@ require_once 'includes/header.php';
 
   <!-- KATEGORIA: KONTO -->
   <div class="settings-cat" id="cat-account">
+    <div class="settings-section">
+      <div class="settings-section-title">/// Opis profilu</div>
+      <div class="settings-section-desc">Krótkie bio widoczne na Twoim profilu (max 300 znaków).</div>
+      <form method="POST" class="settings-form">
+        <?= csrf_field() ?>
+        <input type="hidden" name="section" value="bio">
+        <div class="form-group">
+          <textarea name="bio" class="form-input form-textarea" rows="3" maxlength="300"
+                    placeholder="Napisz coś o sobie..."><?= htmlspecialchars($me['bio'] ?? '') ?></textarea>
+        </div>
+        <button type="submit" class="btn">Zapisz opis →</button>
+      </form>
+    </div>
+
     <div class="settings-section">
       <div class="settings-section-title">/// Nazwa użytkownika</div>
       <div class="settings-section-desc">Aktualna: @<?= htmlspecialchars($_SESSION['username']) ?></div>
