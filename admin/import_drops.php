@@ -43,7 +43,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['csv'])) {
                 $key2id = [];  // lower(brand|name|datetime) => id
                 $sel = "SELECT id, " . ($has_source ? "source_url," : "") . " brand, name, drop_date FROM drops";
                 foreach ($pdo->query($sel) as $r) {
-                    if ($has_source && !empty($r['source_url'])) $src2id[strtolower($r['source_url'])] = (int)$r['id'];
+                    // Klucz source_url + nazwa — żeby wspólny URL kolekcji nie scalał różnych produktów
+                    if ($has_source && !empty($r['source_url'])) $src2id[strtolower(trim($r['source_url'].'|'.$r['name']))] = (int)$r['id'];
                     $key2id[strtolower(trim($r['brand'].'|'.$r['name'].'|'.$r['drop_date']))] = (int)$r['id'];
                 }
                 $has_imgs = [];
@@ -84,10 +85,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['csv'])) {
                     $imgs  = $get($row, 'images');
                     $key   = strtolower(trim($brand.'|'.$name.'|'.$drop_date));
 
-                    // Dedup
+                    // Dedup: ten sam produkt (source_url+nazwa) LUB marka+nazwa+data
                     $existId = null;
-                    if ($src !== null && isset($src2id[strtolower($src)])) $existId = $src2id[strtolower($src)];
-                    elseif (isset($key2id[$key]))                          $existId = $key2id[$key];
+                    $srcKey  = $src !== null ? strtolower(trim($src.'|'.$name)) : null;
+                    if ($srcKey !== null && isset($src2id[$srcKey])) $existId = $src2id[$srcKey];
+                    elseif (isset($key2id[$key]))                    $existId = $key2id[$key];
 
                     try {
                         if ($existId !== null) {
@@ -116,7 +118,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['csv'])) {
                             $has_imgs[$did] = true;
                         }
 
-                        if ($src !== null) $src2id[strtolower($src)] = $did;
+                        if ($srcKey !== null) $src2id[$srcKey] = $did;
                         $key2id[$key] = $did;
                         $inserted++;
                     } catch (Exception $e) {
@@ -189,8 +191,10 @@ require_once __DIR__ . '/../includes/header.php';
       <li><strong>link</strong> — link do zakupu · <strong>source_url</strong> — URL strony dropu (dedup)</li>
     </ul>
     <p style="color:var(--gray); font-size:13px; line-height:1.7;">
-      <strong>Duplikaty:</strong> drop istniejący (po source_url lub marka+nazwa+data) nie jest
-      dublowany — uzupełniane są tylko puste pola.
+      <strong>Duplikaty:</strong> drop jest scalany tylko gdy to <em>ten sam produkt</em> —
+      czyli zgadza się <strong>source_url + nazwa</strong>, albo <strong>marka + nazwa + data</strong>.
+      Wtedy uzupełniane są jedynie puste pola. Różne produkty z tej samej kolekcji (wspólny link do
+      kolekcji w source_url) trafiają jako osobne dropy.
     </p>
     <pre style="background:#111; border:1px solid var(--border); padding:14px; overflow-x:auto; font-size:12px; color:#aaa;">name,brand,drop_date,image_url,link,description,source_url
 Air Jordan 1 High,Air Jordan,2026-06-20 10:00,https://.../aj1.webp,https://nike.com/...,Nowy drop,https://nike.com/launch/aj1</pre>
