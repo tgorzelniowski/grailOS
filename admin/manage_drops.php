@@ -7,7 +7,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_id'])) {
     $stmt = $pdo->prepare("SELECT image_url FROM drops WHERE id = ?");
     $stmt->execute([$_POST['delete_id']]);
     $drop = $stmt->fetch();
-    if ($drop && $drop['image_url'] && str_starts_with($drop['image_url'], '/grailos/assets/uploads/')) {
+    if ($drop && $drop['image_url'] && str_starts_with($drop['image_url'], '/assets/uploads/')) {
         $path = __DIR__ . str_replace('/grailos', '', $drop['image_url']);
         if (file_exists($path)) unlink($path);
     }
@@ -23,7 +23,7 @@ $drops = $pdo->query("SELECT * FROM drops ORDER BY drop_date DESC")->fetchAll();
 </section>
 
 <div style="padding:24px 40px; border-bottom:1px solid var(--border);">
-  <a href="/grailos/admin/add_drop.php" class="btn">+ Dodaj drop</a>
+  <a href="/admin/add_drop.php" class="btn">+ Dodaj drop</a>
 </div>
 
 <div class="manage-table-wrap">

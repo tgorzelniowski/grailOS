@@ -24,7 +24,7 @@ require_once 'includes/header.php';
       <div class="form-success" style="margin-bottom:24px;">
         Twój email został potwierdzony. Jesteś teraz na liście GrailOS!
       </div>
-      <a href="/grailos/" class="btn" style="width:100%;text-align:center;display:block;">
+      <a href="/" class="btn" style="width:100%;text-align:center;display:block;">
         Przejdź do strony →
       </a>
     <?php else: ?>
@@ -33,7 +33,7 @@ require_once 'includes/header.php';
       <div class="form-error" style="margin-bottom:24px;">
         Link jest nieważny lub subskrypcja już została potwierdzona.
       </div>
-      <a href="/grailos/" class="btn btn-outline"
+      <a href="/" class="btn btn-outline"
          style="width:100%;text-align:center;display:block;">
         Wróć do strony
       </a>

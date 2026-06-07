@@ -8,41 +8,41 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="/assets/css/style.css">
 </head>
 <body>
 
 <nav class="navbar">
 
   <!-- LOGO -->
-  <a href="/grailos/" class="logo">GRAIL<span>OS</span></a>
+  <a href="/" class="logo">GRAIL<span>OS</span></a>
 
   <!-- NAV LINKS (desktop center, mobile fullscreen) -->
   <div class="nav-menu" id="navMenu">
 
     <div class="nav-menu-links">
-      <a href="/grailos/catalog.php">Catalog</a>
-      <a href="/grailos/drops.php">Drops</a>
-      <a href="/grailos/fits.php">Fits</a>
-      <a href="/grailos/forum.php">Forum</a>
-      <a href="/grailos/rankings.php">Rankings</a>
+      <a href="/catalog.php">Catalog</a>
+      <a href="/drops.php">Drops</a>
+      <a href="/fits.php">Fits</a>
+      <a href="/forum.php">Forum</a>
+      <a href="/rankings.php">Rankings</a>
     </div>
 
     <!-- TYLKO MOBILE: auth linki wewnątrz menu -->
     <div class="nav-mob-auth">
       <div class="nav-mob-divider"></div>
       <?php if (isset($_SESSION['user_id'])): ?>
-        <a href="/grailos/profile.php?username=<?= urlencode($_SESSION['username']) ?>">
+        <a href="/profile.php?username=<?= urlencode($_SESSION['username']) ?>">
           @<?= htmlspecialchars($_SESSION['username']) ?>
         </a>
-        <a href="/grailos/settings.php">Ustawienia</a>
+        <a href="/settings.php">Ustawienia</a>
         <?php if ($_SESSION['is_admin']): ?>
-          <a href="/grailos/admin/">Panel admina</a>
+          <a href="/admin/">Panel admina</a>
         <?php endif; ?>
-        <a href="/grailos/logout.php" style="color:var(--red)">Logout</a>
+        <a href="/logout.php" style="color:var(--red)">Logout</a>
       <?php else: ?>
-        <a href="/grailos/login.php">Login</a>
-        <a href="/grailos/register.php">Register</a>
+        <a href="/login.php">Login</a>
+        <a href="/register.php">Register</a>
       <?php endif; ?>
     </div>
 
@@ -65,7 +65,7 @@
                placeholder="Szukaj produktów, userów..."
                value="<?= htmlspecialchars($_GET['q'] ?? '') ?>"
                autocomplete="off"
-               onkeydown="if(event.key==='Enter'){window.location='/grailos/search.php?q='+encodeURIComponent(this.value)}">
+               onkeydown="if(event.key==='Enter'){window.location='/search.php?q='+encodeURIComponent(this.value)}">
         <div class="nav-suggest" id="navSuggest"></div>
       </div>
     </div>
@@ -74,9 +74,9 @@
     <div class="nav-desk-auth">
       <?php if (isset($_SESSION['user_id'])): ?>
         <?php if ($_SESSION['is_admin']): ?>
-          <a href="/grailos/admin/" class="nav-sm">Admin</a>
+          <a href="/admin/" class="nav-sm">Admin</a>
         <?php endif; ?>
-        <a href="/grailos/profile.php?username=<?= urlencode($_SESSION['username']) ?>"
+        <a href="/profile.php?username=<?= urlencode($_SESSION['username']) ?>"
            class="nav-avatar-link">
           <?php if (!empty($_SESSION['avatar_url'])): ?>
             <img src="<?= htmlspecialchars($_SESSION['avatar_url']) ?>"
@@ -87,10 +87,10 @@
             </span>
           <?php endif; ?>
         </a>
-        <a href="/grailos/logout.php" class="nav-sm">Logout</a>
+        <a href="/logout.php" class="nav-sm">Logout</a>
       <?php else: ?>
-        <a href="/grailos/register.php" class="nav-sm">Register</a>
-        <a href="/grailos/login.php" class="btn nav-login-btn">Login</a>
+        <a href="/register.php" class="nav-sm">Register</a>
+        <a href="/login.php" class="btn nav-login-btn">Login</a>
       <?php endif; ?>
     </div>
 
@@ -124,7 +124,7 @@ document.getElementById('navQ').addEventListener('input', function() {
   const sugg = document.getElementById('navSuggest');
   if (q.length < 2) { sugg.classList.remove('open'); sugg.innerHTML = ''; return; }
   searchTimer = setTimeout(async () => {
-    const res  = await fetch('/grailos/search_suggest.php?q=' + encodeURIComponent(q));
+    const res  = await fetch('/search_suggest.php?q=' + encodeURIComponent(q));
     const data = await res.json();
     if (!data.length) { sugg.classList.remove('open'); return; }
     sugg.innerHTML = data.map(s => {

@@ -21,10 +21,10 @@
   </div>
 
   <div class="footer-links">
-    <a href="/grailos/about.php">About</a>
-    <a href="/grailos/contact.php">Contact</a>
-    <a href="/grailos/privacy.php">Polityka prywatności</a>
-    <a href="/grailos/terms.php">Regulamin</a>
+    <a href="/about.php">About</a>
+    <a href="/contact.php">Contact</a>
+    <a href="/privacy.php">Polityka prywatności</a>
+    <a href="/terms.php">Regulamin</a>
   </div>
 
   <div class="footer-socials">
@@ -209,7 +209,7 @@ async function grailReportSend() {
     details: document.getElementById('grailReportDetails').value,
   });
   try {
-    const res = await fetch('/grailos/report_submit.php', {
+    const res = await fetch('/report_submit.php', {
       method: 'POST',
       headers: {'Content-Type':'application/x-www-form-urlencoded'},
       body: body.toString(),
@@ -250,7 +250,7 @@ async function newsletterSubmit(e) {
   });
 
   try {
-    const res  = await fetch('/grailos/newsletter_subscribe.php', {
+    const res  = await fetch('/newsletter_subscribe.php', {
       method  : 'POST',
       headers : { 'Content-Type': 'application/x-www-form-urlencoded' },
       body    : body.toString(),

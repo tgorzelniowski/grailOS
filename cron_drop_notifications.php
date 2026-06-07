@@ -3,7 +3,7 @@
  * GrailOS — wysyłka powiadomień o nadchodzących dropach
  *
  * Uruchom jako zadanie zaplanowane (Windows Task Scheduler / Linux cron):
- *   php c:/xampp/htdocs/grailos/cron_drop_notifications.php
+ *   php c:/xampp/htdocs/cron_drop_notifications.php
  *
  * Lub dodaj w admin panelu przycisk "Wyślij powiadomienia".
  * Skrypt wysyła emaile na 24 godziny przed dropem (raz).

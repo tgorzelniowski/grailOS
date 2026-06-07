@@ -2,12 +2,12 @@
 require_once 'includes/header.php';
 
 $username = trim($_GET['username'] ?? '');
-if (!$username) { header('Location: /grailos/'); exit; }
+if (!$username) { header('Location: /'); exit; }
 
 $stmt = $pdo->prepare("SELECT * FROM users WHERE username = ? AND is_banned = 0");
 $stmt->execute([$username]);
 $user = $stmt->fetch();
-if (!$user) { header('Location: /grailos/'); exit; }
+if (!$user) { header('Location: /'); exit; }
 
 $is_own    = isset($_SESSION['user_id']) && $_SESSION['user_id'] == $user['id'];
 $viewer_admin = !empty($_SESSION['is_admin']);
@@ -110,7 +110,7 @@ $outfits = $outfits->fetchAll();
     if ($story_open):
       $ring_cls = $story_meta['unseen'] ? 'profile-av-ring unseen' : 'profile-av-ring seen';
   ?>
-    <a href="/grailos/story_view.php?user=<?= (int)$user['id'] ?>" class="<?= $ring_cls ?>"
+    <a href="/story_view.php?user=<?= (int)$user['id'] ?>" class="<?= $ring_cls ?>"
        title="Zobacz storkę">
       <?php if ($user['avatar_url']): ?>
         <img src="<?= htmlspecialchars($user['avatar_url']) ?>" class="profile-avatar-img" alt="">
@@ -129,7 +129,7 @@ $outfits = $outfits->fetchAll();
 
   <?php if ($is_own): ?>
     <div class="avatar-actions">
-      <form method="POST" action="/grailos/upload_avatar.php"
+      <form method="POST" action="/upload_avatar.php"
             enctype="multipart/form-data">
         <?= csrf_field() ?>
         <label class="avatar-action-btn" title="Zmień zdjęcie">
@@ -140,7 +140,7 @@ $outfits = $outfits->fetchAll();
         </label>
       </form>
       <?php if ($user['avatar_url']): ?>
-        <form method="POST" action="/grailos/delete_avatar.php">
+        <form method="POST" action="/delete_avatar.php">
           <?= csrf_field() ?>
           <button type="button" class="avatar-action-btn avatar-delete-btn" title="Usuń zdjęcie"
                   onclick="grailConfirm('Usunąć zdjęcie profilowe?', () => this.closest('form').submit())">✕</button>
@@ -160,7 +160,7 @@ $outfits = $outfits->fetchAll();
   <div class="profile-joined">Dołączył <?= date('F Y', strtotime($user['created_at'])) ?></div>
 
   <?php if ($is_own): ?>
-    <a href="/grailos/settings.php" class="btn btn-outline"
+    <a href="/settings.php" class="btn btn-outline"
        style="margin-top:16px; font-size:11px; padding:6px 16px;">⚙ Ustawienia konta</a>
   <?php endif; ?>
 
@@ -187,12 +187,12 @@ $outfits = $outfits->fetchAll();
   </div>
   <?php if ($see_follows): ?>
     <a class="profile-stat profile-stat-link"
-       href="/grailos/follows_list.php?username=<?= urlencode($user['username']) ?>&type=followers">
+       href="/follows_list.php?username=<?= urlencode($user['username']) ?>&type=followers">
       <div class="profile-stat-num" id="followersCount"><?= $followers_count ?></div>
       <div class="profile-stat-label">Obserwujących</div>
     </a>
     <a class="profile-stat profile-stat-link"
-       href="/grailos/follows_list.php?username=<?= urlencode($user['username']) ?>&type=following">
+       href="/follows_list.php?username=<?= urlencode($user['username']) ?>&type=following">
       <div class="profile-stat-num"><?= $following_count ?></div>
       <div class="profile-stat-label">Obserwuje</div>
     </a>
@@ -224,7 +224,7 @@ $outfits = $outfits->fetchAll();
 <div class="fits-grid">
   <?php if ($fits): ?>
     <?php foreach ($fits as $fidx => $fit): ?>
-      <a href="/grailos/fit.php?id=<?= $fit['id'] ?>"
+      <a href="/fit.php?id=<?= $fit['id'] ?>"
          class="fit-card <?= $fidx >= 4 ? 'fit-collapse-item' : '' ?>">
         <div class="fit-img-wrap">
           <img src="<?= htmlspecialchars($fit['image_url']) ?>" alt="Fit">
@@ -253,7 +253,7 @@ $outfits = $outfits->fetchAll();
               onclick="toggleCollapse(this, '.outfit-collapse-item')">Pokaż więcej ↓</button>
     <?php endif; ?>
     <?php if ($is_own): ?>
-      <a href="/grailos/create_outfit.php" class="btn" style="font-size:11px; padding:6px 16px;">+ Nowy outfit</a>
+      <a href="/create_outfit.php" class="btn" style="font-size:11px; padding:6px 16px;">+ Nowy outfit</a>
     <?php endif; ?>
   </div>
 </div>
@@ -270,9 +270,9 @@ $outfits = $outfits->fetchAll();
       $imgs = $outfit_imgs->fetchAll(PDO::FETCH_COLUMN);
     ?>
       <div class="outfit-card profile-clickable <?= $oidx >= 4 ? 'outfit-collapse-item' : '' ?>"
-           data-href="/grailos/view_outfit.php?id=<?= $outfit['id'] ?>" style="position:relative; cursor:pointer;">
+           data-href="/view_outfit.php?id=<?= $outfit['id'] ?>" style="position:relative; cursor:pointer;">
         <?php if ($is_own): ?>
-          <form method="POST" action="/grailos/delete_outfit.php" class="outfit-delete-form">
+          <form method="POST" action="/delete_outfit.php" class="outfit-delete-form">
             <?= csrf_field() ?>
             <input type="hidden" name="outfit_id" value="<?= $outfit['id'] ?>">
             <button type="button" class="inline-delete-btn"
@@ -297,7 +297,7 @@ $outfits = $outfits->fetchAll();
     <?php endforeach; ?>
   <?php else: ?>
     <div style="grid-column:1/-1; padding:40px; text-align:center; color:#444; letter-spacing:3px; text-transform:uppercase; font-size:12px;">
-      <?= $is_own ? 'Brak outfitów. <a href="/grailos/create_outfit.php" style="color:var(--red)">Stwórz pierwszy →</a>' : 'Brak outfitów' ?>
+      <?= $is_own ? 'Brak outfitów. <a href="/create_outfit.php" style="color:var(--red)">Stwórz pierwszy →</a>' : 'Brak outfitów' ?>
     </div>
   <?php endif; ?>
 </div>
@@ -316,7 +316,7 @@ $outfits = $outfits->fetchAll();
   <?php if ($wardrobe): ?>
     <?php foreach ($wardrobe as $widx => $item): ?>
   <div class="clothing-card <?= $widx >= 4 ? 'wardrobe-collapse-item' : '' ?> <?= $item['clothing_id'] ? 'profile-clickable' : '' ?>"
-       <?= $item['clothing_id'] ? 'data-href="/grailos/item.php?id=' . (int)$item['clothing_id'] . '" style="position:relative; cursor:pointer;"' : 'style="position:relative;"' ?>>
+       <?= $item['clothing_id'] ? 'data-href="/item.php?id=' . (int)$item['clothing_id'] . '" style="position:relative; cursor:pointer;"' : 'style="position:relative;"' ?>>
     <div class="clothing-card-img">
       <?php if ($item['image_url']): ?>
         <img src="<?= htmlspecialchars($item['image_url']) ?>" alt="">
@@ -326,7 +326,7 @@ $outfits = $outfits->fetchAll();
     <div class="clothing-card-name"><?= htmlspecialchars($item['name'] ?? '—') ?></div>
     <div class="clothing-card-price"><?= $item['price'] ? number_format($item['price'],2).' zł' : '—' ?></div>
     <?php if ($is_own): ?>
-      <form method="POST" action="/grailos/wardrobe_remove.php"
+      <form method="POST" action="/wardrobe_remove.php"
             style="position:absolute; top:8px; right:8px;">
         <?= csrf_field() ?>
         <input type="hidden" name="wardrobe_item_id" value="<?= $item['id'] ?>">
@@ -359,12 +359,12 @@ $outfits = $outfits->fetchAll();
   <?php if ($posts): ?>
     <?php foreach ($posts as $i => $post): ?>
       <div class="fpc post-card-clickable profile-post-item <?= $i >= 3 ? 'profile-post-hidden' : '' ?>"
-           data-href="/grailos/post.php?id=<?= $post['id'] ?>">
+           data-href="/post.php?id=<?= $post['id'] ?>">
 
         <!-- HEADER: avatar + username + date -->
         <div class="fpc-head">
           <div class="fpc-meta">
-            <a href="/grailos/profile.php?username=<?= urlencode($user['username']) ?>"
+            <a href="/profile.php?username=<?= urlencode($user['username']) ?>"
                class="post-av-link" onclick="event.stopPropagation()">
               <?php if ($user['avatar_url']): ?>
                 <img src="<?= htmlspecialchars($user['avatar_url']) ?>" class="post-av-img" alt="">
@@ -372,7 +372,7 @@ $outfits = $outfits->fetchAll();
                 <span class="post-avatar"><?= strtoupper(htmlspecialchars($user['username'][0])) ?></span>
               <?php endif; ?>
             </a>
-            <a href="/grailos/profile.php?username=<?= urlencode($user['username']) ?>"
+            <a href="/profile.php?username=<?= urlencode($user['username']) ?>"
                class="fpc-username" onclick="event.stopPropagation()">@<?= htmlspecialchars($user['username']) ?></a>
             <span class="fpc-time"><?= date('d M Y, H:i', strtotime($post['created_at'])) ?></span>
           </div>
@@ -393,7 +393,7 @@ $outfits = $outfits->fetchAll();
         <!-- FOOTER: lajki + komentarze -->
         <div class="fpc-foot">
           <span class="fpc-btn">♥ <?= $post['likes'] ?></span>
-          <a href="/grailos/post.php?id=<?= $post['id'] ?>" class="fpc-btn"
+          <a href="/post.php?id=<?= $post['id'] ?>" class="fpc-btn"
              onclick="event.stopPropagation()">
             💬 <?= $post['replies'] ?> <?= $post['replies'] == 1 ? 'odpowiedź' : 'odpowiedzi' ?>
           </a>
@@ -435,7 +435,7 @@ document.querySelectorAll('.profile-posts-feed .post-card-clickable, .profile-cl
 <script>
 async function toggleFollow(userId) {
   const btn = document.getElementById('followBtn');
-  const res  = await fetch('/grailos/follow.php', {
+  const res  = await fetch('/follow.php', {
     method: 'POST',
     headers: {'Content-Type':'application/x-www-form-urlencoded'},
     body: `target_id=${userId}&csrf_token=<?= csrf_token() ?>`

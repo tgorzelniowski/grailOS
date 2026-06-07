@@ -11,15 +11,15 @@
     /// <?= $pdo->query("SELECT COUNT(*) FROM fits")->fetchColumn() ?> fitów
   </div>
   <?php if (isset($_SESSION['user_id'])): ?>
-    <a href="/grailos/submit_fit.php" class="btn">+ Dodaj fit</a>
+    <a href="/submit_fit.php" class="btn">+ Dodaj fit</a>
   <?php else: ?>
-    <a href="/grailos/login.php" class="btn btn-outline">Zaloguj się by dodać</a>
+    <a href="/login.php" class="btn btn-outline">Zaloguj się by dodać</a>
   <?php endif; ?>
 </div>
 
 <!-- FILTRY -->
 <div class="fits-filter-bar">
-  <form method="GET" action="/grailos/fits.php" class="fits-filter-form">
+  <form method="GET" action="/fits.php" class="fits-filter-form">
     <input type="text" name="user"
            placeholder="@użytkownik"
            value="<?= htmlspecialchars($_GET['user'] ?? '') ?>"
@@ -30,7 +30,7 @@
            class="fits-filter-input">
     <button type="submit" class="btn">Szukaj</button>
     <?php if (!empty($_GET['user']) || !empty($_GET['kw'])): ?>
-      <a href="/grailos/fits.php" class="btn btn-outline">Resetuj ×</a>
+      <a href="/fits.php" class="btn btn-outline">Resetuj ×</a>
     <?php endif; ?>
   </form>
 </div>
@@ -84,7 +84,7 @@ $story_map = active_stories_map($pdo, array_column($fits, 'user_id'), $uid);
       $can_delete = $uid && ($fit['user_id'] == $uid || $_SESSION['is_admin']);
     ?>
       <div class="fit-card-wrap">
-        <div class="fit-card fit-card-clickable" data-href="/grailos/fit.php?id=<?= $fit['id'] ?>">
+        <div class="fit-card fit-card-clickable" data-href="/fit.php?id=<?= $fit['id'] ?>">
           <div class="fit-img-wrap">
             <img src="<?= htmlspecialchars($fit['image_url']) ?>" alt="Fit">
             <?php if ($fit['is_followed']): ?>
@@ -93,8 +93,8 @@ $story_map = active_stories_map($pdo, array_column($fits, 'user_id'), $uid);
           </div>
           <div class="fit-info">
             <?php $ring = story_ring_class($story_map, (int)$fit['user_id']);
-                  $row_href = $ring ? '/grailos/story_view.php?user=' . (int)$fit['user_id']
-                                    : '/grailos/profile.php?username=' . urlencode($fit['username']); ?>
+                  $row_href = $ring ? '/story_view.php?user=' . (int)$fit['user_id']
+                                    : '/profile.php?username=' . urlencode($fit['username']); ?>
             <a href="<?= $row_href ?>"
                class="fit-user-row" onclick="event.stopPropagation()" style="text-decoration:none;">
               <span class="<?= $ring ?>" style="display:inline-flex;border-radius:50%;">
@@ -119,7 +119,7 @@ $story_map = active_stories_map($pdo, array_column($fits, 'user_id'), $uid);
           </div>
         </div>
         <?php if ($can_delete): ?>
-          <form method="POST" action="/grailos/delete_fit.php"
+          <form method="POST" action="/delete_fit.php"
                 class="inline-delete-form">
             <?= csrf_field() ?>
             <input type="hidden" name="fit_id" value="<?= $fit['id'] ?>">

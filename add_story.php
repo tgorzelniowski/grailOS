@@ -2,7 +2,7 @@
 require_once 'config/db.php';
 
 if (!isset($_SESSION['user_id'])) {
-    header('Location: /grailos/login.php'); exit;
+    header('Location: /login.php'); exit;
 }
 
 $error = '';
@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $pdo->prepare("INSERT INTO stories (user_id, image_url) VALUES (?, ?)")
                 ->execute([$_SESSION['user_id'], $result['path']]);
             if ($ajax) { header('Content-Type: application/json'); echo json_encode(['ok' => true]); exit; }
-            header('Location: /grailos/'); exit;
+            header('Location: /'); exit;
         }
     }
     if ($ajax) {
@@ -424,9 +424,9 @@ function publishStory() {
     fd.append('csrf_token', '<?= csrf_token() ?>');
     fd.append('ajax', '1');
     try {
-      const res = await fetch('/grailos/add_story.php', { method:'POST', body: fd });
+      const res = await fetch('/add_story.php', { method:'POST', body: fd });
       const data = await res.json();
-      if (data.ok) { window.location.href = '/grailos/'; return; }
+      if (data.ok) { window.location.href = '/'; return; }
       throw new Error(data.error || 'Błąd wysyłki.');
     } catch (err) {
       const e = document.getElementById('storyEditError');

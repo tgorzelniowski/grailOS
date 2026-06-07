@@ -8,7 +8,7 @@ if (!in_array($type, ['followers', 'following'], true)) $type = 'followers';
 $stmt = $pdo->prepare("SELECT * FROM users WHERE username = ? AND is_banned = 0");
 $stmt->execute([$username]);
 $user = $stmt->fetch();
-if (!$user) { header('Location: /grailos/'); exit; }
+if (!$user) { header('Location: /'); exit; }
 
 $is_own       = isset($_SESSION['user_id']) && $_SESSION['user_id'] == $user['id'];
 $viewer_admin = !empty($_SESSION['is_admin']);
@@ -53,16 +53,16 @@ $people = $list->fetchAll();
 </section>
 
 <div style="display:flex; gap:0; border-bottom:1px solid var(--border);">
-  <a href="/grailos/follows_list.php?username=<?= urlencode($user['username']) ?>&type=followers"
+  <a href="/follows_list.php?username=<?= urlencode($user['username']) ?>&type=followers"
      class="follows-tab <?= $type === 'followers' ? 'active' : '' ?>">Obserwujący</a>
-  <a href="/grailos/follows_list.php?username=<?= urlencode($user['username']) ?>&type=following"
+  <a href="/follows_list.php?username=<?= urlencode($user['username']) ?>&type=following"
      class="follows-tab <?= $type === 'following' ? 'active' : '' ?>">Obserwuje</a>
 </div>
 
 <div class="users-grid">
   <?php if ($people): ?>
     <?php foreach ($people as $p): ?>
-      <a href="/grailos/profile.php?username=<?= urlencode($p['username']) ?>" class="user-card">
+      <a href="/profile.php?username=<?= urlencode($p['username']) ?>" class="user-card">
         <?php if ($p['avatar_url']): ?>
           <img src="<?= htmlspecialchars($p['avatar_url']) ?>" class="user-avatar"
                style="object-fit:cover;" alt="">

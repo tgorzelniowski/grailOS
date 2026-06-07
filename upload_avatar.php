@@ -2,28 +2,28 @@
 require_once 'config/db.php';
 
 if (!isset($_SESSION['user_id'])) {
-    header('Location: /grailos/login.php'); exit;
+    header('Location: /login.php'); exit;
 }
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header('Location: /grailos/profile.php?username=' . urlencode($_SESSION['username'])); exit;
+    header('Location: /profile.php?username=' . urlencode($_SESSION['username'])); exit;
 }
 
 csrf_verify();
 
 if (empty($_FILES['avatar']['name'])) {
-    header('Location: /grailos/profile.php?username=' . urlencode($_SESSION['username']) . '&error=no_file'); exit;
+    header('Location: /profile.php?username=' . urlencode($_SESSION['username']) . '&error=no_file'); exit;
 }
 
 $result = upload_image($_FILES['avatar'], 'avatars');
 if (isset($result['error'])) {
-    header('Location: /grailos/profile.php?username=' . urlencode($_SESSION['username']) . '&error=' . urlencode($result['error'])); exit;
+    header('Location: /profile.php?username=' . urlencode($_SESSION['username']) . '&error=' . urlencode($result['error'])); exit;
 }
 
 // Usuń stary avatar
 $old = $pdo->prepare("SELECT avatar_url FROM users WHERE id = ?");
 $old->execute([$_SESSION['user_id']]);
 $old = $old->fetchColumn();
-if ($old && str_starts_with($old, '/grailos/assets/uploads/')) {
+if ($old && str_starts_with($old, '/assets/uploads/')) {
     $path = __DIR__ . str_replace('/grailos', '', $old);
     if (file_exists($path)) unlink($path);
 }
@@ -33,6 +33,6 @@ $pdo->prepare("UPDATE users SET avatar_url = ? WHERE id = ?")
 
 $_SESSION['avatar_url'] = $result['path'];
 
-header('Location: /grailos/profile.php?username=' . urlencode($_SESSION['username']));
+header('Location: /profile.php?username=' . urlencode($_SESSION['username']));
 exit;
 ?>

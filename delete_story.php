@@ -2,7 +2,7 @@
 require_once 'config/db.php';
 
 if (!isset($_SESSION['user_id'])) {
-    header('Location: /grailos/login.php'); exit;
+    header('Location: /login.php'); exit;
 }
 csrf_verify();
 
@@ -18,5 +18,5 @@ if ($story_id) {
     }
 }
 
-header('Location: /grailos/');
+header('Location: /');
 exit;

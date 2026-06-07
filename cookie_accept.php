@@ -17,7 +17,7 @@ $is_https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
 
 $base_opts = [
     'expires'  => time() + $lifetime,
-    'path'     => '/grailos/',
+    'path'     => '/',
     'httponly' => true,
     'samesite' => 'Strict',
     'secure'   => $is_https,
@@ -59,7 +59,7 @@ if ($action === 'all') {
     // Cofnięcie zgody
     $remove_opts = [
         'expires'  => time() - 3600,
-        'path'     => '/grailos/',
+        'path'     => '/',
         'httponly' => true,
         'samesite' => 'Strict',
         'secure'   => $is_https,

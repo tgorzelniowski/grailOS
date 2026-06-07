@@ -97,7 +97,7 @@ require_once __DIR__ . '/../includes/header.php';
       Scalono (linki+braki): <strong><?= $result['merged'] ?? 0 ?></strong> ·
       Pominięto: <strong><?= $result['skipped'] ?></strong> ·
       Błędne wiersze: <strong><?= $result['errors'] ?></strong>
-      <br><a href="/grailos/admin/manage_clothing.php" style="color:var(--red)">Zobacz katalog →</a>
+      <br><a href="/admin/manage_clothing.php" style="color:var(--red)">Zobacz katalog →</a>
     </div>
   <?php endif; ?>
 
@@ -145,7 +145,7 @@ DZ5485-612,Air Jordan 1 Chicago,Air Jordan,sneakers,980.00,https://.../aj1.webp,
   </div>
 
   <div style="margin-top:24px;">
-    <a href="/grailos/admin/" class="btn btn-outline">← Admin</a>
+    <a href="/admin/" class="btn btn-outline">← Admin</a>
   </div>
 </div>
 

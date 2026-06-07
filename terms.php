@@ -60,7 +60,7 @@
     <div class="legal-title">/// 8. Kontakt</div>
     <p class="legal-text">
       Pytania dotyczące regulaminu kieruj przez stronę
-      <a href="/grailos/contact.php" style="color:var(--red)">Contact</a>.
+      <a href="/contact.php" style="color:var(--red)">Contact</a>.
     </p>
   </div>
 

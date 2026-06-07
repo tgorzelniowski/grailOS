@@ -38,7 +38,7 @@
   <div class="legal-section">
     <div class="legal-title">/// 5. Prawa użytkownika</div>
     <p class="legal-text">
-      Każdy użytkownik ma prawo do wglądu w swoje dane, ich korekty oraz usunięcia konta. W celu usunięcia konta lub danych skontaktuj się z nami przez stronę <a href="/grailos/contact.php" style="color:var(--red)">Contact</a>.
+      Każdy użytkownik ma prawo do wglądu w swoje dane, ich korekty oraz usunięcia konta. W celu usunięcia konta lub danych skontaktuj się z nami przez stronę <a href="/contact.php" style="color:var(--red)">Contact</a>.
     </p>
   </div>
 
@@ -52,7 +52,7 @@
   <div class="legal-section">
     <div class="legal-title">/// 7. Kontakt</div>
     <p class="legal-text">
-      Pytania dotyczące prywatności kieruj przez stronę <a href="/grailos/contact.php" style="color:var(--red)">Contact</a>.
+      Pytania dotyczące prywatności kieruj przez stronę <a href="/contact.php" style="color:var(--red)">Contact</a>.
     </p>
   </div>
 

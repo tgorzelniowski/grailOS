@@ -92,7 +92,7 @@ require_once 'includes/header.php';
         </div>
         <button type="submit" class="btn" style="width:100%">Wyślij link →</button>
         <p class="auth-switch">
-          <a href="/grailos/login.php">← Wróć do logowania</a>
+          <a href="/login.php">← Wróć do logowania</a>
         </p>
       </form>
     <?php endif; ?>

@@ -17,7 +17,7 @@
   <div class="hero-tag">The operating system for your wardrobe</div>
   <h1 class="hero-title">FIND<br>YOUR<br><span>GRAIL</span></h1>
   <p class="hero-sub">Catalog. Drops. Fits. Forum. Rankings. Wszystko o streetwearze w jednym miejscu.</p>
-  <a href="/grailos/catalog.php" class="btn">Explore catalog →</a>
+  <a href="/catalog.php" class="btn">Explore catalog →</a>
 </section>
 
 <!-- SEKCJA KATALOGU -->
@@ -29,7 +29,7 @@
 
     if ($items):
       foreach ($items as $item): ?>
-        <a href="/grailos/item.php?id=<?= $item['id'] ?>"
+        <a href="/item.php?id=<?= $item['id'] ?>"
            class="clothing-card" style="text-decoration:none; color:inherit; display:block;">
           <div class="clothing-card-img">
             <?php if ($item['image_url']): ?>
@@ -65,7 +65,7 @@
     foreach ($drops as $drop):
       $days = (int)ceil((strtotime($drop['drop_date']) - time()) / 86400);
 ?>
-  <a href="/grailos/drop.php?id=<?= $drop['id'] ?>" class="drop-row-full-link">
+  <a href="/drop.php?id=<?= $drop['id'] ?>" class="drop-row-full-link">
     <div class="drop-img-wrap">
       <?php if ($drop['image_url']): ?>
         <img src="<?= htmlspecialchars($drop['image_url']) ?>" alt="">

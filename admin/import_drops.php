@@ -155,7 +155,7 @@ require_once __DIR__ . '/../includes/header.php';
       Dodano: <strong><?= $result['inserted'] ?></strong> ·
       Scalono: <strong><?= $result['merged'] ?></strong> ·
       Błędne wiersze: <strong><?= $result['errors'] ?></strong>
-      <br><a href="/grailos/admin/manage_drops.php" style="color:var(--red)">Zobacz dropy →</a>
+      <br><a href="/admin/manage_drops.php" style="color:var(--red)">Zobacz dropy →</a>
     </div>
   <?php endif; ?>
 
@@ -197,7 +197,7 @@ Air Jordan 1 High,Air Jordan,2026-06-20 10:00,https://.../aj1.webp,https://nike.
   </div>
 
   <div style="margin-top:24px;">
-    <a href="/grailos/admin/" class="btn btn-outline">← Admin</a>
+    <a href="/admin/" class="btn btn-outline">← Admin</a>
   </div>
 </div>
 

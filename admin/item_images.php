@@ -2,12 +2,12 @@
 require_once __DIR__ . '/auth.php';
 
 $clothing_id = (int)($_GET['id'] ?? $_POST['clothing_id'] ?? 0);
-if (!$clothing_id) { header('Location: /grailos/admin/manage_clothing.php'); exit; }
+if (!$clothing_id) { header('Location: /admin/manage_clothing.php'); exit; }
 
 $item = $pdo->prepare("SELECT * FROM clothing WHERE id = ?");
 $item->execute([$clothing_id]);
 $item = $item->fetch();
-if (!$item) { header('Location: /grailos/admin/manage_clothing.php'); exit; }
+if (!$item) { header('Location: /admin/manage_clothing.php'); exit; }
 
 $error = $success = '';
 
@@ -92,8 +92,8 @@ require_once __DIR__ . '/../includes/header.php';
   </div>
 
   <div style="margin-top:24px;">
-    <a href="/grailos/admin/manage_clothing.php" class="btn btn-outline">← Wróć</a>
-    <a href="/grailos/admin/item_links.php?id=<?= $clothing_id ?>"
+    <a href="/admin/manage_clothing.php" class="btn btn-outline">← Wróć</a>
+    <a href="/admin/item_links.php?id=<?= $clothing_id ?>"
        class="btn" style="margin-left:12px;">Zarządzaj linkami →</a>
   </div>
 </div>

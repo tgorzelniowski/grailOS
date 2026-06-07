@@ -73,25 +73,25 @@ try { $openReports = (int)$pdo->query("SELECT COUNT(*) FROM reports WHERE status
 
   <div class="admin-group-label">Katalog</div>
   <div class="admin-actions" data-group="katalog">
-    <a href="/grailos/admin/add_clothing.php" class="admin-card"
+    <a href="/admin/add_clothing.php" class="admin-card"
        data-tags="dodaj produkt ubranie katalog clothing add">
       <div class="admin-card-icon">+</div>
       <div class="admin-card-title">Dodaj produkt</div>
       <div class="admin-card-sub">Dodaj nowe ubranie do katalogu</div>
     </a>
-    <a href="/grailos/admin/manage_clothing.php" class="admin-card"
+    <a href="/admin/manage_clothing.php" class="admin-card"
        data-tags="katalog produkty zarządzaj ubrania edytuj usuń clothing manage">
       <div class="admin-card-icon">≡</div>
       <div class="admin-card-title">Zarządzaj katalogiem</div>
       <div class="admin-card-sub">Edytuj i usuwaj produkty</div>
     </a>
-    <a href="/grailos/admin/import_clothing.php" class="admin-card"
+    <a href="/admin/import_clothing.php" class="admin-card"
        data-tags="import csv masowy bulk produkty katalog feed dodaj">
       <div class="admin-card-icon">⇪</div>
       <div class="admin-card-title">Import CSV</div>
       <div class="admin-card-sub">Masowy import z deduplikacją</div>
     </a>
-    <a href="/grailos/admin/import_feed.php" class="admin-card"
+    <a href="/admin/import_feed.php" class="admin-card"
        data-tags="import feed afiliacja awin impact rakuten xml produkty katalog deeplink">
       <div class="admin-card-icon">⥮</div>
       <div class="admin-card-title">Import z feedu</div>
@@ -101,25 +101,25 @@ try { $openReports = (int)$pdo->query("SELECT COUNT(*) FROM reports WHERE status
 
   <div class="admin-group-label">Dropy</div>
   <div class="admin-actions" data-group="dropy">
-    <a href="/grailos/admin/add_drop.php" class="admin-card"
+    <a href="/admin/add_drop.php" class="admin-card"
        data-tags="dodaj drop drops add nowy">
       <div class="admin-card-icon">+</div>
       <div class="admin-card-title">Dodaj drop</div>
       <div class="admin-card-sub">Dodaj nadchodzący drop</div>
     </a>
-    <a href="/grailos/admin/manage_drops.php" class="admin-card"
+    <a href="/admin/manage_drops.php" class="admin-card"
        data-tags="dropy zarządzaj drops edytuj usuń manage">
       <div class="admin-card-icon">≡</div>
       <div class="admin-card-title">Zarządzaj dropami</div>
       <div class="admin-card-sub">Edytuj i usuwaj dropy</div>
     </a>
-    <a href="/grailos/admin/import_drops.php" class="admin-card"
+    <a href="/admin/import_drops.php" class="admin-card"
        data-tags="import csv dropy masowy bulk feed scraper">
       <div class="admin-card-icon">⇪</div>
       <div class="admin-card-title">Import dropów CSV</div>
       <div class="admin-card-sub">Masowy import dropów z deduplikacją</div>
     </a>
-    <a href="/grailos/cron_drop_notifications.php?key=a7f3c9e1b54d28760af1e6c3d9b840e2"
+    <a href="/cron_drop_notifications.php?key=a7f3c9e1b54d28760af1e6c3d9b840e2"
        class="admin-card" target="_blank"
        data-tags="drop powiadomienia notify alert email wyślij">
       <div class="admin-card-icon">🔔</div>
@@ -130,25 +130,25 @@ try { $openReports = (int)$pdo->query("SELECT COUNT(*) FROM reports WHERE status
 
   <div class="admin-group-label">Społeczność</div>
   <div class="admin-actions" data-group="spolecznosc">
-    <a href="/grailos/admin/manage_fits.php" class="admin-card"
+    <a href="/admin/manage_fits.php" class="admin-card"
        data-tags="fity moderuj posty fits moderate usuń">
       <div class="admin-card-icon">◻</div>
       <div class="admin-card-title">Fity</div>
       <div class="admin-card-sub">Moderuj posty fitów</div>
     </a>
-    <a href="/grailos/admin/manage_posts.php" class="admin-card"
+    <a href="/admin/manage_posts.php" class="admin-card"
        data-tags="forum posty moderuj posts moderate usuń">
       <div class="admin-card-icon">◻</div>
       <div class="admin-card-title">Forum</div>
       <div class="admin-card-sub">Moderuj posty forum</div>
     </a>
-    <a href="/grailos/admin/manage_users.php" class="admin-card"
+    <a href="/admin/manage_users.php" class="admin-card"
        data-tags="użytkownicy users ban zarządzaj manage blokuj">
       <div class="admin-card-icon">⊘</div>
       <div class="admin-card-title">Użytkownicy</div>
       <div class="admin-card-sub">Banuj i zarządzaj userami</div>
     </a>
-    <a href="/grailos/admin/manage_reports.php" class="admin-card"
+    <a href="/admin/manage_reports.php" class="admin-card"
        data-tags="zgłoszenia reports moderacja tickety raporty skargi">
       <div class="admin-card-icon">⚑</div>
       <div class="admin-card-title">Zgłoszenia<?= $openReports > 0 ? ' ('.$openReports.')' : '' ?></div>
@@ -158,7 +158,7 @@ try { $openReports = (int)$pdo->query("SELECT COUNT(*) FROM reports WHERE status
 
   <div class="admin-group-label">Marketing</div>
   <div class="admin-actions" data-group="marketing">
-    <a href="/grailos/admin/send_newsletter.php" class="admin-card"
+    <a href="/admin/send_newsletter.php" class="admin-card"
        data-tags="newsletter email wyślij subskrybenci send mailing">
       <div class="admin-card-icon">✉</div>
       <div class="admin-card-title">Newsletter</div>

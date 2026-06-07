@@ -42,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $_SESSION['avatar_url'] = $user['avatar_url'] ?? '';
                     unset($_SESSION['rate']);
                     set_session_fingerprint();
-                    header('Location: /grailos/');
+                    header('Location: /');
                     exit;
                 }
             } else {
@@ -78,12 +78,12 @@ require_once 'includes/header.php';
       </div>
       <button type="submit" class="btn" style="width:100%">Zaloguj się →</button>
       <p class="auth-switch" style="margin-top:8px;">
-        <a href="/grailos/forgot_password.php"
+        <a href="/forgot_password.php"
            style="font-size:11px;letter-spacing:2px;color:var(--gray);">
           Zapomniałem hasła
         </a>
       </p>
-      <p class="auth-switch">Nie masz konta? <a href="/grailos/register.php">Zarejestruj się</a></p>
+      <p class="auth-switch">Nie masz konta? <a href="/register.php">Zarejestruj się</a></p>
     </form>
   </div>
 </section>

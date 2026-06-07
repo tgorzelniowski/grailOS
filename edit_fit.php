@@ -2,14 +2,14 @@
 require_once 'config/db.php';
 
 if (!isset($_SESSION['user_id'])) {
-    header('Location: /grailos/login.php'); exit;
+    header('Location: /login.php'); exit;
 }
 
 $id = (int)($_GET['id'] ?? 0);
 $stmt = $pdo->prepare("SELECT * FROM fits WHERE id = ? AND user_id = ?");
 $stmt->execute([$id, $_SESSION['user_id']]);
 $fit = $stmt->fetch();
-if (!$fit) { header('Location: /grailos/fits.php'); exit; }
+if (!$fit) { header('Location: /fits.php'); exit; }
 
 $error = '';
 
@@ -52,14 +52,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!$error && isset($_POST['delete_img_id'])) {
         $pdo->prepare("DELETE FROM fit_images WHERE id = ? AND fit_id = ?")
             ->execute([(int)$_POST['delete_img_id'], $id]);
-        header("Location: /grailos/edit_fit.php?id=$id");
+        header("Location: /edit_fit.php?id=$id");
         exit;
     }
 
     if (!$error) {
         $pdo->prepare("UPDATE fits SET description = ? WHERE id = ? AND user_id = ?")
             ->execute([$desc ?: null, $id, $_SESSION['user_id']]);
-        header("Location: /grailos/fit.php?id=$id");
+        header("Location: /fit.php?id=$id");
         exit;
     }
 }
@@ -138,7 +138,7 @@ require_once 'includes/header.php';
 
     <div style="display:flex; gap:12px; margin-top:16px;">
       <button type="submit" class="btn">Zapisz →</button>
-      <a href="/grailos/fit.php?id=<?= $fit['id'] ?>" class="btn btn-outline">← Wróć</a>
+      <a href="/fit.php?id=<?= $fit['id'] ?>" class="btn btn-outline">← Wróć</a>
     </div>
   </form>
 </div>

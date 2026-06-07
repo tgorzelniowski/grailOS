@@ -46,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     ->execute([$did, $uploaded[$i], $i]);
             }
 
-            $success = 'Drop "' . htmlspecialchars($name) . '" dodany! <a href="/grailos/drop.php?id=' . $did . '" style="color:var(--red)">Zobacz →</a>';
+            $success = 'Drop "' . htmlspecialchars($name) . '" dodany! <a href="/drop.php?id=' . $did . '" style="color:var(--red)">Zobacz →</a>';
         }
     }
 }
@@ -112,7 +112,7 @@ require_once __DIR__ . '/../includes/header.php';
 
     <div style="display:flex; gap:12px; margin-top:32px; padding-top:24px; border-top:1px solid var(--border);">
       <button type="submit" class="btn">Dodaj drop →</button>
-      <a href="/grailos/admin/" class="btn btn-outline">← Wróć</a>
+      <a href="/admin/" class="btn btn-outline">← Wróć</a>
     </div>
   </form>
 </div>

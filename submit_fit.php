@@ -2,7 +2,7 @@
 require_once 'config/db.php';
 
 if (!isset($_SESSION['user_id'])) {
-    header('Location: /grailos/login.php'); exit;
+    header('Location: /login.php'); exit;
 }
 
 $error = '';
@@ -39,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     ->execute([$fit_id, $uploaded[$i], $i]);
             }
 
-            header('Location: /grailos/fit.php?id=' . $fit_id);
+            header('Location: /fit.php?id=' . $fit_id);
             exit;
         }
     }
@@ -82,7 +82,7 @@ require_once 'includes/header.php';
 
     <div style="display:flex; gap:12px; margin-top:8px;">
       <button type="submit" class="btn">Opublikuj fit →</button>
-      <a href="/grailos/fits.php" class="btn btn-outline">← Wróć</a>
+      <a href="/fits.php" class="btn btn-outline">← Wróć</a>
     </div>
   </form>
 </div>

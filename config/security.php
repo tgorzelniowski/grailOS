@@ -36,7 +36,7 @@ function validate_session(): void {
     // Sprawdź timeout
     if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) > $timeout) {
         _destroy_session();
-        header('Location: /grailos/login.php?expired=1');
+        header('Location: /login.php?expired=1');
         exit;
     }
     $_SESSION['last_activity'] = time();
@@ -46,7 +46,7 @@ function validate_session(): void {
         $current = hash('sha256', $_SERVER['HTTP_USER_AGENT'] ?? '');
         if (!hash_equals($_SESSION['ua_fingerprint'], $current)) {
             _destroy_session();
-            header('Location: /grailos/login.php?security=1');
+            header('Location: /login.php?security=1');
             exit;
         }
     }
@@ -150,5 +150,5 @@ function upload_image(array $file, string $folder): array {
         return ['error' => 'Nie udało się zapisać pliku na serwerze.'];
     }
 
-    return ['path' => "/grailos/assets/uploads/$folder/$filename"];
+    return ['path' => "/assets/uploads/$folder/$filename"];
 }

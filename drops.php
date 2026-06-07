@@ -30,7 +30,7 @@ require_once 'includes/header.php';
   $days = (int)ceil((strtotime($drop['drop_date']) - time()) / 86400);
 ?>
 
-  <a href="/grailos/drop.php?id=<?= $drop['id'] ?>" class="drop-row-full-link">
+  <a href="/drop.php?id=<?= $drop['id'] ?>" class="drop-row-full-link">
 
     <div class="drop-img-wrap">
       <?php if ($drop['image_url']): ?>
@@ -80,7 +80,7 @@ else: ?>
 
 <script>
 async function hypeToggle(dropId, btn) {
-  const res  = await fetch('/grailos/hype_drop.php', {
+  const res  = await fetch('/hype_drop.php', {
     method: 'POST',
     headers: {'Content-Type':'application/x-www-form-urlencoded'},
     body: `drop_id=${dropId}`

@@ -33,7 +33,7 @@ if ($q) {
 </section>
 
 <div class="search-bar-wrap">
-  <form method="GET" action="/grailos/search.php" class="search-form-big">
+  <form method="GET" action="/search.php" class="search-form-big">
     <input type="text" name="q" class="search-input-big"
            placeholder="Szukaj produktów, userów, postów..."
            value="<?= htmlspecialchars($q) ?>" autofocus>
@@ -74,7 +74,7 @@ if ($q) {
   <?php if ($users): ?>
     <div class="users-grid">
       <?php foreach ($users as $user): ?>
-        <a href="/grailos/profile.php?username=<?= urlencode($user['username']) ?>"
+        <a href="/profile.php?username=<?= urlencode($user['username']) ?>"
            class="user-card">
           <div class="user-avatar">@<?= strtoupper(htmlspecialchars($user['username'][0])) ?></div>
           <div class="user-card-info">
@@ -93,7 +93,7 @@ if ($q) {
   <?php if ($posts): ?>
     <div class="forum-feed">
       <?php foreach ($posts as $post): ?>
-        <a href="/grailos/post.php?id=<?= $post['id'] ?>" class="post-card post-card-link">
+        <a href="/post.php?id=<?= $post['id'] ?>" class="post-card post-card-link">
           <div class="forum-post-header">
             <span class="post-user">@<?= htmlspecialchars($post['username']) ?></span>
             <span class="post-date"><?= date('d M Y', strtotime($post['created_at'])) ?></span>

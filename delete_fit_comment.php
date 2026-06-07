@@ -2,7 +2,7 @@
 require_once 'config/db.php';
 
 if (!isset($_SESSION['user_id'])) {
-    header('Location: /grailos/login.php'); exit;
+    header('Location: /login.php'); exit;
 }
 csrf_verify();
 
@@ -36,5 +36,5 @@ if ($cid && in_array($type, ['comment', 'reply'], true)) {
     }
 }
 
-header('Location: /grailos/fit.php?id=' . $fit_id . '#comments');
+header('Location: /fit.php?id=' . $fit_id . '#comments');
 exit;

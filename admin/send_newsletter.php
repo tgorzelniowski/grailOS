@@ -85,7 +85,7 @@ require_once __DIR__ . '/../includes/header.php';
               onclick="grailConfirm('Wysłać newsletter do <?= (int)$total_subs ?> subskrybentów?', () => this.closest('form').submit())">
         Wyślij newsletter →
       </button>
-      <a href="/grailos/admin/" class="btn btn-outline">← Admin</a>
+      <a href="/admin/" class="btn btn-outline">← Admin</a>
     </div>
   </form>
 </div>

@@ -16,7 +16,7 @@ $items = $pdo->query("SELECT * FROM clothing ORDER BY created_at DESC")->fetchAl
 </section>
 
 <div style="padding:24px 40px; border-bottom:1px solid var(--border);">
-  <a href="/grailos/admin/add_clothing.php" class="btn">+ Dodaj produkt</a>
+  <a href="/admin/add_clothing.php" class="btn">+ Dodaj produkt</a>
 </div>
 
 <div class="manage-table-wrap">
@@ -48,7 +48,7 @@ $items = $pdo->query("SELECT * FROM clothing ORDER BY created_at DESC")->fetchAl
             <td><?= htmlspecialchars($item['category']) ?></td>
             <td><?= $item['price'] ? number_format($item['price'], 2) . ' zł' : '—' ?></td>
             <td style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
-              <a href="/grailos/admin/edit_clothing.php?id=<?= $item['id'] ?>"
+              <a href="/admin/edit_clothing.php?id=<?= $item['id'] ?>"
                 class="btn" style="font-size:11px; padding:6px 14px;">Edytuj</a>
               <form method="POST">
                 <?= csrf_field() ?>

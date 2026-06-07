@@ -2,7 +2,7 @@
 require_once 'config/db.php';
 
 $id = (int)($_GET['id'] ?? 0);
-if (!$id) { header('Location: /grailos/forum.php'); exit; }
+if (!$id) { header('Location: /forum.php'); exit; }
 
 $stmt = $pdo->prepare("
     SELECT posts.*, users.username, users.avatar_url,
@@ -15,14 +15,14 @@ $stmt = $pdo->prepare("
 ");
 $stmt->execute([$id]);
 $post = $stmt->fetch();
-if (!$post) { header('Location: /grailos/forum.php'); exit; }
+if (!$post) { header('Location: /forum.php'); exit; }
 
 $FORUM_CATS = ['general'=>'Ogólny','wtb'=>'WTB','wts'=>'WTT / WTS','legit'=>'Legit Check'];
 
 $reply_error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reply'])) {
-    if (!isset($_SESSION['user_id'])) { header('Location: /grailos/login.php'); exit; }
+    if (!isset($_SESSION['user_id'])) { header('Location: /login.php'); exit; }
     csrf_verify();
     $content   = trim($_POST['content'] ?? '');
     $parent_id = (int)($_POST['parent_id'] ?? 0) ?: null;
@@ -34,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reply'])) {
     } else {
         $pdo->prepare("INSERT INTO post_replies (post_id, user_id, content, parent_id) VALUES (?, ?, ?, ?)")
             ->execute([$id, $_SESSION['user_id'], $content, $parent_id]);
-        header("Location: /grailos/post.php?id=$id");
+        header("Location: /post.php?id=$id");
         exit;
     }
 }
@@ -77,8 +77,8 @@ $story_map = active_stories_map($pdo, $story_author_ids, (int)($_SESSION['user_i
 function story_avatar_link(int $uid, array $u, int $size): string {
     global $story_map;
     $ring = story_ring_class($story_map, $uid);
-    $href = $ring ? '/grailos/story_view.php?user=' . $uid
-                  : '/grailos/profile.php?username=' . urlencode($u['username']);
+    $href = $ring ? '/story_view.php?user=' . $uid
+                  : '/profile.php?username=' . urlencode($u['username']);
     return "<a href='" . $href . "' class='post-av-link " . $ring . "' onclick='event.stopPropagation()'>"
          . renderAvatar($u, $size) . "</a>";
 }
@@ -110,7 +110,7 @@ function renderPostReply($r, $child_replies, $depth = 0) {
           <div class="post-card-meta">
             <?= story_avatar_link((int)$r['user_id'], $r, $av_size) ?>
             <div>
-              <a href="/grailos/profile.php?username=<?= urlencode($r['username']) ?>"
+              <a href="/profile.php?username=<?= urlencode($r['username']) ?>"
                  class="post-user-link">@<?= htmlspecialchars($r['username']) ?></a>
               <div class="post-date"><?= date('d M Y, H:i', strtotime($r['created_at'])) ?></div>
             </div>
@@ -120,7 +120,7 @@ function renderPostReply($r, $child_replies, $depth = 0) {
               <button class="report-btn" onclick="grailReport('post_reply', <?= (int)$r['id'] ?>, 'Zgłaszasz odpowiedź @<?= htmlspecialchars($r['username']) ?>')">⚑</button>
             <?php endif; ?>
             <?php if ($can_del): ?>
-              <form method="POST" action="/grailos/delete_post_reply.php">
+              <form method="POST" action="/delete_post_reply.php">
                 <?= csrf_field() ?>
                 <input type="hidden" name="reply_id" value="<?= $r['id'] ?>">
                 <input type="hidden" name="post_id" value="<?= $r['post_id'] ?>">
@@ -169,12 +169,12 @@ function renderPostReply($r, $child_replies, $depth = 0) {
       <div class="post-card-meta">
         <?= story_avatar_link((int)$post['user_id'], $post, 48) ?>
         <div>
-          <a href="/grailos/profile.php?username=<?= urlencode($post['username']) ?>"
+          <a href="/profile.php?username=<?= urlencode($post['username']) ?>"
              class="post-user-link">@<?= htmlspecialchars($post['username']) ?></a>
           <div class="post-date">
             <?= date('d M Y, H:i', strtotime($post['created_at'])) ?>
             <?php $pcat = $post['category'] ?? 'general'; if (isset($FORUM_CATS[$pcat])): ?>
-              <a href="/grailos/forum.php?cat=<?= $pcat ?>" class="forum-cat-badge cat-<?= $pcat ?>"
+              <a href="/forum.php?cat=<?= $pcat ?>" class="forum-cat-badge cat-<?= $pcat ?>"
                  style="text-decoration:none; margin-left:6px;"><?= htmlspecialchars($FORUM_CATS[$pcat]) ?></a>
             <?php endif; ?>
           </div>
@@ -204,7 +204,7 @@ function renderPostReply($r, $child_replies, $depth = 0) {
       <?php else: ?>
         <span class="post-stat">♥ <?= $post['likes'] ?></span>
       <?php endif; ?>
-      <a href="/grailos/forum.php" class="post-stat">← Forum</a>
+      <a href="/forum.php" class="post-stat">← Forum</a>
       <?php if (isset($_SESSION['user_id']) && $post['user_id'] != $_SESSION['user_id']): ?>
         <button class="report-btn" style="margin-left:auto;"
                 onclick="grailReport('post', <?= (int)$post['id'] ?>, 'Zgłaszasz post @<?= htmlspecialchars($post['username']) ?>')">⚑ Zgłoś</button>
@@ -240,7 +240,7 @@ function renderPostReply($r, $child_replies, $depth = 0) {
     </div>
   <?php else: ?>
     <div class="compose-locked" style="margin-top:24px;">
-      <a href="/grailos/login.php" class="btn">Zaloguj się by odpowiedzieć</a>
+      <a href="/login.php" class="btn">Zaloguj się by odpowiedzieć</a>
     </div>
   <?php endif; ?>
 
@@ -254,7 +254,7 @@ function toggleReplyForm(id) {
 }
 
 async function likePost(postId, btn) {
-  const res  = await fetch('/grailos/post_like.php', {
+  const res  = await fetch('/post_like.php', {
     method: 'POST',
     headers: {'Content-Type':'application/x-www-form-urlencoded'},
     body: `post_id=${postId}`

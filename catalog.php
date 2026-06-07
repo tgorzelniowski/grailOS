@@ -59,7 +59,7 @@ $items = $stmt->fetchAll();
 // Link bazowy paginacji (zachowaj filtry)
 $qs = $_GET; unset($qs['page']);
 $base_qs   = http_build_query($qs);
-$page_link = '/grailos/catalog.php?' . ($base_qs ? $base_qs . '&' : '') . 'page=';
+$page_link = '/catalog.php?' . ($base_qs ? $base_qs . '&' : '') . 'page=';
 
 $item_ids  = array_column($items, 'id');
 $hover_map = [];
@@ -90,7 +90,7 @@ if ($item_ids) {
 
   <!-- SIDEBAR FILTRY -->
   <aside class="catalog-sidebar" id="catalogSidebar">
-    <form method="GET" action="/grailos/catalog.php" id="catalogFilterForm">
+    <form method="GET" action="/catalog.php" id="catalogFilterForm">
 
       <div class="filter-section">
         <div class="filter-section-title">Szukaj</div>
@@ -169,7 +169,7 @@ if ($item_ids) {
       <div class="sidebar-filter-btns">
         <button type="submit" class="btn" style="width:100%;">Filtruj</button>
         <?php if (!empty($_GET['search']) || !empty($_GET['category']) || !empty($_GET['brand']) || !empty($_GET['min_price']) || !empty($_GET['max_price'])): ?>
-          <a href="/grailos/catalog.php" class="btn btn-outline"
+          <a href="/catalog.php" class="btn btn-outline"
              style="width:100%; text-align:center; display:block;">Resetuj ×</a>
         <?php endif; ?>
       </div>
@@ -196,7 +196,7 @@ if ($item_ids) {
           }
         ?>
           <div class="clothing-card">
-            <a href="/grailos/item.php?id=<?= $item['id'] ?>" class="clothing-card-link">
+            <a href="/item.php?id=<?= $item['id'] ?>" class="clothing-card-link">
               <div class="clothing-card-img">
                 <?php if ($item['image_url']): ?>
                   <img src="<?= htmlspecialchars($item['image_url']) ?>"
@@ -217,7 +217,7 @@ if ($item_ids) {
                 <?= $item['price'] ? number_format($item['price'], 2) . ' zł' : '—' ?>
               </div>
               <?php if (isset($_SESSION['user_id'])): ?>
-                <form method="POST" action="/grailos/wardrobe_toggle.php">
+                <form method="POST" action="/wardrobe_toggle.php">
                   <?= csrf_field() ?>
                   <input type="hidden" name="clothing_id" value="<?= $item['id'] ?>">
                   <button type="submit"

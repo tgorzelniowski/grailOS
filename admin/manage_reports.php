@@ -7,26 +7,26 @@ function report_target(PDO $pdo, string $type, int $id): array {
         case 'profile':
             $s = $pdo->prepare("SELECT username FROM users WHERE id=?"); $s->execute([$id]);
             $u = $s->fetchColumn();
-            return $u ? ['Profil @'.$u, '/grailos/profile.php?username='.urlencode($u), true, $id] : ['Profil #'.$id, '', false, 0];
+            return $u ? ['Profil @'.$u, '/profile.php?username='.urlencode($u), true, $id] : ['Profil #'.$id, '', false, 0];
         case 'post':
             $s = $pdo->prepare("SELECT user_id FROM posts WHERE id=?"); $s->execute([$id]); $a=$s->fetchColumn();
-            return $a ? ['Post #'.$id, '/grailos/post.php?id='.$id, true, (int)$a] : ['Post #'.$id, '', false, 0];
+            return $a ? ['Post #'.$id, '/post.php?id='.$id, true, (int)$a] : ['Post #'.$id, '', false, 0];
         case 'post_reply':
             $s = $pdo->prepare("SELECT post_id, user_id FROM post_replies WHERE id=?"); $s->execute([$id]); $r=$s->fetch();
-            return $r ? ['Odpowiedź forum #'.$id, '/grailos/post.php?id='.$r['post_id'].'#reply-'.$id, true, (int)$r['user_id']] : ['Odpowiedź #'.$id, '', false, 0];
+            return $r ? ['Odpowiedź forum #'.$id, '/post.php?id='.$r['post_id'].'#reply-'.$id, true, (int)$r['user_id']] : ['Odpowiedź #'.$id, '', false, 0];
         case 'fit':
             $s = $pdo->prepare("SELECT user_id FROM fits WHERE id=?"); $s->execute([$id]); $a=$s->fetchColumn();
-            return $a ? ['Fit #'.$id, '/grailos/fit.php?id='.$id, true, (int)$a] : ['Fit #'.$id, '', false, 0];
+            return $a ? ['Fit #'.$id, '/fit.php?id='.$id, true, (int)$a] : ['Fit #'.$id, '', false, 0];
         case 'fit_comment':
             $s = $pdo->prepare("SELECT fit_id, user_id FROM fit_comments WHERE id=?"); $s->execute([$id]); $r=$s->fetch();
-            return $r ? ['Komentarz fitu #'.$id, '/grailos/fit.php?id='.$r['fit_id'].'#comment-'.$id, true, (int)$r['user_id']] : ['Komentarz #'.$id, '', false, 0];
+            return $r ? ['Komentarz fitu #'.$id, '/fit.php?id='.$r['fit_id'].'#comment-'.$id, true, (int)$r['user_id']] : ['Komentarz #'.$id, '', false, 0];
         case 'fit_reply':
             $s = $pdo->prepare("SELECT fc.fit_id, fcr.user_id FROM fit_comment_replies fcr JOIN fit_comments fc ON fcr.comment_id=fc.id WHERE fcr.id=?");
             $s->execute([$id]); $r=$s->fetch();
-            return $r ? ['Odpowiedź fitu #'.$id, '/grailos/fit.php?id='.$r['fit_id'], true, (int)$r['user_id']] : ['Odpowiedź fitu #'.$id, '', false, 0];
+            return $r ? ['Odpowiedź fitu #'.$id, '/fit.php?id='.$r['fit_id'], true, (int)$r['user_id']] : ['Odpowiedź fitu #'.$id, '', false, 0];
         case 'story':
             $s = $pdo->prepare("SELECT user_id FROM stories WHERE id=?"); $s->execute([$id]); $a=$s->fetchColumn();
-            return $a ? ['Storka #'.$id, '/grailos/story_view.php?user='.$a, true, (int)$a] : ['Storka #'.$id.' (wygasła)', '', false, 0];
+            return $a ? ['Storka #'.$id, '/story_view.php?user='.$a, true, (int)$a] : ['Storka #'.$id.' (wygasła)', '', false, 0];
     }
     return [$type.' #'.$id, '', false, 0];
 }
@@ -65,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
     $qs = http_build_query(array_filter(['status'=>$_GET['status']??'', 'type'=>$_GET['type']??'']));
-    header('Location: /grailos/admin/manage_reports.php' . ($qs ? '?'.$qs : '')); exit;
+    header('Location: /admin/manage_reports.php' . ($qs ? '?'.$qs : '')); exit;
 }
 
 // --- Filtry ---
@@ -119,7 +119,7 @@ require_once __DIR__ . '/../includes/header.php';
       <?php endforeach; ?>
     </select>
     <?php if ($f_status || $f_type): ?>
-      <a href="/grailos/admin/manage_reports.php" class="btn btn-outline" style="font-size:11px; padding:8px 14px;">Reset ×</a>
+      <a href="/admin/manage_reports.php" class="btn btn-outline" style="font-size:11px; padding:8px 14px;">Reset ×</a>
     <?php endif; ?>
   </form>
   <?php if ($closed_count > 0): ?>

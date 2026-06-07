@@ -24,7 +24,7 @@ require_once 'includes/header.php';
       <div class="form-error">Link jest nieprawidłowy lub już wypisano wcześniej.</div>
     <?php endif; ?>
     <div style="margin-top:24px;">
-      <a href="/grailos/drops.php" class="btn btn-outline"
+      <a href="/drops.php" class="btn btn-outline"
          style="width:100%;text-align:center;display:block;">
         Wróć do dropów
       </a>

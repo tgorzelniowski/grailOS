@@ -2,18 +2,18 @@
 require_once 'config/db.php';
 
 if (!isset($_SESSION['user_id'])) {
-    header('Location: /grailos/login.php'); exit;
+    header('Location: /login.php'); exit;
 }
 $me       = (int)$_SESSION['user_id'];
 $author   = (int)($_GET['user'] ?? 0);
 $is_admin = !empty($_SESSION['is_admin']);
-if (!$author) { header('Location: /grailos/'); exit; }
+if (!$author) { header('Location: /'); exit; }
 
 // Autor istnieje?
 $u = $pdo->prepare("SELECT id, username, avatar_url FROM users WHERE id = ? AND is_banned = 0");
 $u->execute([$author]);
 $author_user = $u->fetch();
-if (!$author_user) { header('Location: /grailos/'); exit; }
+if (!$author_user) { header('Location: /'); exit; }
 
 // Dostęp: autor, admin, lub obserwujący autora
 $allowed = ($author === $me) || $is_admin;
@@ -22,7 +22,7 @@ if (!$allowed) {
     $f->execute([$me, $author]);
     $allowed = (bool)$f->fetch();
 }
-if (!$allowed) { header('Location: /grailos/'); exit; }
+if (!$allowed) { header('Location: /'); exit; }
 
 // Storki autora z ostatnich 24h
 $st = $pdo->prepare("
@@ -32,7 +32,7 @@ $st = $pdo->prepare("
 ");
 $st->execute([$author]);
 $stories = $st->fetchAll();
-if (!$stories) { header('Location: /grailos/'); exit; }
+if (!$stories) { header('Location: /'); exit; }
 
 $count = count($stories);
 $i     = (int)($_GET['i'] ?? 0);
@@ -87,7 +87,7 @@ require_once 'includes/header.php';
 
   <!-- Nagłówek -->
   <div class="story-viewer-head">
-    <a href="/grailos/profile.php?username=<?= urlencode($author_user['username']) ?>" class="story-viewer-user">
+    <a href="/profile.php?username=<?= urlencode($author_user['username']) ?>" class="story-viewer-user">
       <?php if ($author_user['avatar_url']): ?>
         <img src="<?= htmlspecialchars($author_user['avatar_url']) ?>" alt="">
       <?php else: ?>
@@ -99,7 +99,7 @@ require_once 'includes/header.php';
     <div style="margin-left:auto; display:flex; gap:10px; align-items:center;">
       <?php if ($is_owner): ?>
         <span class="story-views" title="Wyświetlenia">👁 <?= $views ?></span>
-        <form method="POST" action="/grailos/delete_story.php">
+        <form method="POST" action="/delete_story.php">
           <?= csrf_field() ?>
           <input type="hidden" name="story_id" value="<?= $story['id'] ?>">
           <input type="hidden" name="user" value="<?= $author ?>">
@@ -111,22 +111,22 @@ require_once 'includes/header.php';
         <button class="report-btn" style="color:#aaa;"
                 onclick="grailReport('story', <?= (int)$story['id'] ?>, 'Zgłaszasz storkę @<?= htmlspecialchars($author_user['username']) ?>')">⚑</button>
       <?php endif; ?>
-      <a href="/grailos/" class="story-close">✕</a>
+      <a href="/" class="story-close">✕</a>
     </div>
   </div>
 
   <!-- Zdjęcie -->
   <div class="story-stage">
     <?php if ($i > 0): ?>
-      <a href="/grailos/story_view.php?user=<?= $author ?>&i=<?= $i - 1 ?>" class="story-nav story-nav-prev">‹</a>
+      <a href="/story_view.php?user=<?= $author ?>&i=<?= $i - 1 ?>" class="story-nav story-nav-prev">‹</a>
     <?php endif; ?>
 
     <img src="<?= htmlspecialchars($story['image_url']) ?>" alt="Storka" class="story-image">
 
     <?php if ($i < $count - 1): ?>
-      <a href="/grailos/story_view.php?user=<?= $author ?>&i=<?= $i + 1 ?>" class="story-nav story-nav-next">›</a>
+      <a href="/story_view.php?user=<?= $author ?>&i=<?= $i + 1 ?>" class="story-nav story-nav-next">›</a>
     <?php else: ?>
-      <a href="/grailos/" class="story-nav story-nav-next">›</a>
+      <a href="/" class="story-nav story-nav-next">›</a>
     <?php endif; ?>
   </div>
 
@@ -143,8 +143,8 @@ require_once 'includes/header.php';
 
 <?php
 $next_url = $i < $count - 1
-    ? "/grailos/story_view.php?user=$author&i=" . ($i + 1)
-    : "/grailos/";
+    ? "/story_view.php?user=$author&i=" . ($i + 1)
+    : "/";
 ?>
 <script>
 const STORY_DURATION = <?= (int)$story_duration ?> * 1000;
@@ -170,7 +170,7 @@ const STORY_NEXT = <?= json_encode($next_url) ?>;
 
 async function toggleStoryLike(storyId) {
   const btn = document.getElementById('storyLikeBtn');
-  const res = await fetch('/grailos/story_like.php', {
+  const res = await fetch('/story_like.php', {
     method: 'POST',
     headers: {'Content-Type':'application/x-www-form-urlencoded'},
     body: `story_id=${storyId}`

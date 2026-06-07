@@ -53,7 +53,7 @@ require_once __DIR__ . '/../includes/header.php';
            class="form-input" style="max-width:280px; padding:8px 0;">
     <button type="submit" class="btn" style="font-size:11px; padding:8px 18px;">Szukaj</button>
     <?php if ($search_user !== '' || $search_kw !== ''): ?>
-      <a href="/grailos/admin/manage_posts.php" class="btn btn-outline"
+      <a href="/admin/manage_posts.php" class="btn btn-outline"
          style="font-size:11px; padding:8px 18px;">Resetuj ×</a>
       <span style="font-size:11px; letter-spacing:2px; color:var(--gray); text-transform:uppercase;">
         <?= count($posts) ?> wyników
@@ -78,7 +78,7 @@ require_once __DIR__ . '/../includes/header.php';
       <?php if ($posts): ?>
         <?php foreach ($posts as $post): ?>
           <tr>
-            <td><a href="/grailos/profile.php?username=<?= urlencode($post['username']) ?>"
+            <td><a href="/profile.php?username=<?= urlencode($post['username']) ?>"
                    style="color:var(--red); text-decoration:none;">@<?= htmlspecialchars($post['username']) ?></a></td>
             <td style="max-width:260px;">
               <?php if ($post['content']): ?>
@@ -97,7 +97,7 @@ require_once __DIR__ . '/../includes/header.php';
               <?= date('d M Y', strtotime($post['created_at'])) ?>
             </td>
             <td style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-              <a href="/grailos/post.php?id=<?= $post['id'] ?>" target="_blank"
+              <a href="/post.php?id=<?= $post['id'] ?>" target="_blank"
                  class="btn" style="font-size:11px; padding:6px 12px;">Podgląd</a>
               <form method="POST">
                 <?= csrf_field() ?>

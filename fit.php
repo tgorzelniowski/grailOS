@@ -2,7 +2,7 @@
 require_once 'config/db.php';
 
 $id = (int)($_GET['id'] ?? 0);
-if (!$id) { header('Location: /grailos/fits.php'); exit; }
+if (!$id) { header('Location: /fits.php'); exit; }
 
 $stmt = $pdo->prepare("
     SELECT fits.*, users.username, users.avatar_url,
@@ -15,12 +15,12 @@ $stmt = $pdo->prepare("
 ");
 $stmt->execute([$id]);
 $fit = $stmt->fetch();
-if (!$fit) { header('Location: /grailos/fits.php'); exit; }
+if (!$fit) { header('Location: /fits.php'); exit; }
 
 $comment_error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['comment'])) {
-    if (!isset($_SESSION['user_id'])) { header('Location: /grailos/login.php'); exit; }
+    if (!isset($_SESSION['user_id'])) { header('Location: /login.php'); exit; }
     csrf_verify();
     $content = trim($_POST['comment'] ?? '');
     if (!$content) {
@@ -30,13 +30,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['comment'])) {
     } else {
         $pdo->prepare("INSERT INTO fit_comments (fit_id, user_id, content) VALUES (?, ?, ?)")
             ->execute([$id, $_SESSION['user_id'], $content]);
-        header("Location: /grailos/fit.php?id=$id#comments");
+        header("Location: /fit.php?id=$id#comments");
         exit;
     }
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reply_comment_id'])) {
-    if (!isset($_SESSION['user_id'])) { header('Location: /grailos/login.php'); exit; }
+    if (!isset($_SESSION['user_id'])) { header('Location: /login.php'); exit; }
     csrf_verify();
     $comment_id      = (int)($_POST['reply_comment_id'] ?? 0);
     $parent_reply_id = (int)($_POST['parent_reply_id'] ?? 0) ?: null;
@@ -51,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reply_comment_id'])) 
                 ->execute([$comment_id, $_SESSION['user_id'], $content]);
         }
     }
-    header("Location: /grailos/fit.php?id=$id#comment-$comment_id");
+    header("Location: /fit.php?id=$id#comment-$comment_id");
     exit;
 }
 
@@ -125,7 +125,7 @@ function renderReplyTree($reply, $comment_id, $child_replies, $fit_id, $depth = 
     ?>
     <div class="comment-reply" id="creply-<?= $reply['id'] ?>">
       <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
-        <a href="/grailos/profile.php?username=<?= urlencode($reply['username']) ?>" class="post-av-link">
+        <a href="/profile.php?username=<?= urlencode($reply['username']) ?>" class="post-av-link">
           <?php if ($reply['avatar_url']): ?>
             <img src="<?= htmlspecialchars($reply['avatar_url']) ?>"
                  style="width:22px;height:22px;border-radius:50%;object-fit:cover;" alt="">
@@ -137,7 +137,7 @@ function renderReplyTree($reply, $comment_id, $child_replies, $fit_id, $depth = 
             </span>
           <?php endif; ?>
         </a>
-        <a href="/grailos/profile.php?username=<?= urlencode($reply['username']) ?>"
+        <a href="/profile.php?username=<?= urlencode($reply['username']) ?>"
            style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--red);text-decoration:none;">
           @<?= htmlspecialchars($reply['username']) ?>
         </a>
@@ -147,7 +147,7 @@ function renderReplyTree($reply, $comment_id, $child_replies, $fit_id, $depth = 
                   onclick="grailReport('fit_reply', <?= (int)$reply['id'] ?>, 'Zgłaszasz odpowiedź @<?= htmlspecialchars($reply['username']) ?>')">⚑</button>
         <?php endif; ?>
         <?php if ($can_del): ?>
-          <form method="POST" action="/grailos/delete_fit_comment.php" style="margin-left:auto;">
+          <form method="POST" action="/delete_fit_comment.php" style="margin-left:auto;">
             <?= csrf_field() ?>
             <input type="hidden" name="type" value="reply">
             <input type="hidden" name="id" value="<?= $reply['id'] ?>">
@@ -223,7 +223,7 @@ require_once 'includes/header.php';
 
     <!-- UŻYTKOWNIK -->
     <div class="fit-page-user">
-      <a href="/grailos/profile.php?username=<?= urlencode($fit['username']) ?>"
+      <a href="/profile.php?username=<?= urlencode($fit['username']) ?>"
          class="post-av-link">
         <?php if ($fit['avatar_url']): ?>
           <img src="<?= htmlspecialchars($fit['avatar_url']) ?>"
@@ -235,7 +235,7 @@ require_once 'includes/header.php';
         <?php endif; ?>
       </a>
       <div>
-        <a href="/grailos/profile.php?username=<?= urlencode($fit['username']) ?>"
+        <a href="/profile.php?username=<?= urlencode($fit['username']) ?>"
            class="post-user-link">@<?= htmlspecialchars($fit['username']) ?></a>
         <div class="post-date"><?= date('d M Y, H:i', strtotime($fit['created_at'])) ?></div>
       </div>
@@ -258,11 +258,11 @@ require_once 'includes/header.php';
                   onclick="grailReport('fit', <?= (int)$fit['id'] ?>, 'Zgłaszasz fit @<?= htmlspecialchars($fit['username']) ?>')">⚑ Zgłoś</button>
         <?php endif; ?>
         <?php if (isset($_SESSION['user_id']) && $fit['user_id'] == $_SESSION['user_id']): ?>
-          <a href="/grailos/edit_fit.php?id=<?= $fit['id'] ?>"
+          <a href="/edit_fit.php?id=<?= $fit['id'] ?>"
              class="btn btn-outline" style="font-size:11px; padding:5px 12px;">Edytuj</a>
         <?php endif; ?>
         <?php if (isset($_SESSION['user_id']) && ($fit['user_id'] == $_SESSION['user_id'] || $_SESSION['is_admin'])): ?>
-          <form method="POST" action="/grailos/delete_fit.php">
+          <form method="POST" action="/delete_fit.php">
             <?= csrf_field() ?>
             <input type="hidden" name="fit_id" value="<?= $fit['id'] ?>">
             <button type="button" class="btn-delete" style="font-size:11px; padding:5px 12px;"
@@ -291,7 +291,7 @@ require_once 'includes/header.php';
         <div class="comment" id="comment-<?= $c['id'] ?>">
           <div class="comment-header">
             <div style="display:flex; align-items:center; gap:8px;">
-              <a href="/grailos/profile.php?username=<?= urlencode($c['username']) ?>"
+              <a href="/profile.php?username=<?= urlencode($c['username']) ?>"
                  class="post-av-link">
                 <?php if ($c['avatar_url']): ?>
                   <img src="<?= htmlspecialchars($c['avatar_url']) ?>"
@@ -304,7 +304,7 @@ require_once 'includes/header.php';
                   </span>
                 <?php endif; ?>
               </a>
-              <a href="/grailos/profile.php?username=<?= urlencode($c['username']) ?>"
+              <a href="/profile.php?username=<?= urlencode($c['username']) ?>"
                  class="comment-user">@<?= htmlspecialchars($c['username']) ?></a>
             </div>
             <div style="display:flex; align-items:center; gap:10px;">
@@ -313,7 +313,7 @@ require_once 'includes/header.php';
                 <button class="report-btn" onclick="grailReport('fit_comment', <?= (int)$c['id'] ?>, 'Zgłaszasz komentarz @<?= htmlspecialchars($c['username']) ?>')">⚑</button>
               <?php endif; ?>
               <?php if (isset($_SESSION['user_id']) && ($c['user_id'] == $_SESSION['user_id'] || !empty($_SESSION['is_admin']))): ?>
-                <form method="POST" action="/grailos/delete_fit_comment.php">
+                <form method="POST" action="/delete_fit_comment.php">
                   <?= csrf_field() ?>
                   <input type="hidden" name="type" value="comment">
                   <input type="hidden" name="id" value="<?= $c['id'] ?>">
@@ -374,7 +374,7 @@ require_once 'includes/header.php';
         </form>
       <?php else: ?>
         <p class="auth-switch" style="margin-top:20px;">
-          <a href="/grailos/login.php">Zaloguj się</a> by komentować.
+          <a href="/login.php">Zaloguj się</a> by komentować.
         </p>
       <?php endif; ?>
       </div><!-- /commentsBody -->
@@ -413,7 +413,7 @@ function toggleReply(id) {
 }
 
 async function handleVote(fitId, btn) {
-  const res  = await fetch('/grailos/vote.php', {
+  const res  = await fetch('/vote.php', {
     method: 'POST',
     headers: {'Content-Type':'application/x-www-form-urlencoded'},
     body: `fit_id=${fitId}`

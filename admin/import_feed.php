@@ -214,7 +214,7 @@ require_once __DIR__ . '/../includes/header.php';
       Dodano: <strong><?= $result['inserted'] ?></strong> ·
       Scalono: <strong><?= $result['merged'] ?></strong> ·
       Błędne wiersze: <strong><?= $result['errors'] ?></strong>
-      <br><a href="/grailos/admin/manage_clothing.php" style="color:var(--red)">Zobacz katalog →</a>
+      <br><a href="/admin/manage_clothing.php" style="color:var(--red)">Zobacz katalog →</a>
     </div>
   <?php endif; ?>
 
@@ -266,7 +266,7 @@ require_once __DIR__ . '/../includes/header.php';
 
       <div style="display:flex; gap:12px; margin-top:16px;">
         <button type="submit" class="btn">Importuj feed →</button>
-        <a href="/grailos/admin/import_feed.php" class="btn btn-outline">Anuluj</a>
+        <a href="/admin/import_feed.php" class="btn btn-outline">Anuluj</a>
       </div>
     </form>
 
@@ -293,7 +293,7 @@ require_once __DIR__ . '/../includes/header.php';
   <?php endif; ?>
 
   <div style="margin-top:24px;">
-    <a href="/grailos/admin/" class="btn btn-outline">← Admin</a>
+    <a href="/admin/" class="btn btn-outline">← Admin</a>
   </div>
 </div>
 

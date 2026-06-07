@@ -36,7 +36,7 @@ require_once 'includes/header.php';
         Link jest nieprawidłowy lub subskrypcja już została anulowana.
       </div>
     <?php endif; ?>
-    <a href="/grailos/" class="btn btn-outline"
+    <a href="/" class="btn btn-outline"
        style="width:100%;text-align:center;display:block;">
       Wróć do strony
     </a>

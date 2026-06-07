@@ -6,8 +6,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_id'])) {
     $stmt = $pdo->prepare("SELECT image_url FROM fits WHERE id = ?");
     $stmt->execute([$_POST['delete_id']]);
     $fit = $stmt->fetch();
-    if ($fit && str_starts_with($fit['image_url'], '/grailos/assets/uploads/')) {
-        $path = __DIR__ . '/../' . str_replace('/grailos/', '', $fit['image_url']);
+    if ($fit && str_starts_with($fit['image_url'], '/assets/uploads/')) {
+        $path = __DIR__ . '/../' . str_replace('/', '', $fit['image_url']);
         if (file_exists($path)) unlink($path);
     }
     $pdo->prepare("DELETE FROM fits WHERE id = ?")->execute([$_POST['delete_id']]);
@@ -64,7 +64,7 @@ require_once __DIR__ . '/../includes/header.php';
            class="form-input" style="max-width:280px; padding:8px 0;">
     <button type="submit" class="btn" style="font-size:11px; padding:8px 18px;">Szukaj</button>
     <?php if ($search_user !== '' || $search_kw !== ''): ?>
-      <a href="/grailos/admin/manage_fits.php" class="btn btn-outline"
+      <a href="/admin/manage_fits.php" class="btn btn-outline"
          style="font-size:11px; padding:8px 18px;">Resetuj ×</a>
       <span style="font-size:11px; letter-spacing:2px; color:var(--gray); text-transform:uppercase;">
         <?= count($fits) ?> wyników
@@ -91,12 +91,12 @@ require_once __DIR__ . '/../includes/header.php';
         <?php foreach ($fits as $fit): ?>
           <tr>
             <td>
-              <a href="/grailos/fit.php?id=<?= $fit['id'] ?>" target="_blank">
+              <a href="/fit.php?id=<?= $fit['id'] ?>" target="_blank">
                 <img src="<?= htmlspecialchars($fit['image_url']) ?>"
                      style="width:56px;height:56px;object-fit:cover;border:1px solid var(--border);">
               </a>
             </td>
-            <td><a href="/grailos/profile.php?username=<?= urlencode($fit['username']) ?>"
+            <td><a href="/profile.php?username=<?= urlencode($fit['username']) ?>"
                    style="color:var(--red); text-decoration:none;">@<?= htmlspecialchars($fit['username']) ?></a></td>
             <td style="max-width:200px; color:var(--gray); font-size:12px;">
               <?= htmlspecialchars(mb_substr($fit['description'] ?? '—', 0, 60)) ?>
@@ -105,7 +105,7 @@ require_once __DIR__ . '/../includes/header.php';
             <td>💬 <?= $fit['comments'] ?></td>
             <td style="color:var(--gray); font-size:12px;"><?= date('d M Y', strtotime($fit['created_at'])) ?></td>
             <td style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-              <a href="/grailos/fit.php?id=<?= $fit['id'] ?>" target="_blank"
+              <a href="/fit.php?id=<?= $fit['id'] ?>" target="_blank"
                  class="btn" style="font-size:11px; padding:6px 12px;">Podgląd</a>
               <form method="POST">
                 <?= csrf_field() ?>

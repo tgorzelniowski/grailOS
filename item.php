@@ -2,12 +2,12 @@
 require_once 'config/db.php';
 
 $id = (int)($_GET['id'] ?? 0);
-if (!$id) { header('Location: /grailos/catalog.php'); exit; }
+if (!$id) { header('Location: /catalog.php'); exit; }
 
 $stmt = $pdo->prepare("SELECT * FROM clothing WHERE id = ?");
 $stmt->execute([$id]);
 $item = $stmt->fetch();
-if (!$item) { header('Location: /grailos/catalog.php'); exit; }
+if (!$item) { header('Location: /catalog.php'); exit; }
 
 $imgs_stmt = $pdo->prepare("SELECT * FROM clothing_images WHERE clothing_id = ? ORDER BY sort_order ASC");
 $imgs_stmt->execute([$id]);
@@ -96,7 +96,7 @@ require_once 'includes/header.php';
     <!-- DODAJ DO SZAFY -->
     <?php if (isset($_SESSION['user_id'])): ?>
       <?php if ($in_wardrobe): ?>
-        <form method="POST" action="/grailos/wardrobe_remove.php">
+        <form method="POST" action="/wardrobe_remove.php">
           <?= csrf_field() ?>
           <input type="hidden" name="wardrobe_item_id" value="<?= $wardrobe_item_id ?>">
           <button type="submit" class="btn btn-outline item-wardrobe-btn">
@@ -104,7 +104,7 @@ require_once 'includes/header.php';
           </button>
         </form>
       <?php else: ?>
-        <form method="POST" action="/grailos/wardrobe_toggle.php">
+        <form method="POST" action="/wardrobe_toggle.php">
           <?= csrf_field() ?>
           <input type="hidden" name="clothing_id" value="<?= $item['id'] ?>">
           <button type="submit" class="btn item-wardrobe-btn">
@@ -186,7 +186,7 @@ function toggleDesc() {
 <div class="section-label">/// Ostatnio przeglądane</div>
 <div class="clothing-grid clothing-grid--home" style="padding:0;">
   <?php foreach ($rv_items as $rv): ?>
-    <a href="/grailos/item.php?id=<?= $rv['id'] ?>"
+    <a href="/item.php?id=<?= $rv['id'] ?>"
        class="clothing-card" style="text-decoration:none; color:inherit; display:block; border:1px solid var(--border);">
       <div class="clothing-card-img" style="aspect-ratio:1/1;">
         <?php if ($rv['image_url']): ?>

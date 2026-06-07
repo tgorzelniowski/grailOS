@@ -14,7 +14,7 @@ $post_error = '';
 // Cały POST processing PRZED require header
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['new_post'])) {
     if (!isset($_SESSION['user_id'])) {
-        header('Location: /grailos/login.php'); exit;
+        header('Location: /login.php'); exit;
     }
     csrf_verify();
     $content   = trim($_POST['content'] ?? '');
@@ -44,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['new_post'])) {
                 $pdo->prepare("INSERT INTO posts (user_id, content, image_url) VALUES (?, ?, ?)")
                     ->execute([$_SESSION['user_id'], $content, $image_url]);
             }
-            header('Location: /grailos/forum.php' . ($category !== 'general' ? '?cat=' . $category : ''));
+            header('Location: /forum.php' . ($category !== 'general' ? '?cat=' . $category : ''));
             exit;
         }
     }
@@ -103,16 +103,16 @@ $story_map = active_stories_map($pdo, array_column($posts, 'user_id'), (int)($_S
 </section>
 <!-- KATEGORIE -->
 <div class="forum-cats">
-  <a href="/grailos/forum.php" class="forum-cat <?= $cat_filter === '' ? 'active' : '' ?>">Wszystko</a>
+  <a href="/forum.php" class="forum-cat <?= $cat_filter === '' ? 'active' : '' ?>">Wszystko</a>
   <?php foreach ($CATEGORIES as $key => $label): ?>
-    <a href="/grailos/forum.php?cat=<?= $key ?>"
+    <a href="/forum.php?cat=<?= $key ?>"
        class="forum-cat <?= $cat_filter === $key ? 'active' : '' ?>"><?= htmlspecialchars($label) ?></a>
   <?php endforeach; ?>
 </div>
 
 <!-- WYSZUKIWARKA -->
 <div class="fits-filter-bar">
-  <form method="GET" action="/grailos/forum.php" class="fits-filter-form">
+  <form method="GET" action="/forum.php" class="fits-filter-form">
     <input type="hidden" name="cat" value="<?= htmlspecialchars($cat_filter) ?>">
     <input type="text" name="user" placeholder="@użytkownik"
            value="<?= htmlspecialchars($search_user) ?>"
@@ -122,7 +122,7 @@ $story_map = active_stories_map($pdo, array_column($posts, 'user_id'), (int)($_S
            class="fits-filter-input">
     <button type="submit" class="btn">Szukaj</button>
     <?php if ($search_user !== '' || $search_kw !== ''): ?>
-      <a href="/grailos/forum.php<?= $cat_filter ? '?cat=' . $cat_filter : '' ?>" class="btn btn-outline">Resetuj ×</a>
+      <a href="/forum.php<?= $cat_filter ? '?cat=' . $cat_filter : '' ?>" class="btn btn-outline">Resetuj ×</a>
     <?php endif; ?>
   </form>
 </div>
@@ -137,7 +137,7 @@ $story_map = active_stories_map($pdo, array_column($posts, 'user_id'), (int)($_S
     <form method="POST" enctype="multipart/form-data" class="compose-card">
       <?= csrf_field() ?>
       <div class="compose-header">
-        <a href="/grailos/profile.php?username=<?= urlencode($_SESSION['username']) ?>"
+        <a href="/profile.php?username=<?= urlencode($_SESSION['username']) ?>"
            class="compose-av-link">
           <?php if (!empty($_SESSION['avatar_url'])): ?>
             <img src="<?= htmlspecialchars($_SESSION['avatar_url']) ?>"
@@ -187,8 +187,8 @@ $story_map = active_stories_map($pdo, array_column($posts, 'user_id'), (int)($_S
         Dołącz do rozmowy
       </span>
       <div style="display:flex; gap:12px;">
-        <a href="/grailos/login.php" class="btn">Login</a>
-        <a href="/grailos/register.php" class="btn btn-outline">Register</a>
+        <a href="/login.php" class="btn">Login</a>
+        <a href="/register.php" class="btn btn-outline">Register</a>
       </div>
     </div>
   <?php endif; ?>
@@ -212,14 +212,14 @@ $story_map = active_stories_map($pdo, array_column($posts, 'user_id'), (int)($_S
                     ($post['user_id'] == $_SESSION['user_id'] || $_SESSION['is_admin']);
     ?>
       <div class="fpc post-card-clickable"
-           data-href="/grailos/post.php?id=<?= $post['id'] ?>">
+           data-href="/post.php?id=<?= $post['id'] ?>">
 
         <!-- HEADER: user + date -->
         <div class="fpc-head">
           <div class="fpc-meta">
             <?php $ring = story_ring_class($story_map, (int)$post['user_id']);
-                  $av_href = $ring ? '/grailos/story_view.php?user=' . (int)$post['user_id']
-                                   : '/grailos/profile.php?username=' . urlencode($post['username']); ?>
+                  $av_href = $ring ? '/story_view.php?user=' . (int)$post['user_id']
+                                   : '/profile.php?username=' . urlencode($post['username']); ?>
             <a href="<?= $av_href ?>"
                class="post-av-link <?= $ring ?>" onclick="event.stopPropagation()">
               <?php if ($post['avatar_url']): ?>
@@ -231,7 +231,7 @@ $story_map = active_stories_map($pdo, array_column($posts, 'user_id'), (int)($_S
                 </span>
               <?php endif; ?>
             </a>
-            <a href="/grailos/profile.php?username=<?= urlencode($post['username']) ?>"
+            <a href="/profile.php?username=<?= urlencode($post['username']) ?>"
                class="fpc-username" onclick="event.stopPropagation()">
               @<?= htmlspecialchars($post['username']) ?>
             </a>
@@ -241,7 +241,7 @@ $story_map = active_stories_map($pdo, array_column($posts, 'user_id'), (int)($_S
             <?php endif; ?>
           </div>
           <?php if ($can_delete): ?>
-            <form method="POST" action="/grailos/delete_post.php" onclick="event.stopPropagation()">
+            <form method="POST" action="/delete_post.php" onclick="event.stopPropagation()">
               <?= csrf_field() ?>
               <input type="hidden" name="post_id" value="<?= $post['id'] ?>">
               <button type="button" class="post-delete-btn"
@@ -272,11 +272,11 @@ $story_map = active_stories_map($pdo, array_column($posts, 'user_id'), (int)($_S
           <?php else: ?>
             <span class="fpc-btn">♥ <?= $post['likes'] ?></span>
           <?php endif; ?>
-          <a href="/grailos/post.php?id=<?= $post['id'] ?>" class="fpc-btn"
+          <a href="/post.php?id=<?= $post['id'] ?>" class="fpc-btn"
              onclick="event.stopPropagation()">
             💬 <?= $post['replies'] ?> <?= $post['replies'] == 1 ? 'odpowiedź' : 'odpowiedzi' ?>
           </a>
-          <a href="/grailos/post.php?id=<?= $post['id'] ?>" class="fpc-btn"
+          <a href="/post.php?id=<?= $post['id'] ?>" class="fpc-btn"
              style="margin-left:auto;" onclick="event.stopPropagation()">
             Odpowiedz →
           </a>
@@ -300,7 +300,7 @@ document.querySelectorAll('.post-card-clickable').forEach(card => {
 });
 
 async function likePost(postId, btn) {
-  const res  = await fetch('/grailos/post_like.php', {
+  const res  = await fetch('/post_like.php', {
     method: 'POST',
     headers: {'Content-Type':'application/x-www-form-urlencoded'},
     body: `post_id=${postId}`

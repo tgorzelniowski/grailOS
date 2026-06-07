@@ -14,7 +14,7 @@ foreach ($stmt->fetchAll() as $item) {
     $results[] = [
         'text'  => $item['brand'] . ' — ' . $item['name'],
         'type'  => 'item',
-        'url'   => '/grailos/item.php?id=' . $item['id'],
+        'url'   => '/item.php?id=' . $item['id'],
         'thumb' => $item['image_url'],
         'init'  => strtoupper($item['brand'][0]),
     ];
@@ -26,7 +26,7 @@ foreach ($stmt->fetchAll() as $user) {
     $results[] = [
         'text'  => '@' . $user['username'],
         'type'  => 'user',
-        'url'   => '/grailos/profile.php?username=' . urlencode($user['username']),
+        'url'   => '/profile.php?username=' . urlencode($user['username']),
         'thumb' => $user['avatar_url'],
         'init'  => strtoupper($user['username'][0]),
     ];
@@ -38,7 +38,7 @@ foreach ($stmt->fetchAll() as $drop) {
     $results[] = [
         'text'  => $drop['brand'] . ' — ' . $drop['name'],
         'type'  => 'drop',
-        'url'   => '/grailos/drops.php',
+        'url'   => '/drops.php',
         'thumb' => $drop['image_url'],
         'init'  => strtoupper($drop['brand'][0]),
     ];

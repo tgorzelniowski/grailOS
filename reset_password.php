@@ -65,13 +65,13 @@ require_once 'includes/header.php';
     <?php if ($error && !$reset): ?>
       <div class="form-error"><?= htmlspecialchars($error) ?></div>
       <p style="margin-top:20px;">
-        <a href="/grailos/forgot_password.php" class="btn">Wyślij nowy link →</a>
+        <a href="/forgot_password.php" class="btn">Wyślij nowy link →</a>
       </p>
 
     <?php elseif ($success): ?>
       <div class="form-success"><?= htmlspecialchars($success) ?></div>
       <div style="margin-top:24px;">
-        <a href="/grailos/login.php" class="btn" style="width:100%;text-align:center;display:block;">
+        <a href="/login.php" class="btn" style="width:100%;text-align:center;display:block;">
           Zaloguj się →
         </a>
       </div>

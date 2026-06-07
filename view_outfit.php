@@ -2,7 +2,7 @@
 require_once 'includes/header.php';
 
 $id = (int)($_GET['id'] ?? 0);
-if (!$id) { header('Location: /grailos/'); exit; }
+if (!$id) { header('Location: /'); exit; }
 
 $stmt = $pdo->prepare("
     SELECT outfits.*, users.username, users.avatar_url, users.show_outfits
@@ -12,13 +12,13 @@ $stmt = $pdo->prepare("
 ");
 $stmt->execute([$id]);
 $outfit = $stmt->fetch();
-if (!$outfit) { header('Location: /grailos/'); exit; }
+if (!$outfit) { header('Location: /'); exit; }
 
 // Prywatność: jeśli właściciel ukrył outfity, widzą tylko on i admin
 $is_owner = isset($_SESSION['user_id']) && $_SESSION['user_id'] == $outfit['user_id'];
 $is_admin = !empty($_SESSION['is_admin']);
 if ((int)($outfit['show_outfits'] ?? 1) === 0 && !$is_owner && !$is_admin) {
-    header('Location: /grailos/profile.php?username=' . urlencode($outfit['username'])); exit;
+    header('Location: /profile.php?username=' . urlencode($outfit['username'])); exit;
 }
 
 // Itemy outfitu (z katalogu lub custom z szafy)
@@ -41,7 +41,7 @@ $items = $items->fetchAll();
   <div class="page-header-tag">/// Outfit</div>
   <h1 class="page-title"><?= htmlspecialchars($outfit['name']) ?></h1>
   <p class="page-sub">
-    <a href="/grailos/profile.php?username=<?= urlencode($outfit['username']) ?>"
+    <a href="/profile.php?username=<?= urlencode($outfit['username']) ?>"
        style="color:var(--red); text-decoration:none;">@<?= htmlspecialchars($outfit['username']) ?></a>
     · <?= count($items) ?> itemów
   </p>
@@ -59,7 +59,7 @@ $items = $items->fetchAll();
       $clickable = !empty($it['clothing_id']);
     ?>
       <div class="clothing-card <?= $clickable ? 'profile-clickable' : '' ?>"
-           <?= $clickable ? 'data-href="/grailos/item.php?id=' . (int)$it['clothing_id'] . '" style="cursor:pointer;"' : '' ?>>
+           <?= $clickable ? 'data-href="/item.php?id=' . (int)$it['clothing_id'] . '" style="cursor:pointer;"' : '' ?>>
         <div class="clothing-card-img">
           <?php if ($it['image_url']): ?>
             <img src="<?= htmlspecialchars($it['image_url']) ?>" alt="">
@@ -78,7 +78,7 @@ $items = $items->fetchAll();
 </div>
 
 <div style="text-align:center; padding:32px 0 80px;">
-  <a href="/grailos/profile.php?username=<?= urlencode($outfit['username']) ?>"
+  <a href="/profile.php?username=<?= urlencode($outfit['username']) ?>"
      class="btn btn-outline" style="font-size:11px; padding:8px 18px;">← Wróć do profilu</a>
 </div>
 

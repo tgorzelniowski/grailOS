@@ -56,7 +56,7 @@ function cookies_decided(): bool        { return cookie_consent_level() !== ''; 
     </div>
 
     <p class="cookie-modal-policy">
-      <a href="/grailos/privacy.php">Polityka prywatności</a>
+      <a href="/privacy.php">Polityka prywatności</a>
     </p>
 
   </div>
@@ -85,7 +85,7 @@ function cookies_decided(): bool        { return cookie_consent_level() !== ''; 
       tz     : Intl.DateTimeFormat().resolvedOptions().timeZone || '',
     });
 
-    fetch('/grailos/cookie_accept.php', {
+    fetch('/cookie_accept.php', {
       method  : 'POST',
       headers : { 'Content-Type': 'application/x-www-form-urlencoded' },
       body    : body.toString(),

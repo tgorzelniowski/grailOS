@@ -91,7 +91,7 @@ require_once 'includes/header.php';
         <input type="password" name="confirm" class="form-input">
       </div>
       <button type="submit" class="btn" style="width:100%">Utwórz konto →</button>
-      <p class="auth-switch">Masz już konto? <a href="/grailos/login.php">Zaloguj się</a></p>
+      <p class="auth-switch">Masz już konto? <a href="/login.php">Zaloguj się</a></p>
     </form>
   </div>
 </section>

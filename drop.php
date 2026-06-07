@@ -2,7 +2,7 @@
 require_once 'config/db.php';
 
 $id = (int)($_GET['id'] ?? 0);
-if (!$id) { header('Location: /grailos/drops.php'); exit; }
+if (!$id) { header('Location: /drops.php'); exit; }
 
 $uid  = (int)($_SESSION['user_id'] ?? 0);
 $stmt = $pdo->prepare("
@@ -16,7 +16,7 @@ $stmt = $pdo->prepare("
 ");
 $stmt->execute([$uid, $id]);
 $drop = $stmt->fetch();
-if (!$drop) { header('Location: /grailos/drops.php'); exit; }
+if (!$drop) { header('Location: /drops.php'); exit; }
 
 $imgs_stmt = $pdo->prepare("SELECT * FROM drop_images WHERE drop_id = ? ORDER BY sort_order ASC");
 $imgs_stmt->execute([$id]);
@@ -161,7 +161,7 @@ require_once 'includes/header.php';
     <?php endif; ?>
 
     <div style="margin-top:20px;">
-      <a href="/grailos/drops.php" class="btn btn-outline"
+      <a href="/drops.php" class="btn btn-outline"
          style="font-size:11px; padding:6px 16px;">← Wszystkie dropy</a>
     </div>
 
@@ -192,7 +192,7 @@ function toggleDesc() {
 
 async function hypeToggle(dropId) {
   const btn  = document.getElementById('hypeBtn');
-  const res  = await fetch('/grailos/hype_drop.php', {
+  const res  = await fetch('/hype_drop.php', {
     method: 'POST',
     headers: {'Content-Type':'application/x-www-form-urlencoded'},
     body: `drop_id=${dropId}`
@@ -208,7 +208,7 @@ async function hypeToggle(dropId) {
 async function toggleNotify(dropId) {
   const btn   = document.getElementById('notifyBtn');
   const body  = new URLSearchParams({ csrf_token: '<?= csrf_token() ?>', drop_id: dropId });
-  const res   = await fetch('/grailos/drop_notify.php', {
+  const res   = await fetch('/drop_notify.php', {
     method: 'POST',
     headers: {'Content-Type': 'application/x-www-form-urlencoded'},
     body: body.toString(),
@@ -225,7 +225,7 @@ async function notifyGuest(e) {
   e.preventDefault();
   const form = e.target;
   const msg  = document.getElementById('notifyMsg');
-  const res  = await fetch('/grailos/drop_notify.php', {
+  const res  = await fetch('/drop_notify.php', {
     method: 'POST',
     headers: {'Content-Type': 'application/x-www-form-urlencoded'},
     body: new URLSearchParams(new FormData(form)).toString(),

@@ -29,7 +29,7 @@ if (isset($_SESSION['user_id'])):
 ?>
 <div class="stories-bar">
   <!-- Dodaj storkę -->
-  <a href="/grailos/add_story.php" class="story-item story-add">
+  <a href="/add_story.php" class="story-item story-add">
     <div class="story-ring story-add-ring">
       <?php if (!empty($_SESSION['avatar_url'])): ?>
         <img src="<?= htmlspecialchars($_SESSION['avatar_url']) ?>" alt="">
@@ -46,7 +46,7 @@ if (isset($_SESSION['user_id'])):
     foreach ($sb_stories as $st):
       if (!$st['is_me']) continue;
   ?>
-    <a href="/grailos/story_view.php?user=<?= (int)$st['user_id'] ?>" class="story-item">
+    <a href="/story_view.php?user=<?= (int)$st['user_id'] ?>" class="story-item">
       <div class="story-ring seen">
         <?php if ($st['avatar_url']): ?>
           <img src="<?= htmlspecialchars($st['avatar_url']) ?>" alt="">
@@ -61,7 +61,7 @@ if (isset($_SESSION['user_id'])):
   <?php foreach ($sb_stories as $st):
     if ($st['is_me']) continue;
   ?>
-    <a href="/grailos/story_view.php?user=<?= (int)$st['user_id'] ?>" class="story-item">
+    <a href="/story_view.php?user=<?= (int)$st['user_id'] ?>" class="story-item">
       <div class="story-ring <?= $st['unseen_count'] > 0 ? 'unseen' : 'seen' ?>">
         <?php if ($st['avatar_url']): ?>
           <img src="<?= htmlspecialchars($st['avatar_url']) ?>" alt="">

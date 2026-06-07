@@ -2,7 +2,7 @@
 require_once 'config/db.php';
 
 if (!isset($_SESSION['user_id'])) {
-    header('Location: /grailos/login.php'); exit;
+    header('Location: /login.php'); exit;
 }
 
 $success = '';
@@ -206,7 +206,7 @@ require_once 'includes/header.php';
     <div class="settings-section">
       <div class="settings-section-title">/// Sesja</div>
       <div class="settings-section-desc">Wyloguj się z tego urządzenia.</div>
-      <a href="/grailos/logout.php" class="btn btn-outline">Wyloguj się →</a>
+      <a href="/logout.php" class="btn btn-outline">Wyloguj się →</a>
     </div>
   </div>
 
@@ -244,7 +244,7 @@ require_once 'includes/header.php';
   </div>
 
   <div style="margin-top:40px; padding-top:32px; border-top:1px solid var(--border);">
-    <a href="/grailos/profile.php?username=<?= urlencode($_SESSION['username']) ?>"
+    <a href="/profile.php?username=<?= urlencode($_SESSION['username']) ?>"
        class="btn btn-outline">← Wróć do profilu</a>
   </div>
 

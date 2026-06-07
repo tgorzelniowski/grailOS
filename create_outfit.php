@@ -2,7 +2,7 @@
 require_once 'config/db.php';
 
 if (!isset($_SESSION['user_id'])) {
-    header('Location: /grailos/login.php'); exit;
+    header('Location: /login.php'); exit;
 }
 
 $error   = '';
@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $item_stmt->execute([$outfit_id, (int)$item_id]);
         }
 
-        header('Location: /grailos/profile.php?username=' . urlencode($_SESSION['username']));
+        header('Location: /profile.php?username=' . urlencode($_SESSION['username']));
         exit;
     }
 }
@@ -62,7 +62,7 @@ require_once 'includes/header.php';
   <?php if (empty($wardrobe)): ?>
     <div class="form-error">
       Twoja szafa jest pusta.
-      <a href="/grailos/catalog.php" style="color:var(--red)">Dodaj itemy z katalogu →</a>
+      <a href="/catalog.php" style="color:var(--red)">Dodaj itemy z katalogu →</a>
     </div>
   <?php else: ?>
     <form method="POST" class="admin-form">
@@ -108,7 +108,7 @@ require_once 'includes/header.php';
 
       <div style="display:flex; gap:12px;">
         <button type="submit" class="btn">Zapisz outfit →</button>
-        <a href="/grailos/profile.php?username=<?= urlencode($_SESSION['username']) ?>"
+        <a href="/profile.php?username=<?= urlencode($_SESSION['username']) ?>"
            class="btn btn-outline">← Wróć</a>
       </div>
     </form>

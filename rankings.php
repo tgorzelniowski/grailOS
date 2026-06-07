@@ -45,12 +45,12 @@ $month = $pdo->query("
 function renderRankingCard($fit, $position) { ?>
   <div class="ranking-card">
     <div class="ranking-pos"><?= $position ?></div>
-    <a href="/grailos/fit.php?id=<?= $fit['id'] ?>" class="fit-img-wrap ranking-img">
+    <a href="/fit.php?id=<?= $fit['id'] ?>" class="fit-img-wrap ranking-img">
       <img src="<?= htmlspecialchars($fit['image_url']) ?>" alt="Fit">
     </a>
     <div class="fit-info">
       <div class="fit-user-row">
-        <a href="/grailos/profile.php?username=<?= urlencode($fit['username']) ?>"
+        <a href="/profile.php?username=<?= urlencode($fit['username']) ?>"
            class="post-av-link">
           <?php if ($fit['avatar_url']): ?>
             <img src="<?= htmlspecialchars($fit['avatar_url']) ?>"
@@ -61,7 +61,7 @@ function renderRankingCard($fit, $position) { ?>
             </span>
           <?php endif; ?>
         </a>
-        <a href="/grailos/profile.php?username=<?= urlencode($fit['username']) ?>"
+        <a href="/profile.php?username=<?= urlencode($fit['username']) ?>"
            class="rank-user-link">@<?= htmlspecialchars($fit['username']) ?></a>
       </div>
       <div class="fit-footer">

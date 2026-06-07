@@ -2,12 +2,12 @@
 require_once __DIR__ . '/auth.php';
 
 $id = (int)($_GET['id'] ?? $_POST['clothing_id'] ?? 0);
-if (!$id) { header('Location: /grailos/admin/manage_clothing.php'); exit; }
+if (!$id) { header('Location: /admin/manage_clothing.php'); exit; }
 
 $item = $pdo->prepare("SELECT * FROM clothing WHERE id = ?");
 $item->execute([$id]);
 $item = $item->fetch();
-if (!$item) { header('Location: /grailos/admin/manage_clothing.php'); exit; }
+if (!$item) { header('Location: /admin/manage_clothing.php'); exit; }
 
 $error = $success = '';
 
@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error = $result['error'];
         } else {
             // Usuń stare główne zdjęcie
-            if ($item['image_url'] && str_starts_with($item['image_url'], '/grailos/assets/uploads/')) {
+            if ($item['image_url'] && str_starts_with($item['image_url'], '/assets/uploads/')) {
                 $path = __DIR__ . str_replace('/grailos', '/../..', $item['image_url']);
                 if (file_exists($path)) unlink($path);
             }
@@ -299,8 +299,8 @@ require_once __DIR__ . '/../includes/header.php';
   </div>
 
   <div style="display:flex; gap:12px; padding-top:24px; border-top:1px solid var(--border);">
-    <a href="/grailos/admin/manage_clothing.php" class="btn btn-outline">← Katalog</a>
-    <a href="/grailos/item.php?id=<?= $id ?>" class="btn" target="_blank">Podgląd →</a>
+    <a href="/admin/manage_clothing.php" class="btn btn-outline">← Katalog</a>
+    <a href="/item.php?id=<?= $id ?>" class="btn" target="_blank">Podgląd →</a>
   </div>
 </div>
 

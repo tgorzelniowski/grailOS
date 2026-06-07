@@ -58,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     ->execute([$cid, $store, $urls[$i], $prices[$i] ?: null]);
             }
 
-            $success = 'Produkt dodany! <a href="/grailos/item.php?id=' . $cid . '" style="color:var(--red)">Zobacz →</a>';
+            $success = 'Produkt dodany! <a href="/item.php?id=' . $cid . '" style="color:var(--red)">Zobacz →</a>';
         }
     }
 }
@@ -146,7 +146,7 @@ require_once __DIR__ . '/../includes/header.php';
 
     <div style="display:flex; gap:12px; margin-top:32px; padding-top:24px; border-top:1px solid var(--border);">
       <button type="submit" class="btn">Dodaj produkt →</button>
-      <a href="/grailos/admin/manage_clothing.php" class="btn btn-outline">← Wróć</a>
+      <a href="/admin/manage_clothing.php" class="btn btn-outline">← Wróć</a>
     </div>
   </form>
 </div>
