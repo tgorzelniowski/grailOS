@@ -89,6 +89,63 @@ Każdy wiersz ma ustawiony `links` = `Sklep|url|cena`, więc import z różnych 
 
 ---
 
+## 🏷️ Dedykowane scrapery per-sklep (Nike / adidas / Footshop / Zalando)
+
+Oprócz uniwersalnego `scrape_products.py` są cztery gotowe scrapery dostrojone pod konkretne
+sklepy (wymuszona marka tam gdzie trzeba, obsługa bannera cookies, dłuższe czekanie na JS,
+selektory CSS awaryjne). Każdy ma **własny plik z linkami** i **własny CSV wynikowy**:
+
+| Scraper | Plik z linkami | Wynik | Marka |
+|---------|----------------|-------|-------|
+| `python scrape_nike.py`     | `nike_urls.txt`     | `nike.csv`     | wymuszona **Nike** |
+| `python scrape_adidas.py`   | `adidas_urls.txt`   | `adidas.csv`   | wymuszona **adidas** |
+| `python scrape_footshop.py` | `footshop_urls.txt` | `footshop.csv` | z danych produktu (multi-brand) |
+| `python scrape_zalando.py`  | `zalando_urls.txt`  | `zalando.csv`  | z danych produktu (multi-brand) |
+
+> ⚠️ **WAŻNE — gdzie wgrać CSV:** pliki z tych scraperów to **PRODUKTY** → wgrywasz je w
+> **Admin → Katalog → Import CSV**. **NIE** w „Admin → Dropy → Import dropów" (tamten wymaga kolumn
+> `name, brand, drop_date` i odrzuci produktowy CSV z błędem „CSV musi mieć kolumny: name, brand,
+> drop_date"). Dropy robisz osobno przez `scrape_drops.py`.
+
+**Jak używać (po aktywacji venv):**
+1. Wklej linki do odpowiedniego pliku, np. `nike_urls.txt` (1 URL na linię).
+2. Odpal scraper, np. `python scrape_nike.py`.
+3. Wgraj powstały CSV w **Admin → Katalog → Import CSV** (separator zostaw **Auto**).
+
+Wszystkie przyjmują te same flagi co `scrape_products.py` (`--in`, `--out`, `--category`,
+`--brand`, `--delim`, `--limit`), np. test na 3 linkach: `python scrape_nike.py --limit 3`.
+
+### Jak który sklep się zachowuje (sprawdzone na żywych stronach)
+
+- **Nike** ✅ — dane w JSON-LD typu `ProductGroup`; wyciąga nazwę, markę, cenę, **EAN/GTIN**, SKU,
+  opis i zdjęcie. Domyślnie headless + stealth. Gdyby blokował → dodaj `--headful`.
+- **Footshop** ✅ — brak JSON-LD, więc nazwa/zdjęcie/opis z OpenGraph, a cena z selektora CSS
+  (klasy hashowane → selektory `[class*="..."]`). To sklep wielomarkowy — markę ustaw `--brand "..."`
+  albo w panelu po imporcie.
+- **adidas / Zalando** ⚠️ — agresywnie blokują tryb bez okna. Dlatego **domyślnie uruchamiają się
+  z WIDOCZNYM oknem przeglądarki** (headful) + stealth. Zostaw `python scrape_adidas.py` bez flag —
+  otworzy się okno Chromium, poczeka i zbierze dane (głównie z JSON-LD). Jak chcesz spróbować bez
+  okna: `--headless` (może nie zadziałać). Marka adidas jest wymuszona; w Zalando z JSON-LD.
+
+> **Galeria zdjęć:** scrapery zbierają teraz **wszystkie** zdjęcia produktu z żywego DOM (nie tylko
+> główne) — pierwsze ląduje w `image_url`, reszta w kolumnie `images` (oddzielone `|`). Zdjęcia są
+> filtrowane po hoście CDN sklepu i dedupowane (np. Nike: po UUID assetu, Footshop: po numerze pliku),
+> więc nie powielają się te same ujęcia w różnych rozmiarach. Gdyby trafiło kilka zdjęć „polecanych"
+> produktów, usuń je w panelu (Admin → Katalog → edycja → zdjęcia).
+
+> **EAN/GTIN:** jeśli sklep poda kod kreskowy (np. Nike), trafia on do kolumny `ean` w CSV.
+> Importer katalogu używa EAN jako najmocniejszego klucza dedupu — ten sam but z różnych sklepów
+> **scali się idealnie** (doklei drugi link zamiast tworzyć duplikat).
+
+> **Selektory awaryjne** każdego sklepu są na górze jego pliku `scrape_<sklep>.py` — gdy sklep zmieni
+> layout i dane zaczną wychodzić puste, podmień je tam (prawy klik na element → Zbadaj/Inspect).
+
+Architektura: cała logika (przeglądarka, parsowanie, zapis CSV) siedzi w `site_base.py`;
+pliki `scrape_<sklep>.py` to tylko konfiguracja (słownik `SITE`). Nowy sklep = skopiuj jeden
+z nich, zmień `SITE` i gotowe.
+
+---
+
 ## 📦 Dropy
 
 ```powershell

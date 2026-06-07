@@ -6,9 +6,17 @@ Pobiera stronę przez Playwright (headless Chromium), wyciąga dane strukturalne
 import csv
 import json
 import re
+import sys
 from urllib.parse import urlparse
 
 from playwright.sync_api import sync_playwright
+
+# Konsola Windows (cp1250) nie zna znaków typu "→" — wymuś UTF-8, żeby print() nie wywalał skryptu.
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding='utf-8', errors='replace')
+    except Exception:
+        pass
 
 # Ładny "store name" z domeny: www.end.com -> End, stockx.com -> Stockx
 def store_name(url: str) -> str:
@@ -63,17 +71,29 @@ def get_page_data(page, url: str) -> dict:
 
 
 def _iter_products(node):
-    """Rekurencyjnie wyłuskuje obiekty typu Product z JSON-LD (obsługa @graph/list)."""
+    """Rekurencyjnie wyłuskuje obiekty Product/ProductGroup z JSON-LD (obsługa @graph/list)."""
     if isinstance(node, list):
         for n in node:
             yield from _iter_products(n)
     elif isinstance(node, dict):
         t = node.get('@type', '')
         types = t if isinstance(t, list) else [t]
-        if any(str(x).lower() == 'product' for x in types):
+        if any(str(x).lower() in ('product', 'productgroup') for x in types):
             yield node
         if '@graph' in node:
             yield from _iter_products(node['@graph'])
+
+
+def _offer_price(offers):
+    """Wyciąga cenę z offers (dict/list/AggregateOffer)."""
+    if not offers:
+        return ''
+    of = offers[0] if isinstance(offers, list) else offers
+    if not isinstance(of, dict):
+        return ''
+    pr = of.get('price') or of.get('lowPrice') \
+        or (of.get('priceSpecification', {}) or {}).get('price')
+    return _price(pr) if pr else ''
 
 
 def extract_from_jsonld(jsonld_list: list) -> dict:
@@ -84,6 +104,12 @@ def extract_from_jsonld(jsonld_list: list) -> dict:
         except Exception:
             continue
         for p in _iter_products(data):
+            # Dla ProductGroup pola cena/sku/zdjęcie są w wariantach (hasVariant)
+            variant = None
+            hv = p.get('hasVariant')
+            if isinstance(hv, list) and hv:
+                variant = next((v for v in hv if isinstance(v, dict)), None)
+
             out.setdefault('name', _clean(p.get('name')))
             # brand
             b = p.get('brand')
@@ -91,34 +117,42 @@ def extract_from_jsonld(jsonld_list: list) -> dict:
                 b = b.get('name')
             if b:
                 out.setdefault('brand', _clean(b))
-            # sku
-            if p.get('sku') or p.get('mpn'):
-                out.setdefault('sku', _clean(p.get('sku') or p.get('mpn')))
+            # sku / gtin (ean) — z produktu lub z wariantu
+            sku = p.get('sku') or p.get('mpn') or (variant and (variant.get('sku') or variant.get('mpn')))
+            if sku:
+                out.setdefault('sku', _clean(sku))
+            gtin = (p.get('gtin13') or p.get('gtin') or p.get('gtin12')
+                    or (variant and (variant.get('gtin13') or variant.get('gtin') or variant.get('gtin12'))))
+            if gtin:
+                out.setdefault('ean', _clean(gtin))
             # description
-            if p.get('description'):
-                out.setdefault('description', _clean(p.get('description')))
-            # images
+            desc = p.get('description') or (variant and variant.get('description'))
+            if desc:
+                out.setdefault('description', _clean(desc))
+            # images — z produktu lub z wariantów (ProductGroup)
             img = p.get('image')
             imgs = img if isinstance(img, list) else ([img] if img else [])
+            if not imgs and isinstance(hv, list):
+                for v in hv:
+                    vi = v.get('image') if isinstance(v, dict) else None
+                    if isinstance(vi, list):
+                        imgs.extend(vi)
+                    elif vi:
+                        imgs.append(vi)
             imgs = [i.get('url') if isinstance(i, dict) else i for i in imgs]
             imgs = [i for i in imgs if i]
             if imgs:
-                out.setdefault('images', imgs)
+                out.setdefault('images', list(dict.fromkeys(imgs)))
             # kategoria
             if p.get('category'):
                 cat = p['category']
                 if isinstance(cat, list):
                     cat = cat[-1]
                 out.setdefault('category', _clean(cat).split('/')[-1].split('>')[-1].strip())
-            # offers / price
-            offers = p.get('offers')
-            if offers:
-                of = offers[0] if isinstance(offers, list) else offers
-                if isinstance(of, dict):
-                    pr = of.get('price') or of.get('lowPrice') \
-                         or (of.get('priceSpecification', {}) or {}).get('price')
-                    if pr:
-                        out.setdefault('price', _price(pr))
+            # offers / price — z produktu lub z wariantu
+            price = _offer_price(p.get('offers')) or (variant and _offer_price(variant.get('offers'))) or ''
+            if price:
+                out.setdefault('price', price)
             if out.get('name') and out.get('price'):
                 return out
     return out
@@ -155,10 +189,26 @@ def extract_breadcrumb_category(jsonld_list: list) -> str:
     return ''
 
 
+def _strip_site_suffix(name: str, site: str) -> str:
+    """Usuwa końcówkę typu ' | Footshop' / ' - Zalando' / ' – Nike.com' z nazwy."""
+    name = _clean(name)
+    if site:
+        site = _clean(site)
+        for sep in (' | ', ' - ', ' – ', ' — '):
+            tail = sep + site
+            if name.lower().endswith(tail.lower()):
+                return name[: -len(tail)].strip()
+    # fallback: utnij ostatni segment po " | " (większość sklepów wrzuca tam nazwę sklepu)
+    if ' | ' in name:
+        return name.rsplit(' | ', 1)[0].strip()
+    return name
+
+
 def extract_from_meta(meta: dict, og_images: list, title: str) -> dict:
     out = {}
-    if meta.get('og:title') or title:
-        out['name'] = _clean(meta.get('og:title') or title)
+    raw_name = meta.get('og:title') or title
+    if raw_name:
+        out['name'] = _strip_site_suffix(raw_name, meta.get('og:site_name', ''))
     if og_images:
         out['images'] = list(dict.fromkeys(og_images))   # dedup, zachowaj kolejność
     elif meta.get('og:image'):
@@ -211,6 +261,7 @@ def extract_product(page_data: dict, url: str, brand_override='', category_overr
 
     return {
         'sku': d.get('sku', ''),
+        'ean': d.get('ean', ''),
         'name': name,
         'brand': brand,
         'category': category_override or d.get('category', ''),
@@ -223,7 +274,7 @@ def extract_product(page_data: dict, url: str, brand_override='', category_overr
     }
 
 
-PRODUCT_COLS = ['sku', 'name', 'brand', 'category', 'price', 'image_url',
+PRODUCT_COLS = ['sku', 'ean', 'name', 'brand', 'category', 'price', 'image_url',
                 'description', 'images', 'links', 'source_url']
 DROP_COLS    = ['name', 'brand', 'drop_date', 'image_url', 'link', 'description',
                 'images', 'source_url']
@@ -248,16 +299,31 @@ def write_csv(path: str, cols: list, rows: list, delimiter: str = ';'):
             w.writerow({c: r.get(c, '') for c in cols})
 
 
-def run_browser(handler):
-    """Uruchamia Chromium i przekazuje (page) do handlera."""
+def run_browser(handler, headless=True, stealth=False):
+    """Uruchamia Chromium i przekazuje (page) do handlera.
+
+    headless=False → widoczne okno (omija sporo zabezpieczeń anty-bot, np. adidas/Zalando).
+    stealth=True   → ukrywa flagę automatyzacji (navigator.webdriver) + realistyczny kontekst.
+    """
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
+        args = ['--disable-blink-features=AutomationControlled'] if stealth else []
+        browser = p.chromium.launch(headless=headless, args=args)
         ctx = browser.new_context(
             user_agent=('Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
                         'AppleWebKit/537.36 (KHTML, like Gecko) '
-                        'Chrome/120.0 Safari/537.36'),
+                        'Chrome/120.0.0.0 Safari/537.36'),
             locale='pl-PL',
+            timezone_id='Europe/Warsaw',
+            viewport={'width': 1366, 'height': 900},
+            extra_http_headers={'Accept-Language': 'pl-PL,pl;q=0.9,en;q=0.8'},
         )
+        if stealth:
+            ctx.add_init_script(
+                "Object.defineProperty(navigator,'webdriver',{get:()=>undefined});"
+                "window.chrome={runtime:{}};"
+                "Object.defineProperty(navigator,'languages',{get:()=>['pl-PL','pl','en']});"
+                "Object.defineProperty(navigator,'plugins',{get:()=>[1,2,3,4,5]});"
+            )
         page = ctx.new_page()
         try:
             handler(page)
