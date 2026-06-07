@@ -50,10 +50,10 @@ if ($existing) {
 }
 
 $confirm_url = MAIL_SITE_URL . '/newsletter_confirm.php?token=' . $confirm_token;
-$display     = $name ?: 'Hej';
+$greeting    = $name ? 'Cześć <strong>' . htmlspecialchars($name) . '</strong>!' : 'Cześć!';
 
 $body = "<p style='color:#444;font-size:15px;line-height:1.7;'>
-    Cześć <strong>$display</strong>!<br><br>
+    $greeting<br><br>
     Dziękujemy za zapisanie się do newslettera GrailOS.<br>
     Kliknij przycisk poniżej, aby potwierdzić swój adres email i aktywować subskrypcję.
 </p>
