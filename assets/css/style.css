@@ -6232,3 +6232,57 @@ img {
   .story-stage { width: 100%; max-height: 72vh; }
   .story-edit-stage { padding: 4px; }
 }
+
+/* ===========================
+   POPRAWKI: lajki komentarzy, FB-owy licznik, ramka storki
+=========================== */
+/* Ładniejszy przycisk lajka komentarza */
+.clike-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--gray);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px;
+  letter-spacing: 1px;
+  padding: 4px 12px;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.18s;
+  line-height: 1;
+}
+.clike-btn:hover { border-color: var(--red); color: var(--red); }
+.clike-btn.liked { border-color: var(--red); color: var(--red); background: rgba(255,36,0,0.1); }
+.clike-btn .clike-count { font-weight: 600; }
+
+.comment-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+.comment-actions .reply-toggle-btn { margin: 0; }
+
+/* FB-owy klikalny licznik polubień */
+.likes-count-link {
+  text-decoration: none;
+  color: var(--gray);
+  cursor: pointer;
+  transition: color 0.15s;
+}
+.likes-count-link:hover { color: var(--red); text-decoration: underline; }
+
+/* Wyraźna ramka 9:16 w edytorze storki */
+.story-edit-stage {
+  background: #050505;
+  border: none;
+  padding: 0;
+}
+.story-edit-stage::after { color: #fff; background: rgba(255,36,0,0.85); }
+#storyCanvas {
+  border: 3px solid var(--red) !important;
+  box-shadow: 0 0 0 1px #000, 0 8px 30px rgba(0,0,0,0.6);
+  background: #000;
+}

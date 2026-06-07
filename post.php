@@ -208,15 +208,12 @@ function renderPostReply($r, $child_replies, $depth = 0) {
       <span class="post-stat">💬 <?= count($all_replies) ?> odpowiedzi</span>
       <?php if (isset($_SESSION['user_id'])): ?>
         <button class="post-stat post-like-btn <?= $liked ? 'liked' : '' ?>"
-                onclick="likePost(<?= $post['id'] ?>, this)">
-          ♥ <span class="like-count"><?= $post['likes'] ?></span>
-        </button>
+                onclick="likePost(<?= $post['id'] ?>, this)">♥</button>
       <?php else: ?>
-        <span class="post-stat">♥ <?= $post['likes'] ?></span>
+        <span class="post-stat">♥</span>
       <?php endif; ?>
-      <?php if ($post['likes'] > 0): ?>
-        <a href="/likers.php?type=post&id=<?= $post['id'] ?>" class="post-stat">kto polubił?</a>
-      <?php endif; ?>
+      <a href="/likers.php?type=post&id=<?= $post['id'] ?>" class="post-stat likes-count-link"
+         title="Zobacz kto polubił"><span class="like-count" id="postLikeCount"><?= $post['likes'] ?></span> polubień</a>
       <a href="/forum.php" class="post-stat">← Forum</a>
       <?php if (isset($_SESSION['user_id']) && $post['user_id'] != $_SESSION['user_id']): ?>
         <button class="report-btn" style="margin-left:auto;"
@@ -275,7 +272,8 @@ async function likePost(postId, btn) {
   const data = await res.json();
   if (data.success) {
     btn.classList.toggle('liked', data.liked);
-    btn.querySelector('.like-count').textContent = data.likes;
+    const c = document.getElementById('postLikeCount');
+    if (c) c.textContent = data.likes;
   }
 }
 </script>

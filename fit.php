@@ -260,15 +260,12 @@ require_once 'includes/header.php';
     <div class="fit-page-actions">
       <?php if (isset($_SESSION['user_id'])): ?>
         <button class="vote-btn <?= $user_voted ? 'voted' : '' ?>"
-                onclick="handleVote(<?= $fit['id'] ?>, this)">
-          ♥ <span class="vote-count"><?= $fit['votes'] ?></span>
-        </button>
+                onclick="handleVote(<?= $fit['id'] ?>, this)">♥</button>
       <?php else: ?>
-        <span class="vote-count-static" style="font-size:15px;">♥ <?= $fit['votes'] ?></span>
+        <span class="vote-count-static" style="font-size:15px;">♥</span>
       <?php endif; ?>
-      <?php if ($fit['votes'] > 0): ?>
-        <a href="/likers.php?type=fit&id=<?= $fit['id'] ?>" class="report-btn" style="color:var(--gray);">kto polubił?</a>
-      <?php endif; ?>
+      <a href="/likers.php?type=fit&id=<?= $fit['id'] ?>" class="likes-count-link"
+         title="Zobacz kto polubił"><span class="vote-count" id="fitVoteCount"><?= $fit['votes'] ?></span> polubień</a>
 
       <div style="margin-left:auto; display:flex; gap:8px; align-items:center;">
         <?php if (isset($_SESSION['user_id']) && $fit['user_id'] != $_SESSION['user_id']): ?>
@@ -442,7 +439,8 @@ async function handleVote(fitId, btn) {
   const data = await res.json();
   if (data.success) {
     btn.classList.toggle('voted', data.voted);
-    btn.querySelector('.vote-count').textContent = data.votes;
+    const c = document.getElementById('fitVoteCount');
+    if (c) c.textContent = data.votes;
   }
 }
 </script>

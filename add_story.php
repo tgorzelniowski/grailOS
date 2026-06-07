@@ -61,7 +61,7 @@ require_once 'includes/header.php';
 
     <!-- ROZMIAR / OBRÓT zaznaczonego -->
     <div class="story-size-bar">
-      <span class="story-size-label">Zaznaczony:</span>
+      <span class="story-size-label">Element / zdjęcie:</span>
       <button type="button" class="story-mini-btn" onclick="scaleSelected(0.85)">A−</button>
       <button type="button" class="story-mini-btn" onclick="scaleSelected(1.18)">A+</button>
       <button type="button" class="story-mini-btn" onclick="rotateSelected(-15)">⟲</button>
@@ -143,6 +143,7 @@ let bgDrag = null;   // przeciąganie tła
 let bgMode = 'cover';   // 'cover' | 'contain'
 let bgScale = 1;
 let bgOffsetX = 0, bgOffsetY = 0;
+let bgRot = 0;          // obrót zdjęcia tła (stopnie)
 
 // --- Filtry ---
 const FILTERS = [
@@ -226,7 +227,7 @@ function loadStoryImage(input) {
     im.onload = () => {
       baseImg = im;
       objects = []; selected = -1; curFilter = 'none';
-      bgMode = 'cover'; bgScale = 1; bgOffsetX = 0; bgOffsetY = 0;
+      bgMode = 'cover'; bgScale = 1; bgOffsetX = 0; bgOffsetY = 0; bgRot = 0;
       document.getElementById('bgZoom').value = 1;
       document.getElementById('storyPick').style.display = 'none';
       document.getElementById('storyEditor').style.display = 'block';
@@ -247,10 +248,13 @@ function drawBase() {
     if (ir > cr) { w = cw; h = cw / ir; } else { h = ch; w = ch * ir; }
   }
   w *= bgScale; h *= bgScale;
-  const x = (cw - w) / 2 + bgOffsetX, y = (ch - h) / 2 + bgOffsetY;
   ctx.fillStyle = '#0a0a0a';
   ctx.fillRect(0, 0, cw, ch);
-  ctx.drawImage(baseImg, x, y, w, h);
+  ctx.save();
+  ctx.translate(cw / 2 + bgOffsetX, ch / 2 + bgOffsetY);
+  if (bgRot) ctx.rotate(bgRot * Math.PI / 180);
+  ctx.drawImage(baseImg, -w / 2, -h / 2, w, h);
+  ctx.restore();
 }
 
 function drawObj(o, idx, showSelection) {
@@ -373,6 +377,7 @@ function onTouchMove(e) {
       objects[selected].rot  = (objects[selected].rot || 0) + da;
     } else {
       bgScale = Math.max(0.3, Math.min(5, bgScale * ratio));
+      bgRot += da;
       document.getElementById('bgZoom').value = Math.min(3, bgScale);
     }
     gesture.dist = d; gesture.angle = a;
@@ -421,12 +426,12 @@ function addBadge(txt, col) {
 }
 function deleteSelected() { if (selected >= 0) { objects.splice(selected,1); selected=-1; render(); } }
 function scaleSelected(f) {
-  if (selected < 0) return;
+  if (selected < 0) { bgScale = Math.max(0.3, Math.min(5, bgScale * f)); render(); return; }
   objects[selected].size = Math.max(14, Math.min(420, objects[selected].size * f));
   render();
 }
 function rotateSelected(deg) {
-  if (selected < 0) return;
+  if (selected < 0) { bgRot += deg; render(); return; }  // nic nie zaznaczone → obróć zdjęcie
   objects[selected].rot = (objects[selected].rot || 0) + deg; render();
 }
 function setStoryFilter(f, btn) {
