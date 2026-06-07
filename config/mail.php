@@ -1,28 +1,20 @@
 <?php
 // ============================================================
-//  GrailOS — konfiguracja poczty
-//  Uzupełnij swoje dane SMTP poniżej
+//  GrailOS — konfiguracja poczty (LH.pl / grailos.pl)
 // ============================================================
 
-// Nadawca
-// WAŻNE: przy SMTP MAIL_FROM musi być adresem uwierzytelnianej skrzynki
-// (MAIL_USER) lub jej dozwolonym aliasem — inaczej serwer odrzuci wysyłkę.
-define('MAIL_FROM',      'noreply@grailos.com');
+// Nadawca — MAIL_FROM musi być adresem uwierzytelnianej skrzynki (MAIL_USER)
+define('MAIL_FROM',      'no-reply@grailos.pl');
 define('MAIL_FROM_NAME', 'GrailOS');
 
-// URL serwisu (bez końcowego /) — używany w linkach w mailach.
-// Na produkcji ustaw realny adres, np. 'https://twojadomena.pl/grailos'
-define('MAIL_SITE_URL',  'http://localhost/grailos');
+// URL serwisu (bez końcowego /)
+define('MAIL_SITE_URL',  'https://grailos.pl');
 define('MAIL_SITE_NAME', 'GrailOS');
 
-// ---- Konfiguracja SMTP ----
-// 1. Ustaw MAIL_SMTP na true.
-// 2. Uzupełnij dane SMTP z panelu hostingu.
-//    PORT 587 = STARTTLS,  PORT 465 = SSL (oba obsługiwane).
-//    Gmail: HOST=smtp.gmail.com, PORT=587, MAIL_PASS = "hasło aplikacji".
-// 3. Ustaw MAIL_FROM na adres tej samej skrzynki co MAIL_USER (patrz wyżej).
-define('MAIL_SMTP',      false);
-define('MAIL_HOST',      'smtp.gmail.com');
-define('MAIL_PORT',      587);
-define('MAIL_USER',      'twoj@email.com');
-define('MAIL_PASS',      'twoje_haslo_aplikacji');
+// ---- SMTP (LH.pl) ----
+// Port 465 = SSL. Host i port z panelu poczty.
+define('MAIL_SMTP',      true);
+define('MAIL_HOST',      'mail-serwer452079.lh.pl');
+define('MAIL_PORT',      465);
+define('MAIL_USER',      'no-reply@grailos.pl');
+define('MAIL_PASS',      'TUTAJ_HASLO_SKRZYNKI_no-reply');  // <-- wpisz hasło skrzynki no-reply@grailos.pl
