@@ -34,6 +34,26 @@ $seo_robots = $meta_robots ?? 'index, follow';
 <!DOCTYPE html>
 <html lang="pl">
 <head>
+  <!-- Google tag (gtag.js) + Consent Mode v2 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-88GNK9L9GG"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    // Domyślnie BEZ zgody na analitykę/reklamy (RODO) — włączamy po akceptacji w bannerze cookie
+    gtag('consent', 'default', {
+      'ad_storage': 'denied',
+      'ad_user_data': 'denied',
+      'ad_personalization': 'denied',
+      'analytics_storage': 'denied'
+    });
+    <?php if (($_COOKIE['grailos_consent'] ?? '') === 'all'): ?>
+    // Użytkownik wcześniej zaakceptował wszystkie cookie
+    gtag('consent', 'update', { 'analytics_storage': 'granted' });
+    <?php endif; ?>
+    gtag('js', new Date());
+    gtag('config', 'G-88GNK9L9GG');
+  </script>
+
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><?= htmlspecialchars($seo_title) ?></title>

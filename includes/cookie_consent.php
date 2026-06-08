@@ -70,6 +70,11 @@ function cookies_decided(): bool        { return cookie_consent_level() !== ''; 
   document.body.style.overflow = 'hidden';
 
   window.cookieChoose = function(action) {
+    // Consent Mode: włącz analitykę natychmiast po akceptacji wszystkich cookie
+    if (action === 'all' && typeof gtag === 'function') {
+      gtag('consent', 'update', { 'analytics_storage': 'granted' });
+    }
+
     document.body.style.overflow = '';
     const overlay = document.getElementById('cookieOverlay');
     if (overlay) {
