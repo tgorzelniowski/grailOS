@@ -102,6 +102,7 @@ $seo_robots = $meta_robots ?? 'index, follow';
   <link rel="stylesheet" href="/assets/css/style.css">
   <?= $seo_jsonld ?? '' ?>
   <meta name='impact-site-verification' value='ac50d77f-a1bf-4b6c-944d-c230d63aff0c'>
+  <meta name="google-site-verification" content="RLzoFADavWV2uaoixHPbIjNLduWLQlP38mYA3-MdIP8" />
 </head>
 <body>
 
