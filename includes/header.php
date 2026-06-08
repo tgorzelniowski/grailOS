@@ -63,6 +63,7 @@ $seo_robots = $meta_robots ?? 'index, follow';
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/assets/css/style.css">
   <?= $seo_jsonld ?? '' ?>
+  <meta name='impact-site-verification' value='ac50d77f-a1bf-4b6c-944d-c230d63aff0c'>
 </head>
 <body>
 
