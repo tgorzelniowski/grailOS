@@ -70,9 +70,17 @@ function cookies_decided(): bool        { return cookie_consent_level() !== ''; 
   document.body.style.overflow = 'hidden';
 
   window.cookieChoose = function(action) {
-    // Consent Mode: włącz analitykę natychmiast po akceptacji wszystkich cookie
-    if (action === 'all' && typeof gtag === 'function') {
-      gtag('consent', 'update', { 'analytics_storage': 'granted' });
+    // Consent Mode: zaktualizuj zgodę natychmiast po decyzji (bez przeładowania)
+    if (typeof gtag === 'function') {
+      var v = action === 'all' ? 'granted' : 'denied';
+      gtag('consent', 'update', {
+        'ad_storage': v,
+        'ad_user_data': v,
+        'ad_personalization': v,
+        'analytics_storage': v,
+        'functionality_storage': v,
+        'personalization_storage': v
+      });
     }
 
     document.body.style.overflow = '';

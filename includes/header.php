@@ -39,17 +39,35 @@ $seo_robots = $meta_robots ?? 'index, follow';
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
-    // Domyślnie BEZ zgody na analitykę/reklamy (RODO) — włączamy po akceptacji w bannerze cookie
+
+    // Consent Mode v2 (advanced) — domyślnie BRAK zgody, dopóki użytkownik nie zdecyduje w bannerze.
+    // Obejmuje użytkowników z EOG (RODO). wait_for_update wstrzymuje tagi na czas decyzji.
     gtag('consent', 'default', {
       'ad_storage': 'denied',
       'ad_user_data': 'denied',
       'ad_personalization': 'denied',
-      'analytics_storage': 'denied'
+      'analytics_storage': 'denied',
+      'functionality_storage': 'denied',
+      'personalization_storage': 'denied',
+      'security_storage': 'granted',
+      'wait_for_update': 500
     });
+    // Prywatność przy braku zgody: redakcja danych reklamowych + przekazywanie kliknięć w URL
+    gtag('set', 'ads_data_redaction', true);
+    gtag('set', 'url_passthrough', true);
+
     <?php if (($_COOKIE['grailos_consent'] ?? '') === 'all'): ?>
-    // Użytkownik wcześniej zaakceptował wszystkie cookie
-    gtag('consent', 'update', { 'analytics_storage': 'granted' });
+    // Użytkownik wcześniej zaakceptował wszystkie cookie — przywróć zgodę od razu
+    gtag('consent', 'update', {
+      'ad_storage': 'granted',
+      'ad_user_data': 'granted',
+      'ad_personalization': 'granted',
+      'analytics_storage': 'granted',
+      'functionality_storage': 'granted',
+      'personalization_storage': 'granted'
+    });
     <?php endif; ?>
+
     gtag('js', new Date());
     gtag('config', 'G-88GNK9L9GG');
   </script>
