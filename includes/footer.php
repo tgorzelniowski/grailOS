@@ -28,8 +28,8 @@
   </div>
 
   <div class="footer-socials">
-    <a href="https://instagram.com/" target="_blank" rel="noopener" class="footer-social" title="Instagram">Instagram</a>
-    <a href="https://tiktok.com/" target="_blank" rel="noopener" class="footer-social" title="TikTok">TikTok</a>
+    <a href="https://www.instagram.com/grailos.pl/" target="_blank" rel="noopener" class="footer-social" title="Instagram">Instagram</a>
+    <a href="https://www.tiktok.com/@grailos" target="_blank" rel="noopener" class="footer-social" title="TikTok">TikTok</a>
     <a href="https://discord.com/" target="_blank" rel="noopener" class="footer-social" title="Discord">Discord</a>
   </div>
 
