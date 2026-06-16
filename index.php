@@ -63,7 +63,7 @@
 
   if ($drops):
     foreach ($drops as $drop):
-      $days = (int)ceil((strtotime($drop['drop_date']) - time()) / 86400);
+      $days = (int)(new DateTime('today'))->diff(new DateTime(date('Y-m-d', strtotime($drop['drop_date']))))->format('%r%a');
 ?>
   <a href="/drop.php?id=<?= $drop['id'] ?>" class="drop-row-full-link">
     <div class="drop-img-wrap">

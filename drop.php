@@ -26,7 +26,7 @@ $all_imgs = [];
 if ($drop['image_url']) $all_imgs[] = $drop['image_url'];
 foreach ($extra_imgs as $img) $all_imgs[] = $img['image_url'];
 
-$days = (int)ceil((strtotime($drop['drop_date']) - time()) / 86400);
+$days = (int)(new DateTime('today'))->diff(new DateTime(date('Y-m-d', strtotime($drop['drop_date']))))->format('%r%a');
 
 $is_notified = false;
 if ($uid) {
