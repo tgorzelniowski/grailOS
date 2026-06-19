@@ -58,7 +58,7 @@
 <div class="section-label">/// Upcoming drops</div>
 <div class="drops-list">
 <?php
-  $stmt = $pdo->query("SELECT * FROM drops ORDER BY drop_date ASC LIMIT 3");
+  $stmt = $pdo->query("SELECT * FROM drops WHERE drop_date >= CURDATE() ORDER BY drop_date ASC LIMIT 3");
   $drops = $stmt->fetchAll();
 
   if ($drops):

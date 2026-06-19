@@ -9,7 +9,9 @@ $drops = $pdo->prepare("
     FROM drops
     LEFT JOIN drop_hypes dh ON drops.id = dh.drop_id
     GROUP BY drops.id
-    ORDER BY drops.drop_date ASC
+    ORDER BY (drops.drop_date >= CURDATE()) DESC,
+             CASE WHEN drops.drop_date >= CURDATE() THEN drops.drop_date END ASC,
+             drops.drop_date DESC
 ");
 $drops->execute([$uid]);
 $drops = $drops->fetchAll();
@@ -46,7 +48,9 @@ require_once 'includes/header.php';
       <div class="drop-brand"><?= htmlspecialchars($drop['brand']) ?></div>
       <div class="drop-name"><?= htmlspecialchars($drop['name']) ?></div>
       <div class="drop-countdown">
-        <?php if ($days <= 0): ?>
+        <?php if ($days < 0): ?>
+          <span style="color:var(--gray)">Drop już był</span>
+        <?php elseif ($days === 0): ?>
           <span style="color:var(--red)">DZIŚ</span>
         <?php elseif ($days === 1): ?>
           <span style="color:var(--red)">JUTRO</span>
