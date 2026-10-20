@@ -65,13 +65,39 @@ Nad czym było najciekawiej pracować:
 
 ## 🖼️ Zrzuty ekranu
 
-<p align="center">
-  <img src="docs/screenshots/home.png" width="45%" />
-  <img src="docs/screenshots/catalog.png" width="45%" />
-  <img src="docs/screenshots/product.png" width="45%" />
-  <img src="docs/screenshots/homemobile.png" width="45%" />
-  <img src="docs/screenshots/catalogmobile.png" width="45%" />
-</p>
+💻 Desktop
+<table align="center">
+  <tr>
+    <td align="center" width="100%">
+      <img src="docs/screenshots/home.png" alt="Strona główna - pc" width="100%" />
+      <br><sub><b>Strona główna</b></sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" width="50%">
+      <img src="docs/screenshots/catalog.png" alt="Katalog" width="100%" />
+      <br><sub><b>Katalog</b> – filtry po kategorii i marce</sub>
+    </td>
+    <td align="center" width="50%">
+      <img src="docs/screenshots/product.png" alt="Strona produktu" width="100%" />
+      <br><sub><b>Produkt</b> – galeria i porównanie sklepów</sub>
+    </td>
+  </tr>
+</table>
+📱 Mobile
+<table align="center">
+  <tr> 
+    <td align="center" width="50%"> 
+      <img src="docs/screenshots/homemobile.png" alt="Strona główna – mobile" width="260" />
+      <br> <sub><b>Strona główna</b></sub> 
+    </td> 
+    <td align="center" width="50%"> 
+      <img src="docs/screenshots/catalogmobile.png" alt="Katalog – mobile" width="260" />
+      <br> <sub><b>Katalog</b></sub> 
+    </td> 
+  </tr> 
+</table> 
+<p align="center"><i>Pełną wersję możesz zobaczyć na żywo: <b><a href="https://grailos.pl">grailos.pl</a></b></i></p>
 
 *Pełną wersję możesz zobaczyć na żywo: **[grailos.pl](https://grailos.pl)***
 
