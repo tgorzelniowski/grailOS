@@ -66,24 +66,22 @@ Nad czym było najciekawiej pracować:
 ## 🖼️ Zrzuty ekranu
 
 💻 Desktop
-<table align="center">
-  <tr>
-    <td align="center" width="100%">
-      <img src="docs/screenshots/home.png" alt="Strona główna - pc" width="100%" />
-      <br><sub><b>Strona główna</b></sub>
-    </td>
-  </tr>
-  <tr>
-    <td align="center" width="50%">
-      <img src="docs/screenshots/catalog.png" alt="Katalog" width="100%" />
-      <br><sub><b>Katalog</b> – filtry po kategorii i marce</sub>
-    </td>
-    <td align="center" width="50%">
-      <img src="docs/screenshots/product.png" alt="Strona produktu" width="100%" />
-      <br><sub><b>Produkt</b> – galeria i porównanie sklepów</sub>
-    </td>
-  </tr>
-</table>
+<div align="center">
+<img src="docs/screenshots/home.png" alt="Strona główna" width="100%" />
+<sub><b>Strona główna</b></sub>
+</div>
+
+<br>
+
+<div align="center">
+<img src="docs/screenshots/catalog.png" alt="Katalog" width="49%" />
+<img src="docs/screenshots/product.png" alt="Produkt" width="49%" />
+</div>
+<div align="center">
+<sub><b>Katalog</b> – filtry po kategorii i marce</sub>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<sub><b>Produkt</b> – galeria i porównanie sklepów</sub>
+</div>
 📱 Mobile
 <table align="center">
   <tr> 
