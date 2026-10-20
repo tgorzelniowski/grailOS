@@ -65,8 +65,6 @@ Nad czym było najciekawiej pracować:
 
 ## 🖼️ Zrzuty ekranu
 
-<!-- Dodaj tutaj 3–4 screeny, np. w folderze docs/screenshots/ -->
-<!--
 <p align="center">
   <img src="docs/screenshots/home.png" width="45%" />
   <img src="docs/screenshots/catalog.png" width="45%" />
@@ -74,7 +72,6 @@ Nad czym było najciekawiej pracować:
   <img src="docs/screenshots/homemobile.png" width="45%" />
   <img src="docs/screenshots/catalogmobile.png" width="45%" />
 </p>
--->
 
 *Pełną wersję możesz zobaczyć na żywo: **[grailos.pl](https://grailos.pl)***
 
